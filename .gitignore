@@ -1,0 +1,16 @@
+# Folders
+
+build/*
+.vscode
+
+# Files
+
+*.ppm
+*.png
+*.exr
+imgui.ini
+CMakeLists.txt.user
+
+# For vim
+compile_commands.json
+.cache

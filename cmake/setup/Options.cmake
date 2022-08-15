@@ -1,0 +1,5 @@
+add_definitions(
+    -DPROJECT_SOURCE_DIR=\"${PROJECT_SOURCE_DIR}\"
+)
+
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
