@@ -3,6 +3,8 @@
 
 #include <memory>
 #include <vector>
+#include <unordered_map>
+#include <unordered_set>
 #include <functional>
 
 #include <spindulys/sampler.h>
@@ -23,7 +25,7 @@ class RenderManager
 		using RegisterUpdates = std::function<bool(RenderManager*)>;
 		using DrawBuffer      = std::function<void(int, int, const Buffer3f&)>;
 
-		enum IntegratorIds {
+		enum class IntegratorIds {
 			UDPT = 0,
 			Diffuse,
 			Occlusion,
@@ -31,6 +33,16 @@ class RenderManager
 			Normal,
 			Debug,
 		};
+
+		enum class BufferIds {
+			Beauty = 0,
+			Diffuse,
+			Position,
+			Normal,
+			Debug,
+		};
+
+		using Buffers = std::unordered_map<BufferIds, std::unique_ptr<Buffer3f>>;
 
 		struct RenderGlobals
 		{
@@ -40,6 +52,9 @@ class RenderManager
 			int depth = 3;                                     // The maximum ray depth, or number of bounces, the renderer can make use of.
 			int samples = 1;                                   // Total number of samples per pixel to compute.
 			IntegratorIds integratorID = IntegratorIds::UDPT;  // The ID of the integrator currently being used by the renderer.
+			BufferIds bufferID = BufferIds::Beauty;            // The current buffer being read.
+			std::unordered_set<BufferIds> currentBufferIds =   // Available buffers to read.
+				{ BufferIds::Beauty, BufferIds::Diffuse, BufferIds::Position, BufferIds::Normal, BufferIds::Debug };
 		};
 
 		RenderManager();
@@ -54,8 +69,6 @@ class RenderManager
 		void SetRenderDirty() { update = true; }
 		bool RenderDirty() const { return (update || scene->SceneDirty()); }
 
-		const Buffer3f& GetBuffer() { return buffer; }
-
 		void Render();
 		void ResetRender();
 		virtual void Trace(int iterations) = 0;
@@ -65,18 +78,27 @@ class RenderManager
 		bool SetDepth(int depth)                       { return depth         != std::exchange(renderGlobals.depth, depth);                 }
 		bool SetSamples(int samples)                   { return samples       != std::exchange(renderGlobals.samples, samples);             }
 		bool SetIntegrator(IntegratorIds integratorID) { return integratorID  != std::exchange(renderGlobals.integratorID, integratorID);   }
+		bool SetCurrentBuffer(BufferIds bufferID)      { return bufferID      != std::exchange(renderGlobals.bufferID, bufferID);           } // Note that the render does NOT need to be reset after this.
+
+		// Unique Add method that also returns true if class parameter was changed
+		bool AddBuffer(BufferIds bufferID);
 
 		// Get Methods
-		int           GetMaxIterations() const { return renderGlobals.maxIterations; }
-		int           GetDepth()         const { return renderGlobals.depth;         }
-		int           GetSamples()       const { return renderGlobals.samples;       }
-		IntegratorIds GetIntegrator()    const { return renderGlobals.integratorID;  }
+		int             GetMaxIterations() const { return renderGlobals.maxIterations;                 }
+		int             GetDepth()         const { return renderGlobals.depth;                         }
+		int             GetSamples()       const { return renderGlobals.samples;                       }
+		IntegratorIds   GetIntegrator()    const { return renderGlobals.integratorID;                  }
+		const Buffer3f& GetBuffer()        const { return *(buffers.at(renderGlobals.bufferID).get()); }
+		const Buffers&  GetBuffers()       const { return buffers;                                     }
 
 		std::unique_ptr<Camera> mainCamera;
 
 	protected:
 		RenderGlobals renderGlobals;
+
 		Buffer3f buffer = Buffer3f(renderGlobals.width, renderGlobals.height);
+		Buffers buffers;
+
 		Scene* scene = nullptr;
 
 		bool update = false;

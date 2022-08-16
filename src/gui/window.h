@@ -53,16 +53,11 @@ class Window
 		bool renderConfigState = false;
 		bool profilingState = true;
 		bool aboutState = false;
-		bool pauseState = false;
-		bool swapState = false;
 		float deltaTime = 0.0f;
 		float lastFrame = 0.0f;
 
 		GLFWwindow* window;
 		RenderManager::RenderGlobals renderGlobals;
-
-		Buffer3f frontBuffer = Buffer3f(renderGlobals.width, renderGlobals.height);
-		Buffer3f backBuffer  = Buffer3f(renderGlobals.width, renderGlobals.height);
 
 		Vec2f prevMousePos = Vec2f(renderGlobals.width / 2.0f, renderGlobals.height / 2.0f);
 
@@ -71,8 +66,6 @@ class Window
 		GLuint screenTextureID;
 
 		GLShader screenQuadShader;
-
-		// ImGuiIO guiIO;
 };
 
 GUI_NAMESPACE_CLOSE_SCOPE

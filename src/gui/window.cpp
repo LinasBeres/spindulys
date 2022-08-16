@@ -168,12 +168,6 @@ void Window::SetupGUI(RenderManager* renderManager)
 			ImGui::Separator();
 			ImGui::MenuItem("Config", NULL, &renderConfigState);
 
-			if (!swapState)
-			{
-				ImGui::Separator();
-				ImGui::Checkbox("Pause Render", &pauseState);
-			}
-
 			ImGui::EndMenu();
 		}
 
@@ -240,22 +234,6 @@ void Window::RenderConfigWindow(bool& guiOpen)
 
 	ImGui::Separator();
 
-	if (!swapState)
-	{
-		if (ImGui::Button("Save To Back Buffer"))
-		{
-			backBuffer.Clean(renderGlobals.width, renderGlobals.height);
-			backBuffer.Swap(frontBuffer);
-		}
-	}
-	if (ImGui::Button("Swap Buffers"))
-	{
-		frontBuffer.Swap(backBuffer);
-		RenderToScreenTexture(renderGlobals.width, renderGlobals.height, frontBuffer);
-
-		swapState = !swapState;
-		pauseState = true;
-	}
 
 	ImGui::End();
 }
