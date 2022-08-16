@@ -45,6 +45,8 @@ class Window
 		void CleanScreenQuad();
 		void DrawScreenQuad();
 
+		bool CloseWindow() { glfwPollEvents(); return glfwWindowShouldClose(window); }
+
 	private:
 		bool firstMouse = true;
 		bool renderReset = false;

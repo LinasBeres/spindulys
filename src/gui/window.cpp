@@ -1,5 +1,7 @@
 #include "window.h"
 
+#include <functional>
+
 #include "output_helper.h"
 
 
@@ -21,8 +23,6 @@ int Window::RenderWindow()
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // Enable vsync
 
-	// glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-
 	gladLoadGL();
 
 	IMGUI_CHECKVERSION();
@@ -39,83 +39,68 @@ int Window::RenderWindow()
 	renderManager.mainCamera->SetResolution(Vec2f(renderGlobals.width, renderGlobals.height));
 	renderManager.mainCamera->Init();
 
+	RenderManager::StopRenderer stopRenderingFunction = std::bind(&Window::CloseWindow, this);
+	renderManager.SetStopRendererCallback(stopRenderingFunction);
+
+	RenderManager::DrawBuffer drawBufferFunction = std::bind(&Window::RenderToScreenTexture, this,
+			std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+	renderManager.SetBufferCallback(drawBufferFunction);
 
 	SetupScreenQuad(renderGlobals.width, renderGlobals.height);
 
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	while (!glfwWindowShouldClose(window))
-	{
-		float currentFrame(glfwGetTime());
-		deltaTime = currentFrame - lastFrame;
-		lastFrame = currentFrame;
+	float currentFrame(glfwGetTime());
+	deltaTime = currentFrame - lastFrame;
+	lastFrame = currentFrame;
 
-		glfwPollEvents();
+	SetupGUI();
+	KeyboardCallback(guiIO);
 
-		// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	Vec2f mousePos(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
+	if (prevMousePos.x != mousePos.x || prevMousePos.y != mousePos.y)
+		MouseCallback(guiIO, mousePos);
+	renderManager.Render();
 
-		//--------------
-		// GUI setting & callbacks
-		//--------------
-		SetupGUI();
+	// while (!glfwWindowShouldClose(window))
+	// {
+		// float currentFrame(glfwGetTime());
+		// deltaTime = currentFrame - lastFrame;
+		// lastFrame = currentFrame;
+//
+		// glfwPollEvents();
+		// SetupGUI();
+		// KeyboardCallback(guiIO);
+//
+		// Vec2f mousePos(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
+		// if (prevMousePos.x != mousePos.x || prevMousePos.y != mousePos.y)
+			// MouseCallback(guiIO, mousePos);
+//
+		// // TODO: Will make use of Qt's callback system once the GUI will be revamped.
+		// if (renderManager.renderGlobals.integratorID != renderGlobals.integratorID)
+		// {
+			// renderManager.renderGlobals.integratorID = renderGlobals.integratorID;
+			// renderReset = true;
+		// }
+//
+		// //--------------
+		// // CPU Rendering
+		// //--------------
+		// if (!pauseState)
+		// {
+			// // If anything changed in the camera, scene, settings, etc, we flush the rendered data and reinit them again
+			// if (renderReset)
+				// ResetRenderer();
+//
+			// // Progressive rendering
+			// // if (iterations++ < 20)
+				// // renderManager.Trace(iterations);
+		// }
+//
+		// RenderToScreenTexture(renderGlobals.width, renderGlobals.height, renderManager.GetBuffer());
+	// }
 
-		KeyboardCallback(guiIO);
-
-		// ImVec2 mousePos(ImGui::GetMousePos());
-		Vec2f mousePos(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
-
-		if (prevMousePos.x != mousePos.x || prevMousePos.y != mousePos.y)
-			MouseCallback(guiIO, mousePos);
-
-		// TODO: Will make use of Qt's callback system once the GUI will be revamped.
-		if (renderManager.renderGlobals.integratorID != renderGlobals.integratorID)
-		{
-			renderManager.renderGlobals.integratorID = renderGlobals.integratorID;
-
-			renderReset = true;
-		}
-
-		//--------------
-		// CPU Rendering
-		//--------------
-		if (!pauseState)
-		{
-			// If anything changed in the camera, scene, settings, etc, we flush the rendered data and reinit them again
-			if (renderReset)
-				ResetRenderer();
-
-			// Progressive rendering
-			if (iterations++ < 20)
-			{
-				renderManager.Trace(iterations);
-				// std::cerr << renderManager.GetBuffer() << "\n";
-			}
-
-			RenderToScreenTexture(renderGlobals.width, renderGlobals.height, renderManager.GetBuffer());
-		}
-
-		DrawScreenQuad();
-
-		//----------------
-		// GUI rendering
-		//----------------
-		RenderGUI();
-
-		// ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		// glfwGetFramebufferSize(window, &renderGlobals.width, &renderGlobals.height);
-		// glViewport(0, 0, renderGlobals.width, renderGlobals.height);
-		// glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
-		// glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-
-		glfwSwapBuffers(window);
-	}
-
-	//---------
-	// Cleaning
-	//---------
 	StopGUI();
-
 	glfwTerminate();
 
 	return 0;
@@ -405,6 +390,11 @@ void Window::RenderToScreenTexture(int width, int height, const Buffer3f& buffer
 	glActiveTexture(GL_TEXTURE0);
 
 	glBindTexture(GL_TEXTURE_2D, screenTextureID);
+
+	DrawScreenQuad();
+	RenderGUI();
+	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+	glfwSwapBuffers(window);
 }
 
 void Window::SetupScreenQuad(int width, int height)

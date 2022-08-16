@@ -12,4 +12,19 @@ RenderManager::~RenderManager()
 	delete scene;
 }
 
+void RenderManager::Render()
+{
+	while (!stopRendererFunction())
+	{
+		if (updateRendererFunction)
+			updateRendererFunction(this);
+
+		if (iterations++ < renderGlobals.maxIterations)
+			Trace(iterations);
+
+		if (drawBufferFunction)
+			drawBufferFunction(renderGlobals.width, renderGlobals.height, buffer);
+	}
+}
+
 FRONTEND_NAMESPACE_CLOSE_SCOPE
