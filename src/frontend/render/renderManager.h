@@ -19,9 +19,9 @@ FRONTEND_NAMESPACE_OPEN_SCOPE
 class RenderManager
 {
 	public:
-		using StopRenderer = std::function<bool(void)>;
+		using StopRenderer    = std::function<bool(void)>;
 		using RegisterUpdates = std::function<bool(RenderManager*)>;
-		using DrawBuffer = std::function<void(int, int, const Buffer3f&)>;
+		using DrawBuffer      = std::function<void(int, int, const Buffer3f&)>;
 
 		enum IntegratorIds {
 			UDPT = 0,
@@ -40,11 +40,10 @@ class RenderManager
 			int depth = 3;                                     // The maximum ray depth, or number of bounces, the renderer can make use of.
 			int samples = 1;                                   // Total number of samples per pixel to compute.
 			IntegratorIds integratorID = IntegratorIds::UDPT;  // The ID of the integrator currently being used by the renderer.
-			bool rayJitter = true;                             // Define whether the camera rays should be jittered or not.
 		};
 
 		RenderManager();
-		~RenderManager();
+		virtual ~RenderManager();
 
 		bool LoadScene(const std::string& filepath) { return scene->LoadScene(filepath); }
 
@@ -52,17 +51,31 @@ class RenderManager
 		void SetBufferCallback(DrawBuffer drawFunction)         { drawBufferFunction = drawFunction; }
 		void SetUpdateCallback(RegisterUpdates updateFunction)  { updateRendererFunction = updateFunction; }
 
+		void SetRenderDirty() { update = true; }
 		bool RenderDirty() const { return (update || scene->SceneDirty()); }
 
 		const Buffer3f& GetBuffer() { return buffer; }
 
 		void Render();
+		void ResetRender();
 		virtual void Trace(int iterations) = 0;
 
+		// Set Methods - return true if the class parameter was changed.
+		bool SetMaxIterations(int maxIterations)       { return maxIterations != std::exchange(renderGlobals.maxIterations, maxIterations); }
+		bool SetDepth(int depth)                       { return depth         != std::exchange(renderGlobals.depth, depth);                 }
+		bool SetSamples(int samples)                   { return samples       != std::exchange(renderGlobals.samples, samples);             }
+		bool SetIntegrator(IntegratorIds integratorID) { return integratorID  != std::exchange(renderGlobals.integratorID, integratorID);   }
+
+		// Get Methods
+		int           GetMaxIterations() const { return renderGlobals.maxIterations; }
+		int           GetDepth()         const { return renderGlobals.depth;         }
+		int           GetSamples()       const { return renderGlobals.samples;       }
+		IntegratorIds GetIntegrator()    const { return renderGlobals.integratorID;  }
+
 		std::unique_ptr<Camera> mainCamera;
-		RenderGlobals renderGlobals;
 
 	protected:
+		RenderGlobals renderGlobals;
 		Buffer3f buffer = Buffer3f(renderGlobals.width, renderGlobals.height);
 		Scene* scene = nullptr;
 
