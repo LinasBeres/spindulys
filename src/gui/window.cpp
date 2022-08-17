@@ -83,8 +83,13 @@ bool Window::PreRenderCallback(RenderManager* renderManager)
 	if (prevMousePos.x != mousePos.x || prevMousePos.y != mousePos.y)
 		MouseCallback(guiIO, mousePos, renderManager);
 
+	if(renderManager->SetSamples(renderGlobals.samples))
+		renderManager->SetRenderDirty();
 	if(renderManager->SetIntegrator(renderGlobals.integratorID))
 		renderManager->SetRenderDirty();
+
+	renderManager->SetCurrentBuffer(renderGlobals.bufferID);
+	renderManager->SetMaxIterations(renderGlobals.maxIterations);
 
 	return true;
 }
@@ -156,11 +161,17 @@ void Window::SetupGUI(RenderManager* renderManager)
 			if (ImGui::BeginMenu("Integrator"))
 			{
 				ImGui::RadioButton("UDPT", reinterpret_cast<int *>(&renderGlobals.integratorID), 0);
-				ImGui::RadioButton("Diffuse", reinterpret_cast<int *>(&renderGlobals.integratorID), 1);
-				ImGui::RadioButton("Occlusion", reinterpret_cast<int *>(&renderGlobals.integratorID), 2);
-				ImGui::RadioButton("Position", reinterpret_cast<int *>(&renderGlobals.integratorID), 3);
-				ImGui::RadioButton("Normal", reinterpret_cast<int *>(&renderGlobals.integratorID), 4);
-				ImGui::RadioButton("Debug", reinterpret_cast<int *>(&renderGlobals.integratorID), 5);
+
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Buffer"))
+			{
+				ImGui::RadioButton("Beauty", reinterpret_cast<int *>(&renderGlobals.bufferID), 0);
+				ImGui::RadioButton("Diffuse", reinterpret_cast<int *>(&renderGlobals.bufferID), 1);
+				ImGui::RadioButton("Position", reinterpret_cast<int *>(&renderGlobals.bufferID), 2);
+				ImGui::RadioButton("Normal", reinterpret_cast<int *>(&renderGlobals.bufferID), 3);
+				ImGui::RadioButton("Debug", reinterpret_cast<int *>(&renderGlobals.bufferID), 4);
 
 				ImGui::EndMenu();
 			}
@@ -229,6 +240,7 @@ void Window::RenderConfigWindow(bool& guiOpen)
 
 	ImGui::InputInt("Width", &renderGlobals.width);
 	ImGui::InputInt("Height", &renderGlobals.height);
+	ImGui::InputInt("Max Iterations", &renderGlobals.maxIterations);
 	ImGui::InputInt("Samples", &renderGlobals.samples);
 	ImGui::InputInt("Depth", &renderGlobals.depth);
 
@@ -242,6 +254,7 @@ void Window::ProfilingWindow(bool& guiOpen, RenderManager* renderManager)
 {
 	ImGui::Begin("Profiling", &guiOpen, ImGuiWindowFlags_NoTitleBar |ImGuiWindowFlags_AlwaysAutoResize);
 
+	ImGui::Text("Total Samples (iterations * samples): %d", renderManager->GetIterations() * renderManager->GetSamples());
 	ImGui::Text("Framerate: %.2f FPS / %.2f ms", ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
 	ImGui::Text("Camera Position: (%.2f, %.2f, %.2f)",
 			renderManager->mainCamera->GetPosition().x,

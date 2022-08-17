@@ -37,28 +37,20 @@ void CPURenderManager::Trace(int iterations)
 						mainCamera->GetCameraRay(pixelSample, origin, direction);
 						Ray primaryRay(origin, direction);
 
-						pixelColor += buffer.GetPixel(pixelSample.pixelIdx) * static_cast<float>(iterations - 1);
+						for (const auto& bufferID : renderGlobals.currentBufferIds)
+							buffers[bufferID]->MultiplyPixel(pixelSample.pixelIdx, static_cast<float>(iterations - 1));
 
 						if (renderGlobals.integratorID == IntegratorIds::UDPT)
-							pixelColor += UDPTIntegrator().GetPixelColor(primaryRay, pixelSample, dynamic_cast<CPUScene*>(scene), renderGlobals);
-						else if (renderGlobals.integratorID == IntegratorIds::Diffuse)
-							pixelColor += DiffuseIntegrator().GetPixelColor(primaryRay, pixelSample, dynamic_cast<CPUScene*>(scene), renderGlobals);
-						else if (renderGlobals.integratorID == IntegratorIds::Occlusion)
-							pixelColor += OcclusionIntegrator().GetPixelColor(primaryRay, pixelSample, dynamic_cast<CPUScene*>(scene), renderGlobals);
-						else if (renderGlobals.integratorID == IntegratorIds::Position)
-							pixelColor += PositionIntegrator().GetPixelColor(primaryRay, pixelSample, dynamic_cast<CPUScene*>(scene), renderGlobals);
-						else if (renderGlobals.integratorID == IntegratorIds::Normal)
-							pixelColor += NormalIntegrator().GetPixelColor(primaryRay, pixelSample, dynamic_cast<CPUScene*>(scene), renderGlobals);
-						else if (renderGlobals.integratorID == IntegratorIds::Debug)
-							pixelColor += DebugIntegrator().GetPixelColor(primaryRay, pixelSample, dynamic_cast<CPUScene*>(scene), renderGlobals);
+							UDPTIntegrator().GetPixelColor(primaryRay, pixelSample, dynamic_cast<CPUScene*>(scene), buffers, renderGlobals);
 
-						pixelColor *= (1.f / renderGlobals.samples);
+						for (const auto& bufferID : renderGlobals.currentBufferIds)
+							buffers[bufferID]->MultiplyPixel(pixelSample.pixelIdx, 1.f / renderGlobals.samples);
 
 						++pixelSample.sampleIdx;
 					}
 
-					buffer.SetPixel(pixelSample.pixelIdx, pixelColor / static_cast<float>(iterations));
-					// std::cerr << "pixel set to: " << buffer.GetPixel(pixelSample.pixelIdx) << "
+					for (const auto& bufferID : renderGlobals.currentBufferIds)
+						buffers[bufferID]->MultiplyPixel(pixelSample.pixelIdx, 1.f / static_cast<float>(iterations));
 				}
 			}
 		});

@@ -6,12 +6,15 @@ FRONTEND_NAMESPACE_OPEN_SCOPE
 RenderManager::RenderManager()
 {
 	for (const auto& bufferID : renderGlobals.currentBufferIds)
-		buffers[bufferID] = std::unique_ptr<Buffer3f>(new Buffer3f(renderGlobals.width, renderGlobals.height));
+		buffers[bufferID] = new Buffer3f(renderGlobals.width, renderGlobals.height);
 }
 
 RenderManager::~RenderManager()
 {
 	delete scene;
+
+	for (const auto& bufferID : renderGlobals.currentBufferIds)
+		delete buffers[bufferID];
 }
 
 void RenderManager::Render()
@@ -24,18 +27,23 @@ void RenderManager::Render()
 		if (update)
 			ResetRender();
 
-		if (iterations++ < renderGlobals.maxIterations)
+		if (iterations < renderGlobals.maxIterations)
+		{
+			iterations++;
 			Trace(iterations);
+		}
 
 		if (drawBufferFunction)
-			drawBufferFunction(renderGlobals.width, renderGlobals.height, buffer);
+			drawBufferFunction(renderGlobals.width, renderGlobals.height, *(buffers[renderGlobals.bufferID]));
 	}
 }
 
 void RenderManager::ResetRender()
 {
 	iterations = 0;
-	buffer.Clean(renderGlobals.width, renderGlobals.height);
+
+	for (const auto& bufferID : renderGlobals.currentBufferIds)
+		buffers[bufferID]->Clean(renderGlobals.width, renderGlobals.height);
 
 	update = false;
 }
@@ -47,7 +55,23 @@ bool RenderManager::AddBuffer(BufferIds bufferID)
 		return false;
 
 	renderGlobals.currentBufferIds.emplace(bufferID);
-	buffers[bufferID] = std::unique_ptr<Buffer3f>(new Buffer3f(renderGlobals.width, renderGlobals.height));
+	buffers[bufferID] = new Buffer3f(renderGlobals.width, renderGlobals.height);
+
+	return true;
+}
+
+bool RenderManager::RemoveBuffer(BufferIds bufferID)
+{
+	// Beauty cannot be removed
+	if (bufferID == BufferIds::Beauty)
+		return false;
+
+	// Current buffer already exists so do nothing and signify that no update needs to happen.
+	if (renderGlobals.currentBufferIds.find(bufferID) != renderGlobals.currentBufferIds.end())
+		return false;
+
+	renderGlobals.currentBufferIds.erase(bufferID);
+	delete buffers[bufferID];
 
 	return true;
 }

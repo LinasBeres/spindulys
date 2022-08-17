@@ -2,7 +2,8 @@ file(GLOB BACKEND_CPU_HEADERS
 	bsdf/*.h
 	camera/*.h
 	geometry/*.h
-	integrator/*.h
+	integrator/integrator.h
+	integrator/udpt.h
 	render/*.h
 	scene/*.h
 	spindulysCPUBackend.h
@@ -12,7 +13,8 @@ file(GLOB BACKEND_CPU_SOURCES
 	bsdf/*.cpp
 	camera/*.cpp
 	geometry/*.cpp
-	integrator/*.cpp
+	integrator/integrator.cpp
+	integrator/udpt.cpp
 	render/*.cpp
 	scene/*.cpp
 )

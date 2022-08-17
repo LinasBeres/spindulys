@@ -27,11 +27,6 @@ class RenderManager
 
 		enum class IntegratorIds {
 			UDPT = 0,
-			Diffuse,
-			Occlusion,
-			Position,
-			Normal,
-			Debug,
 		};
 
 		enum class BufferIds {
@@ -42,7 +37,7 @@ class RenderManager
 			Debug,
 		};
 
-		using Buffers = std::unordered_map<BufferIds, std::unique_ptr<Buffer3f>>;
+		using Buffers = std::unordered_map<BufferIds, Buffer3f*>;
 
 		struct RenderGlobals
 		{
@@ -80,15 +75,17 @@ class RenderManager
 		bool SetIntegrator(IntegratorIds integratorID) { return integratorID  != std::exchange(renderGlobals.integratorID, integratorID);   }
 		bool SetCurrentBuffer(BufferIds bufferID)      { return bufferID      != std::exchange(renderGlobals.bufferID, bufferID);           } // Note that the render does NOT need to be reset after this.
 
-		// Unique Add method that also returns true if class parameter was changed
+		// Unique Add/Remove method that also returns true if class parameter was changed
 		bool AddBuffer(BufferIds bufferID);
+		bool RemoveBuffer(BufferIds bufferID);
 
 		// Get Methods
+		int             GetIterations()    const { return iterations;                                  }
 		int             GetMaxIterations() const { return renderGlobals.maxIterations;                 }
 		int             GetDepth()         const { return renderGlobals.depth;                         }
 		int             GetSamples()       const { return renderGlobals.samples;                       }
 		IntegratorIds   GetIntegrator()    const { return renderGlobals.integratorID;                  }
-		const Buffer3f& GetBuffer()        const { return *(buffers.at(renderGlobals.bufferID).get()); }
+		const Buffer3f& GetBuffer()        const { return *(buffers.at(renderGlobals.bufferID));       }
 		const Buffers&  GetBuffers()       const { return buffers;                                     }
 
 		std::unique_ptr<Camera> mainCamera;
@@ -96,7 +93,6 @@ class RenderManager
 	protected:
 		RenderGlobals renderGlobals;
 
-		Buffer3f buffer = Buffer3f(renderGlobals.width, renderGlobals.height);
 		Buffers buffers;
 
 		Scene* scene = nullptr;
