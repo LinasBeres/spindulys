@@ -17,9 +17,10 @@ class Integrator
 	public:
 		Integrator();
 
-		virtual Col3f GetPixelColor(Ray& ray,
+		virtual void GetPixelColor(Ray& ray,
 				PixelSample& pixelSample,
 				CPUScene* scene,
+				RenderManager::Buffers buffers,
 				const RenderManager::RenderGlobals& renderGlobals) = 0;
 		virtual ShadingPoint SetupShadingPoint(const CPUScene* scene, const Ray& ray);
 

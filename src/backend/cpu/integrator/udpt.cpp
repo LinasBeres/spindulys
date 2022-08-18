@@ -5,9 +5,11 @@ BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 
 UDPTIntegrator::UDPTIntegrator() { }
 
-Col3f UDPTIntegrator::GetPixelColor(Ray& ray,
+
+void UDPTIntegrator::GetPixelColor(Ray& ray,
 		PixelSample& pixelSample,
 		CPUScene* scene,
+		RenderManager::Buffers buffers,
 		const RenderManager::RenderGlobals& renderGlobals)
 {
 	Col3f colorAccumulation(0.0f);
@@ -20,14 +22,43 @@ Col3f UDPTIntegrator::GetPixelColor(Ray& ray,
 
 		rtcIntersect1(scene->GetScene(), &intersectContext, RTCRayHit_(ray));
 
+		// TODO: Hardcoded sky color value for now.
 		if (ray.instID == RTC_INVALID_GEOMETRY_ID)
 		{
-			// TODO: Hardcoded sky color value for now.
-			return colorAccumulation += colorThroughput * Col3f(0.7, 0.8, 0.9);
+			for (const auto& bufferID : renderGlobals.currentBufferIds)
+				buffers[bufferID]->AddPixel(pixelSample.pixelIdx, colorThroughput * Col3f(0.7, 0.8, 0.9));
+			return;
 		}
 
 		// We setup all the necessary data describing the shading point.
 		ShadingPoint shadingPoint(SetupShadingPoint(scene, ray));
+
+		// Normal, position and debug buffers
+		if (bounce == 0)
+		{
+			if(renderGlobals.currentBufferIds.find(RenderManager::BufferIds::Normal) != renderGlobals.currentBufferIds.end())
+			{
+				buffers[RenderManager::BufferIds::Normal]->AddPixel(pixelSample.pixelIdx, Col3f(shadingPoint.N.x, shadingPoint.N.y, shadingPoint.N.z));
+			}
+			if(renderGlobals.currentBufferIds.find(RenderManager::BufferIds::Position) != renderGlobals.currentBufferIds.end())
+			{
+				const Vec3f normalizedPoint = normalize(shadingPoint.P);
+				buffers[RenderManager::BufferIds::Position]->AddPixel(pixelSample.pixelIdx, Col3f(normalizedPoint.x, normalizedPoint.y, normalizedPoint.z));
+			}
+			if(renderGlobals.currentBufferIds.find(RenderManager::BufferIds::Debug) != renderGlobals.currentBufferIds.end())
+			{
+				const Col3f debugPoint((static_cast<float>((shadingPoint.instID & 0x000000ff) >>  0)) / 255.0f,
+						(static_cast<float>((shadingPoint.instID & 0x0000ff00) >>  8)) / 255.0f,
+						(static_cast<float>((shadingPoint.instID & 0x00ff0000) >> 16)) / 255.0f);
+				buffers[RenderManager::BufferIds::Debug]->AddPixel(pixelSample.pixelIdx, debugPoint);
+			}
+			if(renderGlobals.currentBufferIds.find(RenderManager::BufferIds::Diffuse) != renderGlobals.currentBufferIds.end())
+			{
+				const float diffuse(std::fabs(dot(shadingPoint.Nw, Vec3f(ray.direction.x, ray.direction.y, ray.direction.z))));
+				const Col3f diffusePoint(shadingPoint.geometry.GetDisplayColor() * diffuse * (1.0f / static_cast<float>(M_PI)));
+				buffers[RenderManager::BufferIds::Diffuse]->AddPixel(pixelSample.pixelIdx, diffusePoint);
+			}
+		}
 
 		// Sky/Environment Sampling
 		// TODO
@@ -55,7 +86,7 @@ Col3f UDPTIntegrator::GetPixelColor(Ray& ray,
 		colorThroughput = colorThroughput * Col3f(color.x, color.y, color.z);
 	}
 
-	return colorAccumulation;
+	buffers[RenderManager::BufferIds::Beauty]->AddPixel(pixelSample.pixelIdx, colorAccumulation);
 }
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE
