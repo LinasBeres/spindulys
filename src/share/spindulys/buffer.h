@@ -33,6 +33,9 @@ template<typename T> struct Buffer
 	__forceinline const std::vector<T>& GetPixelData() const { return _pixelData; }
 
 	__forceinline void SetPixel(size_t pixelIndex, const T& pixel) { _pixelData[pixelIndex] = pixel; }
+	__forceinline void AddPixel(size_t pixelIndex, const T& a) { _pixelData[pixelIndex] += a; }
+	__forceinline void MultiplyPixel(size_t pixelIndex, const float& a) { _pixelData[pixelIndex] *= a; }
+
 	__forceinline const T& GetPixel(size_t pixelIndex) const { return _pixelData[pixelIndex]; }
 };
 
