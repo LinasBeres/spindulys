@@ -3,6 +3,10 @@
 
 #include <iostream>
 
+// TODO: Set this as an optional include
+#include <pxr/base/gf/matrix4f.h>
+#include <pxr/base/gf/matrix4d.h>
+
 #include "../../spindulys.h"
 #include "../platform.h"
 
@@ -40,6 +44,11 @@ struct AffineSpaceT
 	__forceinline AffineSpaceT( const L& l, const VectorT& p ) : l(l), p(p) {}
 
 	template<typename L1> __forceinline AffineSpaceT( const AffineSpaceT<L1>& s ) : l(s.l), p(s.p) {}
+
+	__forceinline AffineSpaceT<LinearSpace3f>( const pxr::GfMatrix4f& m)
+		: l(m[0][0], m[1][0], m[2][0], m[0][1], m[1][1], m[2][1], m[0][2], m[1][2], m[2][2]), p(m[3][0], m[3][1], m[3][2]) {}
+	__forceinline AffineSpaceT<LinearSpace3f>( const pxr::GfMatrix4d& m)
+		: l(m[0][0], m[1][0], m[2][0], m[0][1], m[1][1], m[2][1], m[0][2], m[1][2], m[2][2]), p(m[3][0], m[3][1], m[3][2]) {}
 
 	////////////////////////////////////////////////////////////////////////////////
 	// Constants
@@ -152,7 +161,7 @@ template<typename L> static std::ostream& operator<<(std::ostream& cout, const A
 typedef AffineSpaceT<LinearSpace2f> AffineSpace2f;
 typedef AffineSpaceT<LinearSpace3f> AffineSpace3f;
 // typedef AffineSpaceT<LinearSpace3fa> AffineSpace3fa;
-typedef AffineSpaceT<Quaternion3f > OrthonormalSpace3f;
+typedef AffineSpaceT<Quaternion3f> OrthonormalSpace3f;
 
 ////////////////////////////////////////////////////////////////////////////////
 /*! Template Specialization for 2D: return matrix for rotation around point (rotation around arbitrarty vector is not meaningful in 2D) */

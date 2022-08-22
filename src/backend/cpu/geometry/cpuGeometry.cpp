@@ -30,15 +30,14 @@ bool CPUGeometry::Create(const RTCDevice& device,
 
 	rtcSetGeometryTransform(_geomInstance,
 			0,
-			RTC_FORMAT_FLOAT3X3_COLUMN_MAJOR,
-			&_transform);
+			RTC_FORMAT_FLOAT3X4_COLUMN_MAJOR,
+			(float*)&_transform);
 
 	rtcCommitGeometry(_geomInstance);
 	rtcReleaseGeometry(_geomInstance);
 
 	return true;
 }
-
 
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE

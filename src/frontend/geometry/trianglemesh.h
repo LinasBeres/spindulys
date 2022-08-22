@@ -13,7 +13,7 @@ class TriangleMesh : virtual public Geometry
 	public:
 		TriangleMesh();
 		TriangleMesh(const std::string& primName,
-				const LinearSpace3f& transform,
+				const AffineSpace3f& affine,
 				const Col3f& displayColor,
 				const pxr::VtArray<pxr::GfVec3f>& points,
 				const pxr::VtArray<int>& indices);

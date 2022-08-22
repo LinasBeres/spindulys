@@ -1,0 +1,183 @@
+#usda 1.0
+(
+    "Created by UsdView"
+    defaultPrim = "Stormtroopers_GRP"
+    subLayers = [
+        @/home/lba42/Documents/testRenderers/spindulys/res/scenes/stormtroopers.usdc@,
+        @/home/lba42/Documents/testRenderers/spindulys/res/scenes/stormtroopers_overrides.usda@
+    ]
+    upAxis = "Y"
+)
+
+over "Stormtroopers_GRP"
+{
+    over "Sphere"
+    {
+        over "SphereShape"
+        {
+            token visibility = "invisible"
+        }
+    }
+
+    over "Sphere_004" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_024" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_026" (
+        active = false
+    )
+    {
+        over "Sphere_026Shape" (
+            active = false
+        )
+        {
+        }
+    }
+
+    over "Sphere_027" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_028" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_029" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_025" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_023" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_022" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_021" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_020" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_015" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_014" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_013" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_012" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_003" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_002" (
+        active = false
+    )
+    {
+    }
+
+    over "Plane_001" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_031" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_030" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_019" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_018" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_017" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_016" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_005" (
+        active = false
+    )
+    {
+    }
+
+    over "Sphere_001" (
+        active = false
+    )
+    {
+    }
+}
+

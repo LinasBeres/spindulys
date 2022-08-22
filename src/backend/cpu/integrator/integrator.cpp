@@ -22,7 +22,7 @@ ShadingPoint Integrator::SetupShadingPoint(const CPUScene* scene, const Ray& ray
 	shadingPoint.N = normalize(ray.Ng);
 
 	// Object to world space normal conversion.
-	Vec3f normalWorld(shadingPoint.geometry.GetTransform() * shadingPoint.N);
+	Vec3f normalWorld(xfmNormal(shadingPoint.geometry.GetTransform(), shadingPoint.N));
 	// We make the normal faceforwarding.
 	shadingPoint.Nw = normalize(dot(shadingPoint.V, normalWorld) < 0.0f ? -normalWorld : normalWorld);
 	shadingPoint.UV = Vec2f(ray.u, ray.v);
