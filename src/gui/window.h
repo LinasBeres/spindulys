@@ -30,7 +30,7 @@ class Window
 		Window();
 		~Window() = default;
 
-		int RenderWindow();
+		int RenderWindow(const std::string& scenePath);
 		void SetupGUI(RenderManager* renderManager);
 		void RenderGUI();
 		void StopGUI();

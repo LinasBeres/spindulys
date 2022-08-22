@@ -14,7 +14,7 @@ Window::Window()
 	ImGui::CreateContext();
 }
 
-int Window::RenderWindow()
+int Window::RenderWindow(const std::string& scenePath)
 {
 	glfwInit();
 
@@ -41,7 +41,7 @@ int Window::RenderWindow()
 
 	CPURenderManager renderManager;
 
-	renderManager.LoadScene("/home/lba42/Documents/testRenderers/spindulys/res/scenes/test.usda");
+	renderManager.LoadScene(!scenePath.empty() ? scenePath : "/home/lba42/Documents/testRenderers/spindulys/res/scenes/test.usda");
 	renderManager.mainCamera->SetResolution(Vec2f(renderGlobals.width, renderGlobals.height));
 	renderManager.mainCamera->Init();
 

@@ -49,6 +49,11 @@
 
 #endif // SPINDULYS_USE_NAMESPACE
 
+// Program exits
+#define SPINDULYS_EXIT_GOOD 0
+#define SPINDULYS_EXIT_BAD_PATH 1
+#define SPINDULYS_EXIT_BAD_SCENE_FORMAT 2
+
 
 #define SPINDULYS_INVALID_GEOMETRY_ID ((unsigned int)-1)
 
