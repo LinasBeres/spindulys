@@ -4,8 +4,6 @@
 // TODO: Set this as an optional include
 #include <pxr/base/gf/matrix3f.h>
 #include <pxr/base/gf/matrix3d.h>
-#include <pxr/base/gf/matrix4f.h>
-#include <pxr/base/gf/matrix4d.h>
 
 #include <iostream>
 
@@ -22,7 +20,8 @@ SPINDULYS_NAMESPACE_OPEN_SCOPE
 /// 3D Linear Transform (3x3 Matrix)
 ////////////////////////////////////////////////////////////////////////////////
 
-template<typename T> struct LinearSpace3
+template<typename T>
+struct LinearSpace3
 {
 	typedef T Vector;
 	typedef typename T::Scalar Scalar;
@@ -38,12 +37,6 @@ template<typename T> struct LinearSpace3
 		: vx(m[0][0], m[0][1], m[0][2]), vy(m[1][0], m[1][1], m[1][2]), vz(m[2][0], m[2][1], m[2][2]) {}
 	__forceinline LinearSpace3<Vec3f>( const pxr::GfMatrix3d& m)
 		: vx(m[0][0], m[0][1], m[0][2]), vy(m[1][0], m[1][1], m[1][2]), vz(m[2][0], m[2][1], m[2][2]) {}
-
-	__forceinline LinearSpace3<Vec3f>( const pxr::GfMatrix4f& m)
-		: vx(m[0][0], m[0][1], m[0][2]), vy(m[1][0], m[1][1], m[1][2]), vz(m[2][0], m[2][1], m[2][2]) {}
-	__forceinline LinearSpace3<Vec3f>( const pxr::GfMatrix4d& m)
-		: vx(m[0][0], m[0][1], m[0][2]), vy(m[1][0], m[1][1], m[1][2]), vz(m[2][0], m[2][1], m[2][2]) {}
-
 
 	/*! matrix construction from column vectors */
 	__forceinline LinearSpace3(const Vector& vx, const Vector& vy, const Vector& vz)

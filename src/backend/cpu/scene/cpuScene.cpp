@@ -16,7 +16,7 @@ CPUScene::CPUScene()
 
 bool CPUScene::CreateGeomerty(Geometry::GeometryTypes geometryType,
 		const std::string& primName,
-		const LinearSpace3f& transform,
+		const AffineSpace3f& affine,
 		const Col3f& displayColor,
 		const pxr::VtArray<pxr::GfVec3f>& points,
 		const pxr::VtArray<int>& indices)
@@ -25,12 +25,12 @@ bool CPUScene::CreateGeomerty(Geometry::GeometryTypes geometryType,
 
 	if (geometryType == Geometry::GeometryTypes::TriangleMesh)
 	{
-		CPUTriangleMesh* triangleMesh(new CPUTriangleMesh(primName, transform, displayColor, points, indices));
+		CPUTriangleMesh* triangleMesh(new CPUTriangleMesh(primName, affine, displayColor, points, indices));
 		success = success && CommitGeometry(triangleMesh);
 	}
 	else if (geometryType == Geometry::GeometryTypes::QuadMesh)
 	{
-		CPUQuadMesh* quadMesh(new CPUQuadMesh(primName, transform, displayColor, points, indices));
+		CPUQuadMesh* quadMesh(new CPUQuadMesh(primName, affine, displayColor, points, indices));
 		success = success && CommitGeometry(quadMesh);
 	}
 
