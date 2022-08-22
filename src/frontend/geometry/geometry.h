@@ -3,7 +3,7 @@
 
 #include <spindulys/math/vec3.h>
 #include <spindulys/math/col3.h>
-#include <spindulys/math/linearspace3.h>
+#include <spindulys/math/affinespace.h>
 
 #include "../spindulysFrontend.h"
 
@@ -30,7 +30,7 @@ class Geometry
 
 		const std::string& GetName() const { return _name; }
 		const Col3f& GetDisplayColor() const { return _displayColor; }
-		const LinearSpace3f GetTransform() const { return _transform; }
+		const AffineSpace3f GetTransform() const { return _transform; }
 
 		unsigned int GetGeomID() const { return _geomID; }
 		unsigned int GetGeomInstanceID() const { return _geomInstanceID; }
@@ -40,7 +40,7 @@ class Geometry
 		unsigned int _geomInstanceID = SPINDULYS_INVALID_GEOMETRY_ID;
 
 		std::string _name;
-		LinearSpace3f _transform;
+		AffineSpace3f _transform;
 		Col3f _displayColor;
 	private:
 };

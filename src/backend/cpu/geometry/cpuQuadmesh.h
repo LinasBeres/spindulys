@@ -15,7 +15,7 @@ class CPUQuadMesh final : public CPUGeometry, public QuadMesh
 	public:
 		CPUQuadMesh();
 		CPUQuadMesh(const std::string& primName,
-				const LinearSpace3f& transform,
+				const AffineSpace3f& transform,
 				const Col3f& displayColor,
 				const pxr::VtArray<pxr::GfVec3f>& points,
 				const pxr::VtArray<int>& indices);

@@ -41,12 +41,13 @@ int Window::RenderWindow()
 
 	CPURenderManager renderManager;
 
-	renderManager.LoadScene("/home/lba42/Documents/testRenderers/spindulys/res/scenes/cupandsaucer.usdz");
+	renderManager.LoadScene("/home/lba42/Documents/testRenderers/spindulys/res/scenes/test.usda");
 	renderManager.mainCamera->SetResolution(Vec2f(renderGlobals.width, renderGlobals.height));
 	renderManager.mainCamera->Init();
 
 	RenderManager::StopRenderer stopRenderingFunction = std::bind(&Window::CloseWindow, this);
 	renderManager.SetStopRendererCallback(stopRenderingFunction);
+
 
 	RenderManager::RegisterUpdates updateRendererFunction =
 		std::bind(&Window::PreRenderCallback, this, std::placeholders::_1);

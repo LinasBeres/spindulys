@@ -70,7 +70,7 @@ bool Scene::LoadMeshGeometry(const pxr::UsdStagePtr& stage)
 			usdGeom.GetFaceVertexCountsAttr().Get(&indicesCounts);
 
 			const std::string primName = prim.GetName();
-			const LinearSpace3f transform(usdGeomXformCache.GetLocalToWorldTransform(prim));
+			const AffineSpace3f affine(usdGeomXformCache.GetLocalToWorldTransform(prim));
 
 			// TODO: Get the display color from the correct time value.
 			pxr::VtArray<pxr::GfVec3f> pxrDisplayColor;
@@ -81,9 +81,9 @@ bool Scene::LoadMeshGeometry(const pxr::UsdStagePtr& stage)
 								pxrDisplayColor[0][2]));
 
 			if (indices.size() / indicesCounts.size() == 3)
-				CreateGeomerty(Geometry::GeometryTypes::TriangleMesh, primName, transform, displayColor, points, indices);
+				CreateGeomerty(Geometry::GeometryTypes::TriangleMesh, primName, affine, displayColor, points, indices);
 			else if (indices.size() / indicesCounts.size() == 4)
-				CreateGeomerty(Geometry::GeometryTypes::QuadMesh, primName, transform, displayColor, points, indices);
+				CreateGeomerty(Geometry::GeometryTypes::QuadMesh, primName, affine, displayColor, points, indices);
 			else
 				std::cerr << "FIXME...\n";
 				// TODO

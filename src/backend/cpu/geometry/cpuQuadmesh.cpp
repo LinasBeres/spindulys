@@ -4,11 +4,11 @@
 BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 
 CPUQuadMesh::CPUQuadMesh(const std::string& primName,
-		const LinearSpace3f& transform,
+		const AffineSpace3f& affine,
 		const Col3f& displayColor,
 		const pxr::VtArray<pxr::GfVec3f>& points,
 		const pxr::VtArray<int>& indices)
-	: QuadMesh(primName, transform, displayColor, points, indices)
+	: QuadMesh(primName, affine, displayColor, points, indices)
 {
 }
 
