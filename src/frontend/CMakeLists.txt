@@ -31,7 +31,6 @@ target_include_directories(
 
 target_link_libraries(
 	spindulysFrontend
-	${Boost_LIBRARIES}
 	${TBB_LIBRARIES}
 	${USD_LIBRARIES}
 	spindulysShare

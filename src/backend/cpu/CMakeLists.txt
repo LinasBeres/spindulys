@@ -37,7 +37,6 @@ target_link_libraries(
 	spindulysCPUBackend
 	spindulysFrontend
 	embree_common
-	${Boost_LIBRARIES}
 	${EMBREE_LIBRARY}
 	${TBB_LIBRARIES}
 	${USD_LIBRARIES}

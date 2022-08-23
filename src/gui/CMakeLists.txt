@@ -29,7 +29,6 @@ target_link_libraries(
 	glad
 	imgui
 	tinyexr
-	${Boost_LIBRARIES}
 	${USD_LIBRARIES}
 	spindulysShare
 	spindulysCPUBackend

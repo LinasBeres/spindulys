@@ -21,7 +21,6 @@ include(Options)
 include(CXX)
 
 # Include 3rd Party External
-include(SetupBoost)
 include(SetupEmbree)
 include(SetupTBB)
 include(SetupUSD)
