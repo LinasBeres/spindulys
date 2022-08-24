@@ -7,12 +7,8 @@
 
 #include "../spindulysFrontend.h"
 
-#include <pxr/usd/usd/stage.h>
-#include <pxr/usd/usd/prim.h>
-#include <pxr/usd/usdGeom/mesh.h>
-#include <pxr/usd/usdGeom/xformCache.h>
-#include <pxr/usd/usd/attribute.h>
 #include <pxr/base/vt/array.h>
+
 
 FRONTEND_NAMESPACE_OPEN_SCOPE
 
