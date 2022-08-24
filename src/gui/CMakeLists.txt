@@ -29,12 +29,10 @@ target_link_libraries(
 	glad
 	imgui
 	tinyexr
-	${Boost_LIBRARIES}
-	${EMBREE_LIBRARY}
-	${TBB_LIBRARIES}
 	${USD_LIBRARIES}
 	spindulysShare
 	spindulysCPUBackend
+	cxxopts
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

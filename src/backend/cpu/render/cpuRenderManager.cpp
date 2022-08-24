@@ -11,7 +11,6 @@ BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 CPURenderManager::CPURenderManager()
 {
 	scene = new CPUScene();
-	mainCamera = std::unique_ptr<Camera>(new CPUCamera());
 }
 
 void CPURenderManager::Trace(int iterations)
@@ -34,7 +33,7 @@ void CPURenderManager::Trace(int iterations)
 					{
 						Vec3f origin(zero);
 						Vec3f direction(zero);
-						mainCamera->GetCameraRay(pixelSample, origin, direction);
+						scene->GetSceneCamera().GetCameraRay(pixelSample, origin, direction);
 						Ray primaryRay(origin, direction);
 
 						for (const auto& bufferID : renderGlobals.currentBufferIds)

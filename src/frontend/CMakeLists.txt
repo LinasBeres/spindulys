@@ -4,6 +4,7 @@ file(GLOB FRONTEND_HEADERS
 	geometry/*.h
 	render/*.h
 	scene/*.h
+	scene/usdTranslators/*.h
 	utils/*.h
 )
 
@@ -12,6 +13,7 @@ file(GLOB FRONTEND_SOURCES
 	geometry/*.cpp
 	render/*.cpp
 	scene/*.cpp
+	scene/usdTranslators/*.cpp
 	utils/*.cpp
 )
 
@@ -31,7 +33,6 @@ target_include_directories(
 
 target_link_libraries(
 	spindulysFrontend
-	${Boost_LIBRARIES}
 	${TBB_LIBRARIES}
 	${USD_LIBRARIES}
 	spindulysShare

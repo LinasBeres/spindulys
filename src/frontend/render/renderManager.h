@@ -75,6 +75,8 @@ class RenderManager
 		bool SetIntegrator(IntegratorIds integratorID) { return integratorID  != std::exchange(renderGlobals.integratorID, integratorID);   }
 		bool SetCurrentBuffer(BufferIds bufferID)      { return bufferID      != std::exchange(renderGlobals.bufferID, bufferID);           } // Note that the render does NOT need to be reset after this.
 
+		bool SetCurrentCamera(size_t cameraId)         { return scene->SetSceneCamera(cameraId); }
+
 		// Unique Add/Remove method that also returns true if class parameter was changed
 		bool AddBuffer(BufferIds bufferID);
 		bool RemoveBuffer(BufferIds bufferID);
@@ -87,23 +89,28 @@ class RenderManager
 		IntegratorIds   GetIntegrator()    const { return renderGlobals.integratorID;                  }
 		const Buffer3f& GetBuffer()        const { return *(buffers.at(renderGlobals.bufferID));       }
 		const Buffers&  GetBuffers()       const { return buffers;                                     }
+		const Scene*    GetScene()         const { return scene;                                       }
 
-		std::unique_ptr<Camera> mainCamera;
+		// TODO: Tidy the camera handling.
+		Camera& GetCamera() { return scene->UpdateSceneCamera(); }
 
 	protected:
+		// Render Info
+		int iterations = 0;
 		RenderGlobals renderGlobals;
 
 		Buffers buffers;
 
+		// This abstract class holds the scene geometry itself.
 		Scene* scene = nullptr;
 
 		bool update = false;
 
+		// Callback functions.
 		StopRenderer stopRendererFunction = [] { return false; };
 		RegisterUpdates updateRendererFunction;
 		DrawBuffer drawBufferFunction;
 
-		int iterations = 0;
 
 	private:
 };

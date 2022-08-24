@@ -14,7 +14,7 @@ Window::Window()
 	ImGui::CreateContext();
 }
 
-int Window::RenderWindow()
+int Window::RenderWindow(const std::string& scenePath)
 {
 	glfwInit();
 
@@ -41,9 +41,8 @@ int Window::RenderWindow()
 
 	CPURenderManager renderManager;
 
-	renderManager.LoadScene("/home/lba42/Documents/testRenderers/spindulys/res/scenes/test.usda");
-	renderManager.mainCamera->SetResolution(Vec2f(renderGlobals.width, renderGlobals.height));
-	renderManager.mainCamera->Init();
+	renderManager.LoadScene(!scenePath.empty() ? scenePath : "/home/lba42/Documents/testRenderers/spindulys/res/scenes/test.usda");
+	renderManager.GetCamera().SetResolution(Vec2f(renderGlobals.width, renderGlobals.height));
 
 	RenderManager::StopRenderer stopRenderingFunction = std::bind(&Window::CloseWindow, this);
 	renderManager.SetStopRendererCallback(stopRenderingFunction);
@@ -87,6 +86,8 @@ bool Window::PreRenderCallback(RenderManager* renderManager)
 	if(renderManager->SetSamples(renderGlobals.samples))
 		renderManager->SetRenderDirty();
 	if(renderManager->SetIntegrator(renderGlobals.integratorID))
+		renderManager->SetRenderDirty();
+	if (renderManager->SetCurrentCamera(sceneCamera))
 		renderManager->SetRenderDirty();
 
 	renderManager->SetCurrentBuffer(renderGlobals.bufferID);
@@ -185,6 +186,14 @@ void Window::SetupGUI(RenderManager* renderManager)
 
 		if (ImGui::BeginMenu("Camera"))
 		{
+			if (ImGui::BeginMenu("Cameras"))
+			{
+				int i = 0;
+				for (const auto& camera : renderManager->GetScene()->GetSceneCameras())
+					ImGui::RadioButton(camera.c_str(), &sceneCamera, i++);
+
+				ImGui::EndMenu();
+			}
 			ImGui::EndMenu();
 		}
 
@@ -258,9 +267,9 @@ void Window::ProfilingWindow(bool& guiOpen, RenderManager* renderManager)
 	ImGui::Text("Total Samples (iterations * samples): %d", renderManager->GetIterations() * renderManager->GetSamples());
 	ImGui::Text("Framerate: %.2f FPS / %.2f ms", ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
 	ImGui::Text("Camera Position: (%.2f, %.2f, %.2f)",
-			renderManager->mainCamera->GetPosition().x,
-			renderManager->mainCamera->GetPosition().y,
-			renderManager->mainCamera->GetPosition().z);
+			renderManager->GetScene()->GetSceneCamera().GetPosition().x,
+			renderManager->GetScene()->GetSceneCamera().GetPosition().y,
+			renderManager->GetScene()->GetSceneCamera().GetPosition().z);
 
 	ImGui::End();
 }
@@ -282,41 +291,33 @@ void Window::KeyboardCallback(ImGuiIO& guiIO, RenderManager* renderManager)
 	}
 	if (guiIO.KeysDown[GLFW_KEY_W])
 	{
-		renderManager->mainCamera->KeyboardCallback(Camera::Forward, deltaTime);
+		renderManager->GetCamera().KeyboardCallback(Camera::Forward, deltaTime);
 		renderManager->SetRenderDirty();
 	}
 	if (guiIO.KeysDown[GLFW_KEY_S])
 	{
-		renderManager->mainCamera->KeyboardCallback(Camera::Backward, deltaTime);
+		renderManager->GetCamera().KeyboardCallback(Camera::Backward, deltaTime);
 		renderManager->SetRenderDirty();
 	}
 	if (guiIO.KeysDown[GLFW_KEY_A])
 	{
-		renderManager->mainCamera->KeyboardCallback(Camera::Left, deltaTime);
+		renderManager->GetCamera().KeyboardCallback(Camera::Left, deltaTime);
 		renderManager->SetRenderDirty();
 	}
 	if (guiIO.KeysDown[GLFW_KEY_D])
 	{
-		renderManager->mainCamera->KeyboardCallback(Camera::Right, deltaTime);
+		renderManager->GetCamera().KeyboardCallback(Camera::Right, deltaTime);
 		renderManager->SetRenderDirty();
 	}
 
 	if (guiIO.KeysDown[GLFW_KEY_KP_ADD])
 	{
-		if (guiIO.KeysDown[GLFW_KEY_LEFT_CONTROL])
-			renderManager->mainCamera->SetFocalDistance(renderManager->mainCamera->GetFocalDistance() + 0.1f);
-		else
-			renderManager->mainCamera->SetAperatureRadius(renderManager->mainCamera->GetAperatureRadius() + 0.005f);
-
+		// renderManager->mainCamera->SetAperatureRadius(renderManager->mainCamera->GetAperatureRadius() + 0.005f);
 		renderManager->SetRenderDirty();
 	}
 	if (guiIO.KeysDown[GLFW_KEY_KP_SUBTRACT])
 	{
-		if (guiIO.KeysDown[GLFW_KEY_LEFT_CONTROL])
-			renderManager->mainCamera->SetFocalDistance(renderManager->mainCamera->GetFocalDistance() - 0.1f);
-		else
-			renderManager->mainCamera->SetAperatureRadius(renderManager->mainCamera->GetAperatureRadius() - 0.005f);
-
+		// renderManager->mainCamera->SetAperatureRadius(renderManager->mainCamera->GetAperatureRadius() - 0.005f);
 		renderManager->SetRenderDirty();
 	}
 }
@@ -337,7 +338,7 @@ void Window::MouseCallback(ImGuiIO& guiIO, Vec2f mousePos,RenderManager* renderM
 	{
 		if (mouseOffset != Vec2f())
 		{
-			renderManager->mainCamera->MouseCallback(mouseOffset);
+			renderManager->GetCamera().MouseCallback(mouseOffset);
 			renderManager->SetRenderDirty();
 		}
 	}

@@ -30,7 +30,7 @@ class Window
 		Window();
 		~Window() = default;
 
-		int RenderWindow();
+		int RenderWindow(const std::string& scenePath);
 		void SetupGUI(RenderManager* renderManager);
 		void RenderGUI();
 		void StopGUI();
@@ -57,6 +57,7 @@ class Window
 		float lastFrame = 0.0f;
 
 		GLFWwindow* window;
+		int sceneCamera = 0;
 		RenderManager::RenderGlobals renderGlobals;
 
 		Vec2f prevMousePos = Vec2f(renderGlobals.width / 2.0f, renderGlobals.height / 2.0f);
