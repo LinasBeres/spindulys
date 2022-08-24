@@ -10,6 +10,8 @@
 #include "../geometry/trianglemesh.h"
 #include "../geometry/quadmesh.h"
 
+#include "usdTranslators/usdCameraTranslator.h"
+
 FRONTEND_NAMESPACE_OPEN_SCOPE
 
 bool Scene::LoadScene(const std::string& filepath)
@@ -33,33 +35,28 @@ bool Scene::LoadScene(const std::string& filepath)
 
 	LoadMeshGeometry(stage);
 
+	// We need to have at least one camera...
+	if (_cameras.empty())
+		_cameras.emplace_back(new Camera("SpindulysDefaultCamera"));
+
 	return true;
 }
 
-void GetPrimFromType(const std::string& primType, const pxr::UsdStageRefPtr& stage, const pxr::SdfPath& primPath, std::vector<pxr::UsdPrim>& primVector)
+void Scene::LoadPrims(const pxr::UsdStagePtr& stage, const pxr::SdfPath& primPath)
 {
 	const pxr::UsdPrim basePrim = stage->GetPrimAtPath(primPath);
-	for(const pxr::UsdPrim& prim: basePrim.GetChildren())
-	{
-		if (prim.GetTypeName() == primType)
-			primVector.push_back(prim);
-
-		if (prim.GetChildren())
-			GetPrimFromType(primType, stage, prim.GetPath(), primVector);
-	}
-}
-
-bool Scene::LoadMeshGeometry(const pxr::UsdStagePtr& stage)
-{
-	std::vector<pxr::UsdPrim> meshPrims;
-
-	GetPrimFromType("Mesh", stage, pxr::SdfPath("/"), meshPrims);
 
 	pxr::UsdGeomXformCache usdGeomXformCache;
-
-	tbb::parallel_for_each(meshPrims.begin(), meshPrims.end(), [&](pxr::UsdPrim& prim)
-			{
-			pxr::UsdGeomMesh usdGeom(pxr::UsdGeomMesh::Get(stage, prim.GetPrimPath()));
+	for(const pxr::UsdPrim& prim: basePrim.GetChildren())
+	{
+		if (prim.GetTypeName() == "Camera")
+		{
+			if (UsdCameraTranslator trans; Camera* camera = (Camera*)trans.GetObjectFromPrim(prim))
+				_cameras.emplace_back(camera);
+		}
+		else if (prim.GetTypeName() == "Mesh")
+		{
+			const pxr::UsdGeomMesh usdGeom(prim);
 
 			pxr::VtArray<pxr::GfVec3f> points;
 			pxr::VtArray<int> indicesCounts;
@@ -87,11 +84,33 @@ bool Scene::LoadMeshGeometry(const pxr::UsdStagePtr& stage)
 			else
 				std::cerr << "FIXME...\n";
 				// TODO
-			});
+
+		}
+
+		if (prim.GetChildren())
+			LoadPrims(stage, prim.GetPath());
+	}
+
+}
+
+bool Scene::LoadMeshGeometry(const pxr::UsdStagePtr& stage)
+{
+	std::vector<pxr::UsdPrim> meshPrims;
+
+	LoadPrims(stage, pxr::SdfPath("/"));
 
 	CommitScene();
 
 	return true;
+}
+
+const std::vector<std::string> Scene::GetSceneCameras() const
+{
+	std::vector<std::string> cameras;
+	for (const auto& camera : _cameras)
+		cameras.emplace_back(camera->GetName());
+
+	return cameras;
 }
 
 FRONTEND_NAMESPACE_CLOSE_SCOPE

@@ -13,10 +13,8 @@ BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 class CPUCamera final : public Camera
 {
 	public:
-		CPUCamera() = default;
+		CPUCamera(const std::string& name);
 		~CPUCamera() = default;
-
-	virtual bool GetCameraRay(const PixelSample& pixelSample, Vec3f& origin, Vec3f& direction) const override;
 };
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE
