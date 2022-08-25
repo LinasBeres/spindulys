@@ -35,7 +35,7 @@ void GLShader::Setup(std::string vertexShaderPath,
         vertexShaderCode = vertexShaderSStream.str();
         fragmentShaderCode = fragmentShaderSStream.str();
     }
-    catch (std::ifstream::failure exception)
+    catch (const std::ifstream::failure& exception)
     {
         std::cout << "ERROR - Could not read the vertex and/or fragment shaders on disk." << std::endl;
     }

@@ -32,6 +32,7 @@ template<typename T> struct Vec2
 	__forceinline          Vec2( const T& x, const T& y ) : x(x), y(y) {}
 
 	__forceinline Vec2( const Vec2& other ) { x = other.x; y = other.y; }
+	__forceinline Vec2& operator =( const Vec2& other ) { x = other.x; y = other.y; return *this; }
 
 	template<typename T1> __forceinline Vec2( const Vec2<T1>& a ) : x(T(a.x)), y(T(a.y)) {}
 	template<typename T1> __forceinline Vec2& operator =( const Vec2<T1>& other ) { x = other.x; y = other.y; return *this; }

@@ -21,7 +21,7 @@ make
 ### Requirements
 
 These are the current packages needed to build Spindulys:
-- clang
+- clang/gcc
 - [Intel Embree](https://github.com/embree/embree) (3.5.2)
 - [USD](https://github.com/PixarAnimationStudios/USD) (20.11)
 - [TBB](https://github.com/oneapi-src/oneTBB) (2018.U6)
