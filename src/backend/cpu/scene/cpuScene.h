@@ -19,12 +19,7 @@ class CPUScene final : public Scene
 		~CPUScene() = default;
 
 		virtual void CommitScene() override { rtcCommitScene(_scene); }
-		virtual bool CreateGeomerty(Geometry::GeometryTypes geometryType,
-				const std::string& primName,
-				const AffineSpace3f& affine,
-				const Col3f& displayColor,
-				const pxr::VtArray<pxr::GfVec3f>& points,
-				const pxr::VtArray<int>& indices) override;
+		virtual bool CreateGeomerty(Geometry* geom) override;
 		bool CommitGeometry(CPUGeometry* geometry);
 
 		RTCScene GetScene() { return _scene; }
