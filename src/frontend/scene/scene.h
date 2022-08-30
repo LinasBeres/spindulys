@@ -30,12 +30,7 @@ class Scene
 		bool LoadMeshGeometry(const pxr::UsdStagePtr& stage);
 		void LoadPrims(const pxr::UsdStagePtr& stage, const pxr::SdfPath& primPath);
 		virtual void CommitScene() = 0;
-		virtual bool CreateGeomerty(Geometry::GeometryTypes geometryType,
-				const std::string& primName,
-				const AffineSpace3f& affine,
-				const Col3f& displayColor,
-				const pxr::VtArray<pxr::GfVec3f>& points,
-				const pxr::VtArray<int>& indices) = 0;
+		virtual bool CreateGeomerty(Geometry* geom) = 0;
 
 		const std::string& GetFilePath() const { return filepath; }
 

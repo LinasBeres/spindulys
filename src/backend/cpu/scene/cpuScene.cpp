@@ -1,7 +1,6 @@
 #include "cpuScene.h"
 
-#include "../geometry/cpuTrianglemesh.h"
-#include "../geometry/cpuQuadmesh.h"
+#include "../geometry/cpuMesh.h"
 
 #include <spindulys/math/linearspace3.h>
 
@@ -14,25 +13,24 @@ CPUScene::CPUScene()
 	_scene = rtcNewScene(_device);
 }
 
-bool CPUScene::CreateGeomerty(Geometry::GeometryTypes geometryType,
-		const std::string& primName,
-		const AffineSpace3f& affine,
-		const Col3f& displayColor,
-		const pxr::VtArray<pxr::GfVec3f>& points,
-		const pxr::VtArray<int>& indices)
+
+bool CPUScene::CreateGeomerty(Geometry* geom)
 {
 	bool success = true;
 
-	if (geometryType == Geometry::GeometryTypes::TriangleMesh)
+	switch(geom->GetGeometryType())
 	{
-		CPUTriangleMesh* triangleMesh(new CPUTriangleMesh(primName, affine, displayColor, points, indices));
-		success = success && CommitGeometry(triangleMesh);
+		case Geometry::Mesh:
+		{
+			CPUMesh* mesh(new CPUMesh(dynamic_cast<Mesh*>(geom)));
+			success &= CommitGeometry(mesh);
+			break;
+		}
+		default:
+			break;
 	}
-	else if (geometryType == Geometry::GeometryTypes::QuadMesh)
-	{
-		CPUQuadMesh* quadMesh(new CPUQuadMesh(primName, affine, displayColor, points, indices));
-		success = success && CommitGeometry(quadMesh);
-	}
+
+	delete geom;
 
 	return success;
 }

@@ -7,10 +7,10 @@
 #include <tbb/parallel_for.h>
 #include <tbb/parallel_for_each.h>
 
-#include "../geometry/trianglemesh.h"
-#include "../geometry/quadmesh.h"
+#include "../geometry/mesh.h"
 
 #include "usdTranslators/usdCameraTranslator.h"
+#include "usdTranslators/usdMeshTranslator.h"
 
 FRONTEND_NAMESPACE_OPEN_SCOPE
 
@@ -56,35 +56,8 @@ void Scene::LoadPrims(const pxr::UsdStagePtr& stage, const pxr::SdfPath& primPat
 		}
 		else if (prim.GetTypeName() == "Mesh")
 		{
-			const pxr::UsdGeomMesh usdGeom(prim);
-
-			pxr::VtArray<pxr::GfVec3f> points;
-			pxr::VtArray<int> indicesCounts;
-			pxr::VtArray<int> indices;
-
-			usdGeom.GetPointsAttr().Get(&points);
-			usdGeom.GetFaceVertexIndicesAttr().Get(&indices);
-			usdGeom.GetFaceVertexCountsAttr().Get(&indicesCounts);
-
-			const std::string primName = prim.GetName();
-			const AffineSpace3f affine(usdGeomXformCache.GetLocalToWorldTransform(prim));
-
-			// TODO: Get the display color from the correct time value.
-			pxr::VtArray<pxr::GfVec3f> pxrDisplayColor;
-			usdGeom.GetDisplayColorAttr().Get(&pxrDisplayColor);
-			const Col3f displayColor = (pxrDisplayColor.empty() ? Col3f(0.5f) :
-					Col3f(pxrDisplayColor[0][0],
-								pxrDisplayColor[0][1],
-								pxrDisplayColor[0][2]));
-
-			if (indices.size() / indicesCounts.size() == 3)
-				CreateGeomerty(Geometry::GeometryTypes::TriangleMesh, primName, affine, displayColor, points, indices);
-			else if (indices.size() / indicesCounts.size() == 4)
-				CreateGeomerty(Geometry::GeometryTypes::QuadMesh, primName, affine, displayColor, points, indices);
-			else
-				std::cerr << "FIXME...\n";
-				// TODO
-
+			if (UsdMeshTranslator trans; Mesh* mesh = (Mesh*)trans.GetObjectFromPrim(prim))
+				CreateGeomerty(mesh);
 		}
 
 		if (prim.GetChildren())

@@ -19,25 +19,34 @@ class Geometry
 		{
 			QuadMesh = 0,
 			TriangleMesh,
+			Mesh,
 		};
 
-		Geometry();
+		Geometry() = default;
 		virtual ~Geometry();
 
-		const std::string& GetName() const { return _name; }
-		const Col3f& GetDisplayColor() const { return _displayColor; }
-		const AffineSpace3f GetTransform() const { return _transform; }
+		// Get methods
+		const std::string&  GetName()           const { return _name;           }
+		const Col3f&        GetDisplayColor()   const { return _displayColor;   }
+		const AffineSpace3f GetTransform()      const { return _transform;      }
+		unsigned int        GetGeomID()         const { return _geomID;         }
+		unsigned int        GetGeomInstanceID() const { return _geomInstanceID; }
+		GeometryTypes       GetGeometryType()   const { return _geomType;       }
 
-		unsigned int GetGeomID() const { return _geomID; }
-		unsigned int GetGeomInstanceID() const { return _geomInstanceID; }
+		// Set Methods
+		bool SetName(const std::string& name)           { return name         != std::exchange(_name, name);                 }
+		bool SetTransfrom(const AffineSpace3f& affine)  { return affine       != std::exchange(_transform, affine);          }
+		bool SetDisplayColor(const Col3f& displayColor) { return displayColor != std::exchange(_displayColor, displayColor); }
+		bool SetGeometryType(GeometryTypes type)        { return type         != std::exchange(_geomType, type);             }
 
 	protected:
 		unsigned int _geomID         = SPINDULYS_INVALID_GEOMETRY_ID;
 		unsigned int _geomInstanceID = SPINDULYS_INVALID_GEOMETRY_ID;
 
-		std::string _name;
-		AffineSpace3f _transform;
-		Col3f _displayColor;
+		std::string _name = "DefaultGeomerty";
+		AffineSpace3f _transform = AffineSpace3f(one, zero);
+		Col3f _displayColor = Col3f(0.5);
+		GeometryTypes _geomType;
 	private:
 };
 
