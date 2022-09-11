@@ -14,7 +14,6 @@ file(GLOB FRONTEND_SOURCES
 	render/*.cpp
 	scene/*.cpp
 	scene/usdTranslators/*.cpp
-	utils/*.cpp
 )
 
 add_library(
