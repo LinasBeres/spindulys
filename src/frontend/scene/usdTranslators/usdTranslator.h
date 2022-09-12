@@ -37,8 +37,6 @@ class UsdTranslator
 		}
 
 	protected:
-		// TODO: This doesn't quite work so remvoe it.
-		pxr::UsdGeomXformCache usdGeomXformCache;
 
 	private:
 };

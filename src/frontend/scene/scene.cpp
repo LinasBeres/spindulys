@@ -46,7 +46,6 @@ void Scene::LoadPrims(const pxr::UsdStagePtr& stage, const pxr::SdfPath& primPat
 {
 	const pxr::UsdPrim basePrim = stage->GetPrimAtPath(primPath);
 
-	pxr::UsdGeomXformCache usdGeomXformCache;
 	for(const pxr::UsdPrim& prim: basePrim.GetChildren())
 	{
 		if (prim.GetTypeName() == "Camera")

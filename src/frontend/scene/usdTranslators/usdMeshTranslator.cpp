@@ -157,10 +157,10 @@ void* UsdMeshTranslator::GetObjectFromPrim(const pxr::UsdPrim& prim)
 {
 	Mesh* mesh = new Mesh(Geometry::GeometryTypes::Mesh, prim.GetName());
 
-	const AffineSpace3f affine(usdGeomXformCache.GetLocalToWorldTransform(prim));
-	mesh->SetTransfrom(affine);
-
 	pxr::UsdGeomMesh usdGeom(prim);
+
+	const AffineSpace3f affine(usdGeom.ComputeLocalToWorldTransform(pxr::UsdTimeCode::Default()));
+	mesh->SetTransfrom(affine);
 
 	pxr::VtArray<pxr::GfVec3f> pxrPoints;
 	if (usdGeom.GetPointsAttr().Get(&pxrPoints))
