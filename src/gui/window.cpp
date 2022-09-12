@@ -41,7 +41,7 @@ int Window::RenderWindow(const std::string& scenePath)
 
 	CPURenderManager renderManager;
 
-	renderManager.LoadScene(!scenePath.empty() ? scenePath : "/home/lba42/Documents/testRenderers/spindulys/res/scenes/test.usda");
+	renderManager.LoadScene(!scenePath.empty() ? scenePath : TEST_SCENE);
 	renderManager.GetCamera().SetResolution(Vec2f(renderGlobals.width, renderGlobals.height));
 
 	RenderManager::StopRenderer stopRenderingFunction = std::bind(&Window::CloseWindow, this);
@@ -203,13 +203,13 @@ void Window::SetupGUI(RenderManager* renderManager)
 			{
 				if (ImGui::MenuItem("Cup and Saucer"))
 				{
-					renderManager->LoadScene("/home/lba42/Documents/testRenderers/spindulys/res/scenes/cupandsaucer.usdz");
+					renderManager->LoadScene(CUPS_SCENE);
 					renderManager->SetRenderDirty();
 				}
 
 				if (ImGui::MenuItem("Stormtroopers"))
 				{
-					renderManager->LoadScene("/home/lba42/Documents/testRenderers/spindulys/res/scenes/stormtroopers.usdc");
+					renderManager->LoadScene(STORMTROOPERS_SCENE);
 					renderManager->SetRenderDirty();
 				}
 
@@ -386,8 +386,7 @@ void Window::SetupScreenQuad(int width, int height)
 	glBindVertexArray(0);
 
 	// Screen quad shader and texture.
-	screenQuadShader.Setup("/home/lba42/Documents/testRenderers/spindulys/res/shaders/screenQuad.vert",
-			"/home/lba42/Documents/testRenderers/spindulys/res/shaders/screenQuad.frag");
+	screenQuadShader.Setup(VERT_SHADER, FRAG_SHADER);
 
 	glGenTextures(1, &screenTextureID);
 	glActiveTexture(GL_TEXTURE0);
