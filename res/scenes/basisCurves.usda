@@ -1,0 +1,163 @@
+#usda 1.0
+
+(
+    upAxis = "Y"
+    doc = """This layer represents the various geometric forms that curves
+             may be used to represent."""
+)
+
+ def Xform "Plane"
+ {
+     token visibility = "inherited"
+     float xformOp:rotateY = 33.193928
+     float3 xformOp:scale = (0.32967073, 0.50083506, 2.9262512)
+     double3 xformOp:translate = (-0.1002379059791565, 2.998622179031372, 1.9441370964050293)
+     uniform token[] xformOpOrder = ["!resetXformStack!", "xformOp:translate", "xformOp:rotateY", "xformOp:scale"]
+
+     def Mesh "PlaneShape"
+     {
+         uniform bool doubleSided = 1
+         float3[] extent = [(-1, 0, -5.4), (1, 0, 1)]
+         int[] faceVertexCounts = [3, 3, 3, 3, 3, 3]
+         int[] faceVertexIndices = [0, 1, 2, 0, 3, 2, 4, 5, 7, 4, 7, 6, 8, 9, 11, 8, 11, 10]
+         rel material:binding = </Stormtroopers_GRP/Looks/initialShadingGroup>
+         point3f[] points = [(-1, 0, 1), (1, 0, 1), (-1, 0, -1), (1, 0, -1), (-1, 0, -1.2), (1, 0, -1.2), (-1, 0, -3.2), (1, 0, -3.2), (-1, 0, -3.4), (1, 0, -3.4), (-1, 0, -5.4), (1, 0, -5.4)]
+         color3f[] primvars:displayColor = [(0.13320851, 0.13320851, 0.13320851)] (
+             customData = {
+                 dictionary Maya = {
+                     bool generated = 1
+                 }
+             }
+         )
+     }
+ }
+
+def Xform "Linear" {
+    uniform token[] xformOpOrder = ["xformOp:translate"]
+    float3 xformOp:translate = (0, 9, 0)
+    def Scope "Tubes"{
+        def BasisCurves "ConstantWidth" (){
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+            float3 xformOp:translate = (3, 0, 0)
+
+            uniform token type = "linear"
+            int[] curveVertexCounts = [7]
+            point3f[] points = [(0, 0, 0), (1, 1, 0), (1, 2, 0), (0, 3, 0), (-1, 4, 0), (-1, 5, 0), (0, 6, 0)]
+            float[] widths = [.5] (interpolation = "constant") 
+            color3f[] primvars:displayColor = [(1, 0, 0)]
+        }
+        def BasisCurves "VaryingWidth" (){
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+            float3 xformOp:translate = (6, 0, 0)
+
+            uniform token type = "linear"
+            int[] curveVertexCounts = [7]
+            point3f[] points = [(0, 0, 0), (1, 1, 0), (1, 2, 0), (0, 3, 0), (-1, 4, 0), (-1, 5, 0), (0, 6, 0)]
+            float[] widths = [0, .5, .5, .8, .5, .5, 0] (interpolation = "varying")
+            color3f[] primvars:displayColor = [(0, 0, 1)]
+        }
+    }
+    def Scope "Ribbons"{
+        def BasisCurves "VaryingWidth" (){
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+            float3 xformOp:translate = (12, 0, 0)
+
+            uniform token type = "linear"
+            int[] curveVertexCounts = [7]
+            point3f[] points = [(0, 0, 0), (1, 1, 0), (1, 2, 0), (0, 3, 0), (-1, 4, 0), (-1, 5, 0), (0, 6, 0)]
+            float[] widths = [0, .5, .5, .8, .5, .5, 0] (interpolation = "varying") 
+            normal3f[] normals = [(1, 0, 0), (.98, 0, .44), (.98, 0, .44), (.707, 0, .707), (.98, 0, .44), (.98, 0, .44), (1, 0, 0)] (interpolation = "varying")
+            color3f[] primvars:displayColor = [(0, 1, 0)]
+        }
+        def BasisCurves "ConstantWidth" (){
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+            float3 xformOp:translate = (15, 0, 0)
+
+            uniform token type = "linear"
+            int[] curveVertexCounts = [7]
+            point3f[] points = [(0, 0, 0), (1, 1, 0), (1, 2, 0), (0, 3, 0), (-1, 4, 0), (-1, 5, 0), (0, 6, 0)]
+            float[] widths = [.5] (interpolation = "constant")
+            normal3f[] normals = [(1, 0, 0), (.98, 0, .44), (.98, 0, .44), (.707, 0, .707), (.98, 0, .44), (.98, 0, .44), (1, 0, 0)] (interpolation = "varying") 
+            color3f[] primvars:displayColor = [(1, 1, 1)]
+        }
+    }
+}
+
+
+
+def Scope "Cubic"{
+    def Scope "Tubes" {
+        def BasisCurves "ConstantWidth" (){
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+            float3 xformOp:translate = (3, 0, 0)
+
+            uniform token type = "cubic"
+            uniform token basis = "bezier"
+            int[] curveVertexCounts = [7]
+            point3f[] points = [(0, 0, 0), (1, 1, 0), (1, 2, 0), (0, 3, 0), (-1, 4, 0), (-1, 5, 0), (0, 6, 0)]
+            float[] widths = [.5] (interpolation = "constant")
+            color3f[] primvars:displayColor = [(1, 0, 0)]
+        }
+        def BasisCurves "VaryingWidth" (){
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+            float3 xformOp:translate = (6, 0, 0)
+
+            uniform token type = "cubic"
+            uniform token basis = "bezier"
+            int[] curveVertexCounts = [7]
+            point3f[] points = [(0, 0, 0), (1, 1, 0), (1, 2, 0), (0, 3, 0), (-1, 4, 0), (-1, 5, 0), (0, 6, 0)]
+            float[] widths = [0, .8, 0] (interpolation = "varying")
+            color3f[] primvars:displayColor = [(0, 0, 1)]
+        }
+        def BasisCurves "VertexWidth" (){
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+            float3 xformOp:translate = (9, 0, 0)
+
+            uniform token type = "cubic"
+            uniform token basis = "bezier"
+            int[] curveVertexCounts = [7]
+            point3f[] points = [(0, 0, 0), (1, 1, 0), (1, 2, 0), (0, 3, 0), (-1, 4, 0), (-1, 5, 0), (0, 6, 0)]
+            float[] widths = [0, .5, .5, .8, .5, .5, 0] (interpolation = "vertex")
+            color3f[] primvars:displayColor = [(1, 0, 1)]
+        }
+    }
+    def Scope "Ribbons"{
+        def BasisCurves "ConstantWidth" (){
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+            float3 xformOp:translate = (12, 0, 0)
+
+            uniform token type = "cubic"
+            uniform token basis = "bezier"
+            int[] curveVertexCounts = [7]
+            point3f[] points = [(0, 0, 0), (1, 1, 0), (1, 2, 0), (0, 3, 0), (-1, 4, 0), (-1, 5, 0), (0, 6, 0)]
+            float[] widths = [.5] (interpolation = "constant")
+            normal3f[] normals = [(1, 0, 0), (.98, 0, .44), (.707, 0, .707)] (interpolation = "varying")
+            color3f[] primvars:displayColor = [(0, 1, 0)]
+        }
+        def BasisCurves "VaryingWidth" (){
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+            float3 xformOp:translate = (15, 0, 0)
+
+            uniform token type = "cubic"
+            uniform token basis = "bezier"
+            int[] curveVertexCounts = [7]
+            point3f[] points = [(0, 0, 0), (1, 1, 0), (1, 2, 0), (0, 3, 0), (-1, 4, 0), (-1, 5, 0), (0, 6, 0)]
+            float[] widths = [.5, .8, .5] (interpolation = "varying")
+            normal3f[] normals = [(1, 0, 0), (.98, 0, .44), (.707, 0, .707)] (interpolation = "varying")
+            color3f[] primvars:displayColor = [(1, 1, 1)]
+        }
+        def BasisCurves "VertexWidth" (){
+            uniform token[] xformOpOrder = ["xformOp:translate"]
+            float3 xformOp:translate = (18, 0, 0)
+
+            uniform token type = "cubic"
+            uniform token basis = "bezier"
+            int[] curveVertexCounts = [7]
+            point3f[] points = [(0, 0, 0), (1, 1, 0), (1, 2, 0), (0, 3, 0), (-1, 4, 0), (-1, 5, 0), (0, 6, 0)]
+            float[] widths = [0, .5, .5, .8, .5, .5, 0] (interpolation = "vertex")
+            normal3f[] normals = [(1, 0, 0), (.98, 0, .44), (.707, 0, .707)] (interpolation = "varying")
+            color3f[] primvars:displayColor = [(1, 1, 0)]
+        }
+    }
+}
+
