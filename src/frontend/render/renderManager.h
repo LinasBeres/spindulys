@@ -55,7 +55,8 @@ class RenderManager
 		RenderManager();
 		virtual ~RenderManager();
 
-		bool LoadScene(const std::string& filepath) { return scene->LoadScene(filepath); }
+		bool ImportScene(const std::string& filepath);
+		void LoadScene(const std::string& filepath);
 
 		void SetStopRendererCallback(StopRenderer stopFunction) { stopRendererFunction = stopFunction; }
 		void SetBufferCallback(DrawBuffer drawFunction)         { drawBufferFunction = drawFunction; }
@@ -110,7 +111,6 @@ class RenderManager
 		StopRenderer stopRendererFunction = [] { return false; };
 		RegisterUpdates updateRendererFunction;
 		DrawBuffer drawBufferFunction;
-
 
 	private:
 };

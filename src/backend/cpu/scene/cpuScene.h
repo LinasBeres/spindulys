@@ -24,6 +24,8 @@ class CPUScene final : public Scene
 
 		RTCScene GetScene() { return _scene; }
 
+		virtual void ResetScene() override;
+
 	private:
 		RTCDevice _device = nullptr;
 		RTCScene _scene = nullptr; // Contains the instanced (single or not) geometry objects. This is the scene we are tracing against.

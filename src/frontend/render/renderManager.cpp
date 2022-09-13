@@ -1,5 +1,9 @@
 #include "renderManager.h"
 
+#include <filesystem>
+
+#include "../scene/usdTranslators/usdSceneLoader.h"
+
 
 FRONTEND_NAMESPACE_OPEN_SCOPE
 
@@ -15,6 +19,26 @@ RenderManager::~RenderManager()
 
 	for (const auto& bufferID : renderGlobals.currentBufferIds)
 		delete buffers[bufferID];
+}
+
+bool RenderManager::ImportScene(const std::string& filepath)
+{
+	const std::string ext = std::filesystem::path(filepath).extension();
+
+	if (ext == ".usd" || ext == ".usda" || ext == ".usdc" || ext == ".usdz")
+	{
+		UsdSceneLoader loader(scene);
+		return loader.LoadScene(filepath);
+	}
+
+	return false;
+}
+
+void RenderManager::LoadScene(const std::string& filepath)
+{
+	scene->ResetScene();
+
+	ImportScene(filepath);
 }
 
 void RenderManager::Render()
