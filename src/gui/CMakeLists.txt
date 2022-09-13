@@ -33,6 +33,7 @@ target_link_libraries(
 	spindulysShare
 	spindulysCPUBackend
 	cxxopts
+	nfd
 )
 
 set(VERT_SHADER ${CMAKE_SOURCE_DIR}/res/shaders/screenQuad.vert)

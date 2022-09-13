@@ -6,6 +6,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <functional>
+#include <string_view>
 
 #include <spindulys/sampler.h>
 #include <spindulys/buffer.h>
@@ -21,6 +22,10 @@ FRONTEND_NAMESPACE_OPEN_SCOPE
 class RenderManager
 {
 	public:
+		static constexpr std::string_view kValidSceneFormats[] {
+			"usd", "usda", "usdc", "usdz"
+		};
+
 		using StopRenderer    = std::function<bool(void)>;
 		using RegisterUpdates = std::function<bool(RenderManager*)>;
 		using DrawBuffer      = std::function<void(int, int, const Buffer3f&)>;
@@ -49,7 +54,7 @@ class RenderManager
 			IntegratorIds integratorID = IntegratorIds::UDPT;  // The ID of the integrator currently being used by the renderer.
 			BufferIds bufferID = BufferIds::Beauty;            // The current buffer being read.
 			std::unordered_set<BufferIds> currentBufferIds =   // Available buffers to read.
-				{ BufferIds::Beauty, BufferIds::Diffuse, BufferIds::Position, BufferIds::Normal, BufferIds::Debug };
+			{ BufferIds::Beauty, BufferIds::Diffuse, BufferIds::Position, BufferIds::Normal, BufferIds::Debug };
 		};
 
 		RenderManager();
