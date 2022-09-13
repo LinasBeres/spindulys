@@ -2,8 +2,6 @@
 
 #include <spindulys/math/linearspace3.h>
 
-#include <spindulys/mathHelper.h>
-
 
 BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 

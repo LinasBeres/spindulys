@@ -3,7 +3,6 @@
 
 #include <string>
 
-#include <spindulys/mathHelper.h>
 #include <spindulys/math/vec3.h>
 #include <spindulys/sampler.h>
 

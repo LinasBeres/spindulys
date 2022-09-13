@@ -2,6 +2,8 @@
 
 #include <functional>
 
+#include <nfd.h>
+
 #include "output_helper.h"
 
 
@@ -199,21 +201,19 @@ void Window::SetupGUI(RenderManager* renderManager)
 
 		if (ImGui::BeginMenu("Scene"))
 		{
-			if (ImGui::BeginMenu("Load..."))
+			if (ImGui::MenuItem("Load..."))
 			{
-				if (ImGui::MenuItem("Cup and Saucer"))
+				if (const std::string filepath = GetBrowserFilePath(); !filepath.empty())
 				{
-					renderManager->LoadScene(CUPS_SCENE);
+					renderManager->LoadScene(filepath);
 					renderManager->SetRenderDirty();
 				}
-
-				if (ImGui::MenuItem("Stormtroopers"))
-				{
-					renderManager->LoadScene(STORMTROOPERS_SCENE);
-					renderManager->SetRenderDirty();
-				}
-
-				ImGui::EndMenu();
+			}
+			if (ImGui::MenuItem("Import..."))
+			{
+				if (const std::string filepath = GetBrowserFilePath(); !filepath.empty())
+					if (renderManager->ImportScene(filepath))
+						renderManager->SetRenderDirty();
 			}
 
 			ImGui::EndMenu();
@@ -230,6 +230,28 @@ void Window::SetupGUI(RenderManager* renderManager)
 
 		ImGui::EndMainMenuBar();
 	}
+}
+
+std::string Window::GetBrowserFilePath() const
+{
+	std::string filepath;
+
+	std::string formats;
+	for (const auto& format : RenderManager::kValidSceneFormats)
+		formats += std::string(format) + std::string(",");
+
+	NFD_Init();
+	nfdfilteritem_t filterItem[1] = { { "Scene file", formats.c_str() }};
+	nfdchar_t *outPath;
+	nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 1, NULL);
+	if (result == NFD_OKAY)
+	{
+		filepath = std::string(outPath);
+		NFD_FreePath(outPath);
+	}
+	NFD_Quit();
+
+	return filepath;
 }
 
 void Window::RenderGUI()

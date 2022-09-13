@@ -54,4 +54,14 @@ bool CPUScene::CommitGeometry(CPUGeometry* geometry)
 	return true;
 }
 
+void CPUScene::ResetScene()
+{
+	// Reset embree render scene.
+	rtcReleaseScene(_scene);
+	_scene = rtcNewScene(_device);
+
+	// Reset Parent scene stuff
+	Scene::ResetScene();
+}
+
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE

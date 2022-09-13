@@ -11,13 +11,6 @@
 #include "../camera/camera.h"
 #include "../geometry/geometry.h"
 
-#include <pxr/usd/usd/stage.h>
-#include <pxr/usd/usd/prim.h>
-#include <pxr/usd/usdGeom/mesh.h>
-#include <pxr/usd/usdGeom/xformCache.h>
-#include <pxr/usd/usd/attribute.h>
-#include <pxr/base/vt/array.h>
-
 FRONTEND_NAMESPACE_OPEN_SCOPE
 
 class Scene
@@ -26,13 +19,11 @@ class Scene
 		Scene() = default;
 		virtual ~Scene() = default;
 
-		bool LoadScene(const std::string& filepath);
-		bool LoadMeshGeometry(const pxr::UsdStagePtr& stage);
-		void LoadPrims(const pxr::UsdStagePtr& stage, const pxr::SdfPath& primPath);
 		virtual void CommitScene() = 0;
 		virtual bool CreateGeomerty(Geometry* geom) = 0;
 
-		const std::string& GetFilePath() const { return filepath; }
+		void AddFilePath(const std::string& filepath) { _filepaths.emplace_back(filepath); }
+		const std::vector<std::string>& GetFilePaths() const { return _filepaths; }
 
 		const Geometry& GetGeometery(unsigned int geomInstanceID) const { return *(_sceneGeometry.at(geomInstanceID).get()); }
 
@@ -41,19 +32,23 @@ class Scene
 		Camera& UpdateSceneCamera() { return *(_cameras[_mainCamera].get()); }
 
 		const std::vector<std::string> GetSceneCameras() const;
+		bool CreateDefaultCamera();
+		void AddCamera(Camera* camera) { _cameras.emplace_back(camera); }
 
-		void SetSceneDirty() { update = true; }
-		bool SceneDirty() const { return update; }
+		void SetSceneDirty() { _update = true; }
+		bool SceneDirty() const { return _update; }
+
+		virtual void ResetScene();
 
 	protected:
-		std::string filepath;
+		std::vector<std::string> _filepaths;
 
 		size_t _mainCamera = 0;
 		std::vector<std::unique_ptr<Camera>> _cameras;
 
 		std::unordered_map<unsigned int, std::unique_ptr<Geometry>> _sceneGeometry;
 
-		bool update = false;
+		bool _update = false;
 
 		std::mutex _sceneMutex;
 	private:

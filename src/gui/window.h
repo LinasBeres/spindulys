@@ -67,6 +67,9 @@ class Window
 		GLuint screenTextureID;
 
 		GLShader screenQuadShader;
+
+	private:
+		std::string GetBrowserFilePath() const;
 };
 
 GUI_NAMESPACE_CLOSE_SCOPE
