@@ -12,6 +12,14 @@ You want to quickly want to trace a scene then this project is for you!
 At this current moment in time you can only build it from source, done by,
 
 ```
+git clone git@github.com:LinasBeres/spindulys.git
+cd spindulys
+git submodule update --init --recursive
+```
+
+and then build,
+
+```
 mkdir build
 cd build
 cmake ..
@@ -51,10 +59,10 @@ This was orignally forked from https://github.com/JoshuaSenouf/tracer into https
 | USDCylindar           | []   |                                                                                                            |
 | USDSphere             | []   |                                                                                                            |
 | USDCone               | []   |                                                                                                            |
-| USDBasisCurves        | []   |                                                                                                            |
+| USDBasisCurves        | [/]  |                                                                                                            |
 | USDPoints             | []   |                                                                                                            |
 | USDNurbsCurves        | []   |                                                                                                            |
-| USDNerbsOatch         | []   |                                                                                                            |
+| USDNerbsPatch         | []   |                                                                                                            |
 | USDCapsule            | []   |                                                                                                            |
 | USDInstance           | []   |                                                                                                            |
 | XML Loader            | []   |                                                                                                            |
