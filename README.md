@@ -22,9 +22,9 @@ make
 
 These are the current packages needed to build Spindulys:
 - clang/gcc (clang-7+/gcc-8+)
-- cmake (3.12+)
+- cmake (3.13+)
 - [Intel Embree](https://github.com/embree/embree) (3.5.2)
-- [USD](https://github.com/PixarAnimationStudios/USD) (20.11)
+- [USD](https://github.com/PixarAnimationStudios/USD) (20.11 - 22.08)
 - [TBB](https://github.com/oneapi-src/oneTBB) (2018.U6)
 
 In the future these dependancies should either be minimised or completely removed.
