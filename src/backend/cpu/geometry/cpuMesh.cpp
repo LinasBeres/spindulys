@@ -34,27 +34,28 @@ bool CPUMesh::CreatePrototype(const RTCDevice& device)
 			sizeof(Vec3f),
 			_points.size());
 
-	if(_type == MeshType::QuadMesh)
+	switch(_type)
 	{
-		rtcSetSharedGeometryBuffer(_geom,
-				RTC_BUFFER_TYPE_INDEX,
-				0,
-				RTC_FORMAT_UINT4,
-				_indices.data(),
-				0,
-				sizeof(int) * 4,
-				_indices.size() / 4);
-	}
-	else if (_type == MeshType::TriangleMesh)
-	{
-		rtcSetSharedGeometryBuffer(_geom,
-				RTC_BUFFER_TYPE_INDEX,
-				0,
-				RTC_FORMAT_UINT3,
-				_indices.data(),
-				0,
-				sizeof(int) * 3,
-				_indices.size() / 3);
+		case MeshType::QuadMesh:
+			rtcSetSharedGeometryBuffer(_geom,
+					RTC_BUFFER_TYPE_INDEX,
+					0,
+					RTC_FORMAT_UINT4,
+					_indices.data(),
+					0,
+					sizeof(int) * 4,
+					_indices.size() / 4);
+				break;
+		case MeshType::TriangleMesh:
+			rtcSetSharedGeometryBuffer(_geom,
+					RTC_BUFFER_TYPE_INDEX,
+					0,
+					RTC_FORMAT_UINT3,
+					_indices.data(),
+					0,
+					sizeof(int) * 3,
+					_indices.size() / 3);
+			break;
 	}
 
 	return true;

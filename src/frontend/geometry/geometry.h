@@ -7,8 +7,6 @@
 
 #include "../spindulysFrontend.h"
 
-#include <pxr/base/vt/array.h>
-
 
 FRONTEND_NAMESPACE_OPEN_SCOPE
 
@@ -20,6 +18,7 @@ class Geometry
 			QuadMesh = 0,
 			TriangleMesh,
 			Mesh,
+			Curve,
 		};
 
 		Geometry() = default;

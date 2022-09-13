@@ -1,6 +1,7 @@
 #include "cpuScene.h"
 
 #include "../geometry/cpuMesh.h"
+#include "../geometry/cpuCurve.h"
 
 #include <spindulys/math/linearspace3.h>
 
@@ -24,6 +25,12 @@ bool CPUScene::CreateGeomerty(Geometry* geom)
 		{
 			CPUMesh* mesh(new CPUMesh(dynamic_cast<Mesh*>(geom)));
 			success &= CommitGeometry(mesh);
+			break;
+		}
+		case Geometry::Curve:
+		{
+			CPUCurve* curve(new CPUCurve(dynamic_cast<Curve*>(geom)));
+			success &= CommitGeometry(curve);
 			break;
 		}
 		default:

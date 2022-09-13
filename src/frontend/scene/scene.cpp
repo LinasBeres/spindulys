@@ -8,9 +8,11 @@
 #include <tbb/parallel_for_each.h>
 
 #include "../geometry/mesh.h"
+#include "../geometry/curve.h"
 
 #include "usdTranslators/usdCameraTranslator.h"
 #include "usdTranslators/usdMeshTranslator.h"
+#include "usdTranslators/usdBasisCurveTranslator.h"
 
 FRONTEND_NAMESPACE_OPEN_SCOPE
 
@@ -57,6 +59,11 @@ void Scene::LoadPrims(const pxr::UsdStagePtr& stage, const pxr::SdfPath& primPat
 		{
 			if (UsdMeshTranslator trans; Mesh* mesh = (Mesh*)trans.GetObjectFromPrim(prim))
 				CreateGeomerty(mesh);
+		}
+		else if (prim.GetTypeName() == "BasisCurves")
+		{
+			if (UsdBasisCurveTranslator trans; Curve* curve = (Curve*)trans.GetObjectFromPrim(prim))
+				CreateGeomerty(curve);
 		}
 
 		if (prim.GetChildren())
