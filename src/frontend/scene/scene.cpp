@@ -10,10 +10,6 @@
 #include "../geometry/mesh.h"
 #include "../geometry/curve.h"
 
-#include "usdTranslators/usdCameraTranslator.h"
-#include "usdTranslators/usdMeshTranslator.h"
-#include "usdTranslators/usdBasisCurveTranslator.h"
-
 FRONTEND_NAMESPACE_OPEN_SCOPE
 
 const std::vector<std::string> Scene::GetSceneCameras() const

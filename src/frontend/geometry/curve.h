@@ -1,6 +1,8 @@
 #ifndef CURVE_H
 #define CURVE_H
 
+#include <vector>
+
 #include "../spindulysFrontend.h"
 
 #include "geometry.h"

@@ -35,12 +35,14 @@ file(GLOB PROJECT_SHADERS
 	res/shaders/*.vert
 	)
 
-file(GLOB PROJECT_SCENES
-	res/scenes/*.usd
-	res/scenes/*.usda
-	res/scenes/*.usdc
-	res/scenes/*.usdz
-	)
+if(USD_FOUND)
+	file(GLOB PROJECT_SCENES
+		res/scenes/*.usd
+		res/scenes/*.usda
+		res/scenes/*.usdc
+		res/scenes/*.usdz
+		)
+endif()
 
 file(GLOB PROJECT_CONFIGS
 	CMakeLists.txt

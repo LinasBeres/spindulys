@@ -20,9 +20,6 @@ bool UsdSceneLoader::LoadScene(const std::string& filepath)
 
 	LoadPrims(stage, pxr::SdfPath("/"));
 
-	if (scene->GetSceneCameras().empty())
-		scene->CreateDefaultCamera();
-
 	scene->AddFilePath(filepath);
 	scene->CommitScene();
 

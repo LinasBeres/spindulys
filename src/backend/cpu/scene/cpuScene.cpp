@@ -14,6 +14,11 @@ CPUScene::CPUScene()
 	_scene = rtcNewScene(_device);
 }
 
+CPUScene::~CPUScene()
+{
+	rtcReleaseScene(_scene);
+	rtcReleaseDevice(_device);
+}
 
 bool CPUScene::CreateGeomerty(Geometry* geom)
 {

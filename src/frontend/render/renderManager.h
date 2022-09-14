@@ -22,8 +22,12 @@ FRONTEND_NAMESPACE_OPEN_SCOPE
 class RenderManager
 {
 	public:
+
 		static constexpr std::string_view kValidSceneFormats[] {
+			"obj",
+#ifdef USING_USD
 			"usd", "usda", "usdc", "usdz"
+#endif
 		};
 
 		using StopRenderer    = std::function<bool(void)>;

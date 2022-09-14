@@ -43,7 +43,7 @@ int Window::RenderWindow(const std::string& scenePath)
 
 	CPURenderManager renderManager;
 
-	renderManager.LoadScene(!scenePath.empty() ? scenePath : TEST_SCENE);
+	renderManager.LoadScene(scenePath);
 	renderManager.GetCamera().SetResolution(Vec2f(renderGlobals.width, renderGlobals.height));
 
 	RenderManager::StopRenderer stopRenderingFunction = std::bind(&Window::CloseWindow, this);

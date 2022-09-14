@@ -1,6 +1,8 @@
 #ifndef GEOMETRY_H
 #define GEOMETRY_H
 
+#include <utility>
+
 #include <spindulys/math/vec3.h>
 #include <spindulys/math/col3.h>
 #include <spindulys/math/affinespace.h>

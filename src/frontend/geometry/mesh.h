@@ -1,6 +1,8 @@
 #ifndef MESH_H
 #define MESH_H
 
+#include <vector>
+
 #include "../spindulysFrontend.h"
 
 #include "geometry.h"

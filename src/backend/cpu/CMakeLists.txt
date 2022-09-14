@@ -39,6 +39,5 @@ target_link_libraries(
 	embree_common
 	${EMBREE_LIBRARY}
 	${TBB_LIBRARIES}
-	${USD_LIBRARIES}
 	spindulysShare
 )

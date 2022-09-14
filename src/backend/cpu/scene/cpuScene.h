@@ -16,7 +16,7 @@ class CPUScene final : public Scene
 {
 	public:
 		CPUScene();
-		~CPUScene() = default;
+		~CPUScene();
 
 		virtual void CommitScene() override { rtcCommitScene(_scene); }
 		virtual bool CreateGeomerty(Geometry* geom) override;
