@@ -2,6 +2,8 @@
 
 #include <filesystem>
 
+#include "../scene/objTranslators/objSceneLoader.h"
+
 #ifdef USING_USD
 #include "../scene/usdTranslators/usdSceneLoader.h"
 #endif
@@ -33,8 +35,13 @@ bool RenderManager::ImportScene(const std::string& filepath)
 
 	const std::string ext = std::filesystem::path(filepath).extension();
 
+	if (ext == ".obj")
+	{
+		ObjSceneLoader loader(scene);
+		return loader.LoadScene(filepath);
+	}
 #ifdef USING_USD
-	if (ext == ".usd" || ext == ".usda" || ext == ".usdc" || ext == ".usdz")
+	else if (ext == ".usd" || ext == ".usda" || ext == ".usdc" || ext == ".usdz")
 	{
 		UsdSceneLoader loader(scene);
 		return loader.LoadScene(filepath);

@@ -4,6 +4,7 @@ file(GLOB FRONTEND_HEADERS
 	geometry/*.h
 	render/*.h
 	scene/*.h
+	scene/objTranslators/*.h
 	utils/*.h
 )
 
@@ -12,6 +13,7 @@ file(GLOB FRONTEND_SOURCES
 	geometry/*.cpp
 	render/*.cpp
 	scene/*.cpp
+	scene/objTranslators/*.cpp
 )
 
 if(USD_FOUND)
