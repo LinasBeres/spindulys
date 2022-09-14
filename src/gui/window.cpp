@@ -236,9 +236,7 @@ std::string Window::GetBrowserFilePath() const
 {
 	std::string filepath;
 
-	std::string formats;
-	for (const auto& format : RenderManager::kValidSceneFormats)
-		formats += std::string(format) + std::string(",");
+	std::string formats = std::string(RenderManager::ValidSceneFormats());
 
 	NFD_Init();
 	nfdfilteritem_t filterItem[1] = { { "Scene file", formats.c_str() }};

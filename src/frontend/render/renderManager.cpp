@@ -57,6 +57,15 @@ void RenderManager::LoadScene(const std::string& filepath)
 	scene->CommitScene();
 }
 
+const std::string_view RenderManager::ValidSceneFormats()
+{
+#ifdef USING_USD
+	return std::string_view("obj, usd, usda, usdc, usdz");
+#else
+	return std::string_view("obj");
+#endif
+}
+
 void RenderManager::Render()
 {
 	while (!stopRendererFunction())

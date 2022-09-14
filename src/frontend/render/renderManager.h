@@ -23,13 +23,6 @@ class RenderManager
 {
 	public:
 
-		static constexpr std::string_view kValidSceneFormats[] {
-			"obj",
-#ifdef USING_USD
-			"usd", "usda", "usdc", "usdz"
-#endif
-		};
-
 		using StopRenderer    = std::function<bool(void)>;
 		using RegisterUpdates = std::function<bool(RenderManager*)>;
 		using DrawBuffer      = std::function<void(int, int, const Buffer3f&)>;
@@ -66,6 +59,8 @@ class RenderManager
 
 		bool ImportScene(const std::string& filepath);
 		void LoadScene(const std::string& filepath);
+		// TODO: Find out a way to make this work with constexpr.
+		static const std::string_view ValidSceneFormats();
 
 		void SetStopRendererCallback(StopRenderer stopFunction) { stopRendererFunction = stopFunction; }
 		void SetBufferCallback(DrawBuffer drawFunction)         { drawBufferFunction = drawFunction; }
