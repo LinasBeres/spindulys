@@ -28,7 +28,6 @@ bool CPUScene::CreateGeomerty(Geometry* geom)
 	{
 		case Geometry::Mesh:
 		{
-			std::cerr << "Creatinga  cpu mesh\n";
 			CPUMesh* mesh(new CPUMesh(dynamic_cast<Mesh*>(geom)));
 			success &= CommitGeometry(mesh);
 			break;
