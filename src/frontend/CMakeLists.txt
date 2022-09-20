@@ -43,6 +43,7 @@ target_link_libraries(
 	${TBB_LIBRARIES}
 	${USD_LIBRARIES}
 	spindulysShare
+	tinyObjLoader
 )
 
 if (USD_FOUND)

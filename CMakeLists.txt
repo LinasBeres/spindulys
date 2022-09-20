@@ -30,17 +30,17 @@ add_subdirectory(thirdparty)
 
 # Setup Project Resources
 file(GLOB PROJECT_SHADERS
-	res/shaders/*.frag
-	res/shaders/*.glsl
-	res/shaders/*.vert
+	resources/shaders/*.frag
+	resources/shaders/*.glsl
+	resources/shaders/*.vert
 	)
 
 if(USD_FOUND)
 	file(GLOB PROJECT_SCENES
-		res/scenes/*.usd
-		res/scenes/*.usda
-		res/scenes/*.usdc
-		res/scenes/*.usdz
+		resources/scenes/*.usd
+		resources/scenes/*.usda
+		resources/scenes/*.usdc
+		resources/scenes/*.usdz
 		)
 endif()
 

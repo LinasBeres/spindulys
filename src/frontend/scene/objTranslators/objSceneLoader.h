@@ -1,6 +1,10 @@
 #ifndef OBJSCENE_LOADER_H
 #define OBJSCENE_LOADER_H
 
+#include<vector>
+
+#include <tiny_obj_loader.h>
+
 #include "../../spindulysFrontend.h"
 
 #include "../scene.h"
@@ -17,7 +21,7 @@ class ObjSceneLoader final : public SceneLoader
 		virtual bool LoadScene(const std::string& filepath) override;
 
 	private:
-		bool LoadMesh();
+		void LoadMesh(const std::vector<Vec3f>& vertices, tinyobj::shape_t& shape);
 };
 
 FRONTEND_NAMESPACE_CLOSE_SCOPE
