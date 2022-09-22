@@ -45,9 +45,3 @@ target_link_libraries(
 	spindulysShare
 	tinyObjLoader
 )
-
-if (USD_FOUND)
-	add_compile_definitions(
-		USING_USD=${USD_FOUND}
-	)
-endif()
