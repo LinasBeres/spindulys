@@ -32,15 +32,23 @@ These are the current packages needed to build Spindulys:
 - clang/gcc (clang-7+/gcc-8+)
 - cmake (3.13+)
 - [Intel Embree](https://github.com/embree/embree) (3.5.2)
-- [USD](https://github.com/PixarAnimationStudios/USD) (20.11 - 22.08)
 - [TBB](https://github.com/oneapi-src/oneTBB) (2018.U6+ or oneTBB)
 
 In the future these dependancies should either be minimised or completely removed.
 
+#### Optional Requirements
+If you want **USD** to work then you require the following:
+- [USD](https://github.com/PixarAnimationStudios/USD) (20.11 - 22.08)
+
+#### Environments
+Currently tested on:
+- Rocky Linux 9.0 x86_64
+- macOS 10.15 Catalina
+
 ### Running
-Currently only USD scenes are supported. Launch one by,
+Currently only OBJ and USD scenes are supported. Launch one by,
 ```
-spindulys -s <path/to/usdScene>
+spindulys -s <path/to/scene>
 ```
 
 Then move the camera around with the WASD keys and right mouse button to rotate.
