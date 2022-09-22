@@ -31,9 +31,6 @@ int Window::RenderWindow(const std::string& scenePath)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	// glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
-	// glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
-	// glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	window = glfwCreateWindow(renderGlobals.width, renderGlobals.height, "Spindulys", nullptr, nullptr);
@@ -63,7 +60,6 @@ int Window::RenderWindow(const std::string& scenePath)
 
 	RenderManager::StopRenderer stopRenderingFunction = std::bind(&Window::CloseWindow, this);
 	renderManager.SetStopRendererCallback(stopRenderingFunction);
-
 
 	RenderManager::RegisterUpdates updateRendererFunction =
 		std::bind(&Window::PreRenderCallback, this, std::placeholders::_1);
@@ -428,7 +424,9 @@ void Window::SetupScreenQuad(int width, int height)
 
 	glBindTexture(GL_TEXTURE_2D, screenTextureID);
 
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F, width, height);
+	// TODO: Investigate why the bellow doesn't work on mac but glTexImage2D does.
+	// glTexImage2D(GL_TEXTURE_2D, 1, GL_RGB32F, width, height);
+	glTexImage2D(GL_TEXTURE_2D, 1, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
