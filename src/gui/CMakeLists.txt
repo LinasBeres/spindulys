@@ -35,8 +35,8 @@ target_link_libraries(
 	nfd
 )
 
-set(VERT_SHADER ${CMAKE_SOURCE_DIR}/res/shaders/screenQuad.vert)
-set(FRAG_SHADER ${CMAKE_SOURCE_DIR}/res/shaders/screenQuad.frag)
+set(VERT_SHADER ${CMAKE_SOURCE_DIR}/resources/shaders/screenQuad.vert)
+set(FRAG_SHADER ${CMAKE_SOURCE_DIR}/resources/shaders/screenQuad.frag)
 
 add_compile_definitions(
 	VERT_SHADER="${VERT_SHADER}"

@@ -7,21 +7,20 @@
 #include "../../spindulysFrontend.h"
 
 #include "../scene.h"
+#include "../sceneLoader.h"
 
 FRONTEND_NAMESPACE_OPEN_SCOPE
 
-class UsdSceneLoader
+class UsdSceneLoader final : public SceneLoader
 {
 	public:
-		UsdSceneLoader(Scene* scene) : scene(scene) { };
+		UsdSceneLoader(Scene* scene) : SceneLoader(scene) { };
 		~UsdSceneLoader() = default;
 
-		bool LoadScene(const std::string& filepath);
+		virtual bool LoadScene(const std::string& filepath) override;
 
 	private:
 		bool LoadPrims(const pxr::UsdStagePtr& stage, const pxr::SdfPath& primPath);
-
-		Scene* scene = nullptr;
 };
 
 FRONTEND_NAMESPACE_CLOSE_SCOPE
