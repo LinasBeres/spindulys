@@ -45,7 +45,10 @@ find_file(USD_CONFIG_FILE
 # wherever we found pxrConfig, which is always the correct location.
 get_filename_component(PXR_USD_LOCATION "${USD_CONFIG_FILE}" DIRECTORY)
 
-include(${USD_CONFIG_FILE})
+
+if(USD_FOUND)
+	include(${USD_CONFIG_FILE})
+endif()
 
 if(DEFINED PXR_VERSION)
     # Starting in core USD 21.05, pxrConfig.cmake provides the various USD

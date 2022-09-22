@@ -1,6 +1,6 @@
 set(USD_ROOT $ENV{REZ_USD_ROOT})
 
-find_package(USD REQUIRED)
+find_package(USD)
 
 include_directories(
     ${USD_INCLUDE_DIRS}
