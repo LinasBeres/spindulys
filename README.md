@@ -46,9 +46,9 @@ Currently tested on:
 - macOS 10.15 Catalina
 
 ### Running
-Currently only USD scenes are supported. Launch one by,
+Currently only OBJ and USD scenes are supported. Launch one by,
 ```
-spindulys -s <path/to/usdScene>
+spindulys -s <path/to/scene>
 ```
 
 Then move the camera around with the WASD keys and right mouse button to rotate.
