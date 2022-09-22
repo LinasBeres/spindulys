@@ -42,9 +42,3 @@ target_link_libraries(
 	${USD_LIBRARIES}
 	spindulysShare
 )
-
-if (USD_FOUND)
-	add_compile_definitions(
-		USING_USD=${USD_FOUND}
-	)
-endif()

@@ -28,6 +28,12 @@ include(SetupUSD)
 # Include 3rd Party Internal
 add_subdirectory(thirdparty)
 
+if (USD_FOUND)
+	add_compile_definitions(
+		USING_USD=${USD_FOUND}
+	)
+endif()
+
 # Setup Project Resources
 file(GLOB PROJECT_SHADERS
 	res/shaders/*.frag

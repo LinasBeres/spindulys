@@ -45,8 +45,7 @@ find_file(USD_CONFIG_FILE
 # wherever we found pxrConfig, which is always the correct location.
 get_filename_component(PXR_USD_LOCATION "${USD_CONFIG_FILE}" DIRECTORY)
 
-
-if(USD_FOUND)
+if(EXISTS ${USD_CONFIG_FILE})
 	include(${USD_CONFIG_FILE})
 endif()
 
