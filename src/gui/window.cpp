@@ -27,13 +27,15 @@ int Window::RenderWindow(const std::string& scenePath)
 
 	window = glfwCreateWindow(renderGlobals.width, renderGlobals.height, "Spindulys", nullptr, nullptr);
 	if (!window)
+	{
+		std::cerr << "Could not create window - exiting...\n";
 		return 1;
+	}
 
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // Enable vsync
 
 	gladLoadGL();
-
 
 	ImGui::StyleColorsClassic();
 
