@@ -41,6 +41,8 @@ class Scene
 
 		virtual void ResetScene();
 
+		void PrintGeometry() const;
+
 	protected:
 		std::vector<std::string> _filepaths;
 
