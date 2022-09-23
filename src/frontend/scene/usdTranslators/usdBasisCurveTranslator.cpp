@@ -38,7 +38,7 @@ void* UsdBasisCurveTranslator::GetObjectFromPrim(const pxr::UsdPrim& prim)
 
 		if (normals.size() < curve->GetPoints().size())
 		{
-			std::cerr << "We currently do not support varying curve normals. Skipping this curve.\n";
+			spdlog::warn("We currently do not support varying curve normals. Skipping this curve.");
 			delete curve;
 			return nullptr;
 		}
@@ -61,7 +61,7 @@ void* UsdBasisCurveTranslator::GetObjectFromPrim(const pxr::UsdPrim& prim)
 
 		if (widths.size() < curve->GetPoints().size())
 		{
-			std::cerr << "We currently do not support varying curve widths. Skipping this curve.\n";
+			spdlog::warn("We currently do not support varying curve widths. Skipping this curve.");
 			delete curve;
 			return nullptr;
 		}
@@ -89,7 +89,7 @@ void* UsdBasisCurveTranslator::GetObjectFromPrim(const pxr::UsdPrim& prim)
 			else if (pxrBasis == pxr::TfToken("bspline"))
 				curve->SetCurveType(Curve::CurveTypes::NormalOrientatedBezier);
 			else
-				std::cerr << "Unkown basis type: " << pxrBasis << "\n";
+				spdlog::warn("Unkown basis type: {}", pxrBasis.GetString());
 		}
 		else
 		{

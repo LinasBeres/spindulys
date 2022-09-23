@@ -22,7 +22,7 @@ int Window::RenderWindow(const std::string& scenePath)
 	if (!glfwInit())
 	{
 		glfwGetError(&description);
-		std::cerr << "Could not init due to: " << description << "\n Exiting.\n";
+		spdlog::critical("Could not init due to {}.\n Exiting.", description);
 		exit(EXIT_FAILURE);
 	}
 
@@ -37,7 +37,7 @@ int Window::RenderWindow(const std::string& scenePath)
 	if (!window)
 	{
 		glfwGetError(&description);
-		std::cerr << "Could not create window due to: " << description << "\n Exiting.\n";
+		spdlog::critical("Could not create window due to {}.\n Exiting.", description);
 		glfwTerminate();
 		exit(EXIT_FAILURE);
 	}

@@ -42,7 +42,7 @@ void Scene::ResetScene()
 void Scene::PrintGeometry() const
 {
 	for (const auto& geom: _sceneGeometry)
-		std::cerr << "Geom: " << geom.second->GetName() << "\n";
+		spdlog::info("Geom: {}", geom.second->GetName());
 }
 
 FRONTEND_NAMESPACE_CLOSE_SCOPE

@@ -12,3 +12,8 @@ target_include_directories(
 	spindulysShare INTERFACE
 	./
 )
+
+target_link_libraries(
+	spindulysShare INTERFACE
+	spdlog
+)

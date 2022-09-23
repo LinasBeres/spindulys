@@ -29,7 +29,7 @@ bool RenderManager::ImportScene(const std::string& filepath)
 {
 	if (filepath.empty())
 	{
-		std::cerr << "Filepath is empty. Skipping.\n";
+		spdlog::warn("Filepath is empty. Skipping");
 		return false;
 	}
 
@@ -48,7 +48,7 @@ bool RenderManager::ImportScene(const std::string& filepath)
 	}
 #endif
 
-	std::cerr << "Unsupported filetype: " << ext << "\n";
+	spdlog::warn("Unsupported filetype: {}", ext);
 	return false;
 }
 

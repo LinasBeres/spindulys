@@ -10,10 +10,12 @@
 
 int main(int argc, char** argv)
 {
+	spdlog::trace("main()");
 	cxxopts::Options options("spindulys", "A C++ GLFW path tracer");
 
 	options.add_options()
 		("s,scene", "Path to Scene", cxxopts::value<std::string>()->default_value(""))
+		("l,level", "Logging level from trace to off (0-6)", cxxopts::value<int>()->default_value("2"))
 		("h,help", "Print usage")
 	;
 
@@ -25,6 +27,15 @@ int main(int argc, char** argv)
 		exit(SPINDULYS_EXIT_GOOD);
 	}
 
+	if (result.count("level"))
+	{
+		const int level = result["level"].as<int>();
+		if (level > 0 && level < 7)
+			spdlog::set_level(static_cast<spdlog::level::level_enum>(level));
+		else
+			spdlog::warn("Level {} is not within range 0 to 6, therefore resorting to default of 2 (info).", level);
+	}
+
 	std::string scenePath;
 	if (result.count("scene"))
 	{
@@ -33,8 +44,7 @@ int main(int argc, char** argv)
 
 		if (!std::filesystem::exists(path))
 		{
-			std::cerr << "Filepath " << path << " does not exist.\n"
-				<< "Please input one that does.\n";
+			spdlog::error("Filepath {} does not exist.\n Please input one that does. Exiting.", path.string());
 			exit(SPINDULYS_EXIT_BAD_PATH);
 		}
 		if (path.is_relative())

@@ -1,6 +1,8 @@
 #ifndef SPINDULYS_H
 #define SPINDULYS_H
 
+#include <spdlog/spdlog.h>
+
 /// \file share/config.h
 
 #define SPINDULYS_MAJOR_VERSION 0
