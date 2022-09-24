@@ -52,7 +52,6 @@ Vec3f OrenNayar::Sample(PixelSample& pixelSample,
 	bsdfSample.pdf = Pdf(pixelSample, shadingPoint, bsdfSample);
 
 	// TODO: Using the basis directly does not yield the same result. This should get looked into.
-	// return normalize(USDToSIMD(SIMDToUSD(wi) * shadingPoint.basis));
 	return wi;
 }
 

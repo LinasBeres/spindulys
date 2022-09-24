@@ -37,7 +37,6 @@ class UsdTranslator
 		}
 
 	protected:
-		pxr::UsdGeomXformCache usdGeomXformCache;
 
 	private:
 };

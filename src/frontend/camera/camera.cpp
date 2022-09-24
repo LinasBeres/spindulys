@@ -89,7 +89,7 @@ void Camera::UpdateAxis()
 
 	_zAxis = normalize(front);
 
-	_xAxis= cross(_zAxis, UP);
+	_xAxis= cross(_zAxis, kUp);
 	_yAxis = cross(_zAxis, _xAxis);
 
 	// Apply camera rotation if any.

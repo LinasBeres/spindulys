@@ -1,9 +1,10 @@
 #ifndef SPINDULYS_LINEARSPACE3_H
 #define SPINDULYS_LINEARSPACE3_H
 
-// TODO: Set this as an optional include
+#ifdef USING_USD
 #include <pxr/base/gf/matrix3f.h>
 #include <pxr/base/gf/matrix3d.h>
+#endif
 
 #include <iostream>
 
@@ -33,10 +34,10 @@ struct LinearSpace3
 
 	template<typename L1> __forceinline LinearSpace3( const LinearSpace3<L1>& s ) : vx(s.vx), vy(s.vy), vz(s.vz) {}
 
-	__forceinline LinearSpace3<Vec3f>( const pxr::GfMatrix3f& m)
-		: vx(m[0][0], m[0][1], m[0][2]), vy(m[1][0], m[1][1], m[1][2]), vz(m[2][0], m[2][1], m[2][2]) {}
-	__forceinline LinearSpace3<Vec3f>( const pxr::GfMatrix3d& m)
-		: vx(m[0][0], m[0][1], m[0][2]), vy(m[1][0], m[1][1], m[1][2]), vz(m[2][0], m[2][1], m[2][2]) {}
+#ifdef USING_USD
+	__forceinline LinearSpace3<T>( const pxr::GfMatrix3f& m);
+	__forceinline LinearSpace3<T>( const pxr::GfMatrix3d& m);
+#endif
 
 	/*! matrix construction from column vectors */
 	__forceinline LinearSpace3(const Vector& vx, const Vector& vy, const Vector& vz)
@@ -103,6 +104,15 @@ struct LinearSpace3
 	/*! the column vectors of the matrix */
 	Vector vx,vy,vz;
 };
+
+#ifdef USING_USD
+template<>
+__forceinline LinearSpace3<Vec3f>::LinearSpace3( const pxr::GfMatrix3f& m)
+	: vx(m[0][0], m[0][1], m[0][2]), vy(m[1][0], m[1][1], m[1][2]), vz(m[2][0], m[2][1], m[2][2]) {}
+template<>
+__forceinline LinearSpace3<Vec3f>::LinearSpace3( const pxr::GfMatrix3d& m)
+	: vx(m[0][0], m[0][1], m[0][2]), vy(m[1][0], m[1][1], m[1][2]), vz(m[2][0], m[2][1], m[2][2]) {}
+#endif
 
 /*! compute transposed matrix */
 // template<> __forceinline const LinearSpace3<Vec3fa> LinearSpace3<Vec3fa>::transposed() const {

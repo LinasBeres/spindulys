@@ -2,6 +2,8 @@
 
 #include <functional>
 
+#include <nfd.h>
+
 #include "output_helper.h"
 
 
@@ -16,22 +18,34 @@ Window::Window()
 
 int Window::RenderWindow(const std::string& scenePath)
 {
-	glfwInit();
+	const char* description;
+	if (!glfwInit())
+	{
+		glfwGetError(&description);
+		std::cerr << "Could not init due to: " << description << "\n Exiting.\n";
+		exit(EXIT_FAILURE);
+	}
 
-	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 4);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
 	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 2);
+	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
 	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
 
 	window = glfwCreateWindow(renderGlobals.width, renderGlobals.height, "Spindulys", nullptr, nullptr);
 	if (!window)
-		return 1;
+	{
+		glfwGetError(&description);
+		std::cerr << "Could not create window due to: " << description << "\n Exiting.\n";
+		glfwTerminate();
+		exit(EXIT_FAILURE);
+	}
 
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // Enable vsync
 
 	gladLoadGL();
-
 
 	ImGui::StyleColorsClassic();
 
@@ -41,12 +55,11 @@ int Window::RenderWindow(const std::string& scenePath)
 
 	CPURenderManager renderManager;
 
-	renderManager.LoadScene(!scenePath.empty() ? scenePath : "/home/lba42/Documents/testRenderers/spindulys/res/scenes/test.usda");
+	renderManager.LoadScene(scenePath);
 	renderManager.GetCamera().SetResolution(Vec2f(renderGlobals.width, renderGlobals.height));
 
 	RenderManager::StopRenderer stopRenderingFunction = std::bind(&Window::CloseWindow, this);
 	renderManager.SetStopRendererCallback(stopRenderingFunction);
-
 
 	RenderManager::RegisterUpdates updateRendererFunction =
 		std::bind(&Window::PreRenderCallback, this, std::placeholders::_1);
@@ -199,21 +212,19 @@ void Window::SetupGUI(RenderManager* renderManager)
 
 		if (ImGui::BeginMenu("Scene"))
 		{
-			if (ImGui::BeginMenu("Load..."))
+			if (ImGui::MenuItem("Load..."))
 			{
-				if (ImGui::MenuItem("Cup and Saucer"))
+				if (const std::string filepath = GetBrowserFilePath(); !filepath.empty())
 				{
-					renderManager->LoadScene("/home/lba42/Documents/testRenderers/spindulys/res/scenes/cupandsaucer.usdz");
+					renderManager->LoadScene(filepath);
 					renderManager->SetRenderDirty();
 				}
-
-				if (ImGui::MenuItem("Stormtroopers"))
-				{
-					renderManager->LoadScene("/home/lba42/Documents/testRenderers/spindulys/res/scenes/stormtroopers.usdc");
-					renderManager->SetRenderDirty();
-				}
-
-				ImGui::EndMenu();
+			}
+			if (ImGui::MenuItem("Import..."))
+			{
+				if (const std::string filepath = GetBrowserFilePath(); !filepath.empty())
+					if (renderManager->ImportScene(filepath))
+						renderManager->SetRenderDirty();
 			}
 
 			ImGui::EndMenu();
@@ -230,6 +241,26 @@ void Window::SetupGUI(RenderManager* renderManager)
 
 		ImGui::EndMainMenuBar();
 	}
+}
+
+std::string Window::GetBrowserFilePath() const
+{
+	std::string filepath;
+
+	std::string formats = std::string(RenderManager::ValidSceneFormats());
+
+	NFD_Init();
+	nfdfilteritem_t filterItem[1] = { { "Scene file", formats.c_str() }};
+	nfdchar_t *outPath;
+	nfdresult_t result = NFD_OpenDialog(&outPath, filterItem, 1, NULL);
+	if (result == NFD_OKAY)
+	{
+		filepath = std::string(outPath);
+		NFD_FreePath(outPath);
+	}
+	NFD_Quit();
+
+	return filepath;
 }
 
 void Window::RenderGUI()
@@ -386,15 +417,16 @@ void Window::SetupScreenQuad(int width, int height)
 	glBindVertexArray(0);
 
 	// Screen quad shader and texture.
-	screenQuadShader.Setup("/home/lba42/Documents/testRenderers/spindulys/res/shaders/screenQuad.vert",
-			"/home/lba42/Documents/testRenderers/spindulys/res/shaders/screenQuad.frag");
+	screenQuadShader.Setup(VERT_SHADER, FRAG_SHADER);
 
 	glGenTextures(1, &screenTextureID);
 	glActiveTexture(GL_TEXTURE0);
 
 	glBindTexture(GL_TEXTURE_2D, screenTextureID);
 
-	glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F, width, height);
+	// TODO: Investigate why the bellow doesn't work on mac but glTexImage2D does.
+	// glTexStorage2D(GL_TEXTURE_2D, 1, GL_RGB32F, width, height);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);

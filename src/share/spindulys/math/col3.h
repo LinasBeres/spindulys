@@ -84,6 +84,13 @@ template<typename T> __forceinline Col3<T>& operator -=( Col3<T>& a, const Col3<
 template<typename T> __forceinline Col3<T>& operator *=( Col3<T>& a, const       T& b ) { a.r *= b  ; a.g *= b  ; a.b *= b  ; return a; }
 template<typename T> __forceinline Col3<T>& operator /=( Col3<T>& a, const       T& b ) { a.r /= b  ; a.g /= b  ; a.b /= b  ; return a; }
 
+////////////////////////////////////////////////////////////////////////////////
+/// Comparison Operators
+////////////////////////////////////////////////////////////////////////////////
+
+template<typename L> __forceinline bool operator ==( const Col3<L>& a, const Col3<L>& b ) { return a.r == b.r && a.g == b.g && a.b == b.b; }
+template<typename L> __forceinline bool operator !=( const Col3<L>& a, const Col3<L>& b ) { return a.r != b.r || a.g != b.g || a.b != b.b; }
+
 /*! output operator */
 template<typename T> inline std::ostream& operator<<(std::ostream& cout, const Col3<T>& a) {
 	return cout << "(" << a.r << ", " << a.g << ", " << a.b << ")";

@@ -1,5 +1,13 @@
 #include "renderManager.h"
 
+#include <filesystem>
+
+#include "../scene/objTranslators/objSceneLoader.h"
+
+#ifdef USING_USD
+#include "../scene/usdTranslators/usdSceneLoader.h"
+#endif
+
 
 FRONTEND_NAMESPACE_OPEN_SCOPE
 
@@ -15,6 +23,54 @@ RenderManager::~RenderManager()
 
 	for (const auto& bufferID : renderGlobals.currentBufferIds)
 		delete buffers[bufferID];
+}
+
+bool RenderManager::ImportScene(const std::string& filepath)
+{
+	if (filepath.empty())
+	{
+		std::cerr << "Filepath is empty. Skipping.\n";
+		return false;
+	}
+
+	const std::string ext = std::filesystem::path(filepath).extension();
+
+	if (ext == ".obj")
+	{
+		ObjSceneLoader loader(scene);
+		return loader.LoadScene(filepath);
+	}
+#ifdef USING_USD
+	else if (ext == ".usd" || ext == ".usda" || ext == ".usdc" || ext == ".usdz")
+	{
+		UsdSceneLoader loader(scene);
+		return loader.LoadScene(filepath);
+	}
+#endif
+
+	std::cerr << "Unsupported filetype: " << ext << "\n";
+	return false;
+}
+
+void RenderManager::LoadScene(const std::string& filepath)
+{
+	scene->ResetScene();
+
+	ImportScene(filepath);
+
+	if (scene->GetSceneCameras().empty())
+		scene->CreateDefaultCamera();
+
+	scene->CommitScene();
+}
+
+const std::string_view RenderManager::ValidSceneFormats()
+{
+#ifdef USING_USD
+	return std::string_view("obj, usd, usda, usdc, usdz");
+#else
+	return std::string_view("obj");
+#endif
 }
 
 void RenderManager::Render()

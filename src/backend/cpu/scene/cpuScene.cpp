@@ -1,7 +1,7 @@
 #include "cpuScene.h"
 
-#include "../geometry/cpuTrianglemesh.h"
-#include "../geometry/cpuQuadmesh.h"
+#include "../geometry/cpuMesh.h"
+#include "../geometry/cpuCurve.h"
 
 #include <spindulys/math/linearspace3.h>
 
@@ -14,25 +14,35 @@ CPUScene::CPUScene()
 	_scene = rtcNewScene(_device);
 }
 
-bool CPUScene::CreateGeomerty(Geometry::GeometryTypes geometryType,
-		const std::string& primName,
-		const AffineSpace3f& affine,
-		const Col3f& displayColor,
-		const pxr::VtArray<pxr::GfVec3f>& points,
-		const pxr::VtArray<int>& indices)
+CPUScene::~CPUScene()
+{
+	rtcReleaseScene(_scene);
+	rtcReleaseDevice(_device);
+}
+
+bool CPUScene::CreateGeomerty(Geometry* geom)
 {
 	bool success = true;
 
-	if (geometryType == Geometry::GeometryTypes::TriangleMesh)
+	switch(geom->GetGeometryType())
 	{
-		CPUTriangleMesh* triangleMesh(new CPUTriangleMesh(primName, affine, displayColor, points, indices));
-		success = success && CommitGeometry(triangleMesh);
+		case Geometry::Mesh:
+		{
+			CPUMesh* mesh(new CPUMesh(dynamic_cast<Mesh*>(geom)));
+			success &= CommitGeometry(mesh);
+			break;
+		}
+		case Geometry::Curve:
+		{
+			CPUCurve* curve(new CPUCurve(dynamic_cast<Curve*>(geom)));
+			success &= CommitGeometry(curve);
+			break;
+		}
+		default:
+			break;
 	}
-	else if (geometryType == Geometry::GeometryTypes::QuadMesh)
-	{
-		CPUQuadMesh* quadMesh(new CPUQuadMesh(primName, affine, displayColor, points, indices));
-		success = success && CommitGeometry(quadMesh);
-	}
+
+	delete geom;
 
 	return success;
 }
@@ -47,6 +57,16 @@ bool CPUScene::CommitGeometry(CPUGeometry* geometry)
 	_sceneMutex.unlock();
 
 	return true;
+}
+
+void CPUScene::ResetScene()
+{
+	// Reset embree render scene.
+	rtcReleaseScene(_scene);
+	_scene = rtcNewScene(_device);
+
+	// Reset Parent scene stuff
+	Scene::ResetScene();
 }
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE

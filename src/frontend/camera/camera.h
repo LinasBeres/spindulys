@@ -18,10 +18,10 @@ FRONTEND_NAMESPACE_OPEN_SCOPE
 class Camera
 {
 	public:
-		static constexpr double APERTURE_UNIT = 0.1f;
-		static constexpr float FOCAL_LENGTH_UNIT = 0.1f;
+		static constexpr double kAperatureUnit = 0.1f;
+		static constexpr float kFocalLengthUnit = 0.1f;
 
-		const Vec3f UP = Vec3f(0.f, 1.f, 0.f);
+		const Vec3f kUp = Vec3f(0.f, 1.f, 0.f);
 
 		enum Projection {
 			Perspective = 0,
@@ -117,7 +117,7 @@ class Camera
 		// Render info
 		// Right handed rule.
 		Vec3f _zAxis = Vec3f(0.f, 0.f, -1.f);
-		Vec3f _xAxis = cross(_zAxis, UP);
+		Vec3f _xAxis = cross(_zAxis, kUp);
 		Vec3f _yAxis = cross(_zAxis, _xAxis);
 
 		float _aperatureAspectRatio = _horizontalAperature / _verticalAperature;

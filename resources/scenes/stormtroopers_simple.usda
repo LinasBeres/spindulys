@@ -1,0 +1,110 @@
+#usda 1.0
+(
+    "Created by UsdView"
+    defaultPrim = "Stormtroopers_GRP"
+    doc = """Generated from Composed Stage of root layer /home/lba42/Documents/testRenderers/spindulys/res/scenes/stormtroopers_overrides_overrides.usd
+
+
+Generated from Composed Stage of root layer /home/lba42/Documents/testRenderers/spindulys/res/scenes/stormtroopers_simple.usda
+"""
+    upAxis = "Y"
+)
+
+def Xform "Stormtroopers_GRP" (
+    kind = "component"
+)
+{
+    token visibility = "inherited"
+
+
+    def Xform "Empty"
+    {
+        token visibility = "invisible"
+        double3 xformOp:translate = (-0.029046297073364258, 0.20588070154190063, 1.384031057357788)
+        uniform token[] xformOpOrder = ["!resetXformStack!", "xformOp:translate"]
+    }
+
+    def Xform "Plane"
+    {
+        token visibility = "inherited"
+        float xformOp:rotateY = 33.193928
+        float3 xformOp:scale = (0.32967073, 0.50083506, 2.9262512)
+        double3 xformOp:translate = (-0.1002379059791565, 2.998622179031372, 1.9441370964050293)
+        uniform token[] xformOpOrder = ["!resetXformStack!", "xformOp:translate", "xformOp:rotateY", "xformOp:scale"]
+
+        def Mesh "PlaneShape"
+        {
+            uniform bool doubleSided = 1
+            float3[] extent = [(-1, 0, -5.4), (1, 0, 1)]
+            int[] faceVertexCounts = [3, 3, 3, 3, 3, 3]
+            int[] faceVertexIndices = [0, 1, 2, 0, 3, 2, 4, 5, 7, 4, 7, 6, 8, 9, 11, 8, 11, 10]
+            rel material:binding = </Stormtroopers_GRP/Looks/initialShadingGroup>
+            point3f[] points = [(-1, 0, 1), (1, 0, 1), (-1, 0, -1), (1, 0, -1), (-1, 0, -1.2), (1, 0, -1.2), (-1, 0, -3.2), (1, 0, -3.2), (-1, 0, -3.4), (1, 0, -3.4), (-1, 0, -5.4), (1, 0, -5.4)]
+            color3f[] primvars:displayColor = [(0.13320851, 0.13320851, 0.13320851)] (
+                customData = {
+                    dictionary Maya = {
+                        bool generated = 1
+                    }
+                }
+            )
+        }
+    }
+
+    def Xform "Camera"
+    {
+        token visibility = "invisible"
+        float3 xformOp:rotateXYZ = (0, 0, 0)
+        double3 xformOp:translate = (0.2838936448097229, -0.7944048643112183, 9.133271217346191)
+        uniform token[] xformOpOrder = ["!resetXformStack!", "xformOp:translate", "xformOp:rotateXYZ"]
+
+        def Camera "CameraShape"
+        {
+            float2 clippingRange = (0.1, 100)
+            float focusDistance = 7.819797
+            float fStop = 5.6
+            float horizontalAperture = 32
+            float verticalAperture = 18
+        }
+    }
+
+    def Scope "Looks"
+    {
+        token visibility = "invisible"
+
+        def Material "initialShadingGroup"
+        {
+            color3f inputs:displayColor = (0.13320851, 0.13320851, 0.13320851)
+            float inputs:displayOpacity
+            color3f inputs:transparency
+            token outputs:ri:surface.connect = </Stormtroopers_GRP/Looks/initialShadingGroup/initialShadingGroup_lambert.outputs:out>
+
+            def Shader "initialShadingGroup_lambert"
+            {
+                uniform token info:id = "PxrDiffuse"
+                color3f inputs:diffuseColor.connect = </Stormtroopers_GRP/Looks/initialShadingGroup.inputs:displayColor>
+                color3f inputs:transmissionColor.connect = </Stormtroopers_GRP/Looks/initialShadingGroup.inputs:transparency>
+                token outputs:out
+            }
+        }
+    }
+}
+
+def Camera "sceneCamera"
+{
+    float apertureRadius = 0
+    float focalDistance = 4
+    float fov = 45
+    float pitch = 6
+    float3 position = (0, 4, 15)
+    token visibility = "invisible"
+    float3 xformOp:translate = (0, 4, 15)
+    uniform token[] xformOpOrder = ["xformOp:translate"]
+    float yaw = 90
+}
+
+def Settings "settings"
+{
+    float3 skyColor = (0.7, 0.8, 0.9)
+    token visibility = "invisible"
+}
+

@@ -3,6 +3,7 @@
 #include <iostream>
 
 #include <pxr/base/gf/camera.h>
+#include "pxr/usd/usdGeom/camera.h"
 
 #include <spindulys/math/affinespace.h>
 
@@ -15,7 +16,8 @@ void* UsdCameraTranslator::GetObjectFromPrim(const pxr::UsdPrim& prim)
 {
 	Camera* camera = new Camera(prim.GetName());
 
-	const AffineSpace3f affine(usdGeomXformCache.GetLocalToWorldTransform(prim));
+	pxr::UsdGeomCamera usdCamera(prim);
+	const AffineSpace3f affine(usdCamera.ComputeLocalToWorldTransform(pxr::UsdTimeCode::Default()));
 	camera->SetAffine(affine);
 
 	pxr::TfToken projection;

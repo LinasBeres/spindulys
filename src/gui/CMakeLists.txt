@@ -29,10 +29,19 @@ target_link_libraries(
 	glad
 	imgui
 	tinyexr
-	${USD_LIBRARIES}
 	spindulysShare
 	spindulysCPUBackend
 	cxxopts
+	nfd
+)
+
+set(VERT_SHADER ${CMAKE_SOURCE_DIR}/resources/shaders/screenQuad.vert)
+set(FRAG_SHADER ${CMAKE_SOURCE_DIR}/resources/shaders/screenQuad.frag)
+
+add_compile_definitions(
+	VERT_SHADER="${VERT_SHADER}"
+	FRAG_SHADER="${FRAG_SHADER}"
+	TEST_SCENE="${TEST_SCENE}"
 )
 
 set_target_properties(${PROJECT_NAME} PROPERTIES

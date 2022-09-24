@@ -3,10 +3,6 @@
 
 FRONTEND_NAMESPACE_OPEN_SCOPE
 
-Geometry::Geometry()
-{
-}
-
 Geometry::~Geometry()
 {
 
