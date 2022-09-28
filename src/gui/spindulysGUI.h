@@ -17,4 +17,14 @@
 
 #endif // SPINDULYS_USE_NAMESPACE
 
+// Set to 0 to disable GUI tracing.
+#define GUI_TRACING 1
+#if GUI_TRACING
+#define GUI_TRACE() MTR_SCOPE("GUI", __func__);
+#define GUI_SCOPE(m) MTR_SCOPE("GUI", m);
+#else
+#define GUI_TRACE()
+#define GUI_SCOPE(m)
+#endif // GUI_TRACING
+
 #endif //SPINDULYS_GUI_H

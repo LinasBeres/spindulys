@@ -12,6 +12,7 @@ FRONTEND_NAMESPACE_OPEN_SCOPE
 
 void* UsdBasisCurveTranslator::GetObjectFromPrim(const pxr::UsdPrim& prim)
 {
+	FRONTEND_TRACE();
 	Curve* curve = new Curve(Geometry::GeometryTypes::Curve, prim.GetName());
 
 	pxr::UsdGeomBasisCurves usdBasisCurve(prim);

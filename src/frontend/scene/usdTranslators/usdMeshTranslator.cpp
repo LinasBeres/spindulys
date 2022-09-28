@@ -155,6 +155,7 @@ inline pxr::VtVec3iArray TriangulateMeshIndices(pxr::VtArray<int>& meshVertexCou
 
 void* UsdMeshTranslator::GetObjectFromPrim(const pxr::UsdPrim& prim)
 {
+	FRONTEND_TRACE();
 	Mesh* mesh = new Mesh(Geometry::GeometryTypes::Mesh, prim.GetName());
 
 	pxr::UsdGeomMesh usdGeom(prim);

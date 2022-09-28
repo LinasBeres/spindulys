@@ -10,6 +10,14 @@
 
 int main(int argc, char** argv)
 {
+	// Tracing Starting
+	// ----------------------------------
+	mtr_init("trace.json");
+	MTR_META_PROCESS_NAME("spindulys");
+	MTR_META_THREAD_NAME("main thread");
+	MTR_BEGIN("GUI", "main()");
+	// ----------------------------------
+
 	spdlog::trace("main()");
 	cxxopts::Options options("spindulys", "A C++ GLFW path tracer");
 
@@ -54,5 +62,14 @@ int main(int argc, char** argv)
 	spindulys::spindulysFrontend::spindulysBackendCPU::spindulysGUI::Window mainWindow;
 	mainWindow.RenderWindow(scenePath);
 
+	// Tracing Ending.
+	// ----------------------------------
+	MTR_END("GUI", "main()");
+	MTR_INSTANT("main", "the end");
+	mtr_flush();
+	mtr_shutdown();
+	// ----------------------------------
+
+	spdlog::info("All good exiting now.");
 	return SPINDULYS_EXIT_GOOD;
 }

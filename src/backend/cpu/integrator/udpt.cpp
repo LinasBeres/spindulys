@@ -12,6 +12,7 @@ void UDPTIntegrator::GetPixelColor(Ray& ray,
 		RenderManager::Buffers buffers,
 		const RenderManager::RenderGlobals& renderGlobals)
 {
+	BACKEND_TRACE();
 	Col3f colorAccumulation(0.0f);
 	Col3f colorThroughput(1.0f);
 

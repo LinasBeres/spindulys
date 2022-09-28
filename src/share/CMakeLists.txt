@@ -16,4 +16,5 @@ target_include_directories(
 target_link_libraries(
 	spindulysShare INTERFACE
 	spdlog
+	minitrace
 )

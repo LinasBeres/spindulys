@@ -1,7 +1,11 @@
 #ifndef SPINDULYS_H
 #define SPINDULYS_H
 
+// Our logging library
 #include <spdlog/spdlog.h>
+
+// Our tracing library
+#include <minitrace.h>
 
 /// \file share/config.h
 

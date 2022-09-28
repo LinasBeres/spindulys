@@ -15,8 +15,10 @@ CPURenderManager::CPURenderManager()
 
 void CPURenderManager::Trace(int iterations)
 {
+	BACKEND_TRACE();
 	tbb::parallel_for(tbb::blocked_range<int>(0, renderGlobals.height), [&](tbb::blocked_range<int> height_range)
 		{
+			BACKEND_BEGIN("ThreadedTrace");
 			for (int pixelY = height_range.begin(); pixelY < height_range.end(); ++pixelY)
 			{
 				Sampler sampler;
@@ -52,6 +54,7 @@ void CPURenderManager::Trace(int iterations)
 						buffers[bufferID]->MultiplyPixel(pixelSample.pixelIdx, 1.f / static_cast<float>(iterations));
 				}
 			}
+			BACKEND_END("ThreadedTrace");
 		});
 }
 

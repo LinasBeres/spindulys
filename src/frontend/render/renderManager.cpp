@@ -13,12 +13,14 @@ FRONTEND_NAMESPACE_OPEN_SCOPE
 
 RenderManager::RenderManager()
 {
+	FRONTEND_TRACE();
 	for (const auto& bufferID : renderGlobals.currentBufferIds)
 		buffers[bufferID] = new Buffer3f(renderGlobals.width, renderGlobals.height);
 }
 
 RenderManager::~RenderManager()
 {
+	FRONTEND_TRACE();
 	delete scene;
 
 	for (const auto& bufferID : renderGlobals.currentBufferIds)
@@ -27,6 +29,7 @@ RenderManager::~RenderManager()
 
 bool RenderManager::ImportScene(const std::string& filepath)
 {
+	FRONTEND_TRACE();
 	if (filepath.empty())
 	{
 		spdlog::warn("Filepath is empty. Skipping");
@@ -54,6 +57,7 @@ bool RenderManager::ImportScene(const std::string& filepath)
 
 void RenderManager::LoadScene(const std::string& filepath)
 {
+	FRONTEND_TRACE();
 	scene->ResetScene();
 
 	ImportScene(filepath);
@@ -66,6 +70,7 @@ void RenderManager::LoadScene(const std::string& filepath)
 
 const std::string_view RenderManager::ValidSceneFormats()
 {
+	FRONTEND_TRACE();
 #ifdef USING_USD
 	return std::string_view("obj, usd, usda, usdc, usdz");
 #else
@@ -75,6 +80,7 @@ const std::string_view RenderManager::ValidSceneFormats()
 
 void RenderManager::Render()
 {
+	FRONTEND_TRACE();
 	while (!stopRendererFunction())
 	{
 		if (updateRendererFunction)
@@ -96,6 +102,7 @@ void RenderManager::Render()
 
 void RenderManager::ResetRender()
 {
+	FRONTEND_TRACE();
 	iterations = 0;
 
 	for (const auto& bufferID : renderGlobals.currentBufferIds)
@@ -106,6 +113,7 @@ void RenderManager::ResetRender()
 
 bool RenderManager::AddBuffer(BufferIds bufferID)
 {
+	FRONTEND_TRACE();
 	// Current buffer already exists so do nothing and signify that no update needs to happen.
 	if (renderGlobals.currentBufferIds.find(bufferID) != renderGlobals.currentBufferIds.end())
 		return false;
@@ -118,6 +126,7 @@ bool RenderManager::AddBuffer(BufferIds bufferID)
 
 bool RenderManager::RemoveBuffer(BufferIds bufferID)
 {
+	FRONTEND_TRACE();
 	// Beauty cannot be removed
 	if (bufferID == BufferIds::Beauty)
 		return false;

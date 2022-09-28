@@ -14,6 +14,7 @@ FRONTEND_NAMESPACE_OPEN_SCOPE
 
 void* UsdCameraTranslator::GetObjectFromPrim(const pxr::UsdPrim& prim)
 {
+	FRONTEND_TRACE();
 	Camera* camera = new Camera(prim.GetName());
 
 	pxr::UsdGeomCamera usdCamera(prim);

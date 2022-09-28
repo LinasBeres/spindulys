@@ -8,6 +8,7 @@ FRONTEND_NAMESPACE_OPEN_SCOPE
 
 bool ObjSceneLoader::LoadScene(const std::string& filepath)
 {
+	FRONTEND_TRACE();
 	// We assume that the incoming file is a valid obj file
 
 	scene->AddFilePath(filepath);
@@ -40,6 +41,7 @@ bool ObjSceneLoader::LoadScene(const std::string& filepath)
 // This code is very inefficient but it works so ¯\_(ツ)_/¯
 void ObjSceneLoader::LoadMesh(const std::vector<Vec3f>& vertices, tinyobj::shape_t& shape)
 {
+	FRONTEND_TRACE();
 	Mesh* mesh = new Mesh(Geometry::GeometryTypes::Mesh, shape.name);
 
 	mesh->SetPoints(vertices);

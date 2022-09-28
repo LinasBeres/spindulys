@@ -14,6 +14,7 @@ FRONTEND_NAMESPACE_OPEN_SCOPE
 
 const std::vector<std::string> Scene::GetSceneCameras() const
 {
+	FRONTEND_TRACE();
 	std::vector<std::string> cameras;
 	for (const auto& camera : _cameras)
 		cameras.emplace_back(camera->GetName());
@@ -23,6 +24,7 @@ const std::vector<std::string> Scene::GetSceneCameras() const
 
 bool Scene::CreateDefaultCamera()
 {
+	FRONTEND_TRACE();
 	for (const auto& camera : _cameras)
 		if (camera->GetName() == "SpindulysDefaultCamera")
 			return false;
@@ -33,6 +35,7 @@ bool Scene::CreateDefaultCamera()
 
 void Scene::ResetScene()
 {
+	FRONTEND_TRACE();
 	_filepaths.clear();
 	_mainCamera = 0;
 	_cameras.clear();
@@ -41,6 +44,7 @@ void Scene::ResetScene()
 
 void Scene::PrintGeometry() const
 {
+	FRONTEND_TRACE();
 	for (const auto& geom: _sceneGeometry)
 		spdlog::info("Geom: {}", geom.second->GetName());
 }
