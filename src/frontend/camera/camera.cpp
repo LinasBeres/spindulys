@@ -15,10 +15,8 @@ Camera::~Camera()
 
 bool Camera::GetCameraRay(const PixelSample& pixelSample, Vec3f& origin, Vec3f& direction) const
 {
-	FRONTEND_TRACE();
-	//_deviceAspectRatio 
-	const float pointX((pixelSample.pixelX - 0.5f) / (GetResolution().x));
-	const float pointY((pixelSample.pixelY - 0.5f) / (GetResolution().y));
+	const float pointX((pixelSample.pixelX - 0.5f) / (GetResolution().x - 1.f));
+	const float pointY((pixelSample.pixelY - 0.5f) / (GetResolution().y - 1.f));
 
 	const Vec3f rayDirection(_zAxis + (_right * ((2.0f * pointX) - 1.0f)) + (_top * ((2.0f * pointY) - 1.0f)));
 
