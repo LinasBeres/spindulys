@@ -18,7 +18,7 @@
 
 FRONTEND_NAMESPACE_OPEN_SCOPE
 
-struct Ray
+struct __aligned(16) Ray
 {
 	Vec3f origin;
 	float tnear;

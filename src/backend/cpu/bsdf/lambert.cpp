@@ -12,6 +12,7 @@ Vec3f Lambert::Evaluate(PixelSample& pixelSample,
 		ShadingPoint& shadingPoint,
 		BSDFSample& bsdfSample)
 {
+	BACKEND_TRACE();
 	// TODO: "NdotL" should not be the same one as from "Sample()", but the actual dot product of the normal and the light direction?
 	const Vec3f geometryColor = Vec3f(shadingPoint.geometry.GetDisplayColor().r, shadingPoint.geometry.GetDisplayColor().g, shadingPoint.geometry.GetDisplayColor().b);
 	return (geometryColor / static_cast<float>(M_PI)) * bsdfSample.NdotL;
@@ -21,6 +22,7 @@ Vec3f Lambert::Sample(PixelSample& pixelSample,
 		ShadingPoint& shadingPoint,
 		BSDFSample& bsdfSample)
 {
+	BACKEND_TRACE();
 	float rand0 = pixelSample.sampler.Uniform1D();
 	float rand1 = pixelSample.sampler.Uniform1D();
 	Vec3f randomDirection(pixelSample.sampler.HemisphereCosineWeighted(rand0, rand1));

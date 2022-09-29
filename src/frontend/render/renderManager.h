@@ -45,7 +45,7 @@ class RenderManager
 		{
 			int width = 800;                                   // The width of the image to render.
 			int height = 600;                                  // The height of the image to render.
-			int maxIterations = 1;                            // The maximum number of times to refine.
+			int maxIterations = 32;                             // The maximum number of times to refine.
 			int depth = 3;                                     // The maximum ray depth, or number of bounces, the renderer can make use of.
 			int samples = 1;                                   // Total number of samples per pixel to compute.
 			IntegratorIds integratorID = IntegratorIds::UDPT;  // The ID of the integrator currently being used by the renderer.

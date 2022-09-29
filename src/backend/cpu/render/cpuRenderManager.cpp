@@ -18,7 +18,6 @@ void CPURenderManager::Trace(int iterations)
 	BACKEND_TRACE();
 	tbb::parallel_for(tbb::blocked_range<int>(0, renderGlobals.height), [&](tbb::blocked_range<int> height_range)
 		{
-			BACKEND_BEGIN("ThreadedTrace");
 			for (int pixelY = height_range.begin(); pixelY < height_range.end(); ++pixelY)
 			{
 				Sampler sampler;
@@ -41,6 +40,8 @@ void CPURenderManager::Trace(int iterations)
 						for (const auto& bufferID : renderGlobals.currentBufferIds)
 							buffers[bufferID]->MultiplyPixel(pixelSample.pixelIdx, static_cast<float>(iterations - 1));
 
+						// buffers[BufferIds::Beauty]->MultiplyPixel(pixelSample.pixelIdx, static_cast<float>(iterations - 1));
+
 						if (renderGlobals.integratorID == IntegratorIds::UDPT)
 							UDPTIntegrator().GetPixelColor(primaryRay, pixelSample, dynamic_cast<CPUScene*>(scene), buffers, renderGlobals);
 
@@ -54,7 +55,6 @@ void CPURenderManager::Trace(int iterations)
 						buffers[bufferID]->MultiplyPixel(pixelSample.pixelIdx, 1.f / static_cast<float>(iterations));
 				}
 			}
-			BACKEND_END("ThreadedTrace");
 		});
 }
 

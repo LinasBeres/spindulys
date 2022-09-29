@@ -26,6 +26,8 @@
 #else
 #define BACKEND_TRACE()
 #define BACKEND_SCOPE(m)
+#define BACKEND_BEGIN(m)
+#define BACKEND_END(m)
 #endif // BACKEND_TRACING
 
 #endif //SPINDULYS_BACKEND_CPU_H

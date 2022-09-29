@@ -11,6 +11,7 @@ Integrator::Integrator()
 
 ShadingPoint Integrator::SetupShadingPoint(const CPUScene* scene, const Ray& ray)
 {
+	BACKEND_TRACE();
 	ShadingPoint shadingPoint(scene->GetGeometery(ray.instID));
 
 	shadingPoint.V = -Vec3f(ray.direction.x, ray.direction.y, ray.direction.z);
