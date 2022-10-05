@@ -37,6 +37,7 @@ bool Camera::GetCameraRay(const PixelSample& pixelSample, Vec3f& origin, Vec3f& 
 void Camera::KeyboardCallback(CAMERA_MOVEMENTS direction,
 		float deltaTime)
 {
+	FRONTEND_TRACE();
 	float velocity(_speed * deltaTime);
 
 	if (direction == Forward)
@@ -59,6 +60,7 @@ void Camera::KeyboardCallback(CAMERA_MOVEMENTS direction,
 
 void Camera::MouseCallback(const Vec2f& mouseOffset)
 {
+	FRONTEND_TRACE();
 	_yaw += mouseOffset.x * _sensitivity;
 	_pitch += mouseOffset.y * _sensitivity;
 
@@ -79,6 +81,7 @@ void Camera::MouseCallback(const Vec2f& mouseOffset)
 // -----------------------------------------------------
 void Camera::UpdateAxis()
 {
+	FRONTEND_TRACE();
 	Vec3f front(
 			cos(deg2rad(_yaw)) * cos(deg2rad(_pitch)),
 			sin(deg2rad(_pitch)),
@@ -112,6 +115,7 @@ bool Camera::SetAffine(const AffineSpace3f& affine)
 
 bool Camera::SetHorizontalAperature(float horizontalAperature)
 {
+	FRONTEND_TRACE();
 	if (horizontalAperature == std::exchange(_horizontalAperature, horizontalAperature))
 		return false;
 
@@ -129,6 +133,7 @@ bool Camera::SetHorizontalAperature(float horizontalAperature)
 
 bool Camera::SetVerticalAperature(float verticalAperature)
 {
+	FRONTEND_TRACE();
 	if (verticalAperature == std::exchange(_verticalAperature, verticalAperature))
 		return false;
 
@@ -146,6 +151,7 @@ bool Camera::SetVerticalAperature(float verticalAperature)
 
 bool Camera::SetFocalLength(float focalLength)
 {
+	FRONTEND_TRACE();
 	if (focalLength == std::exchange(_focalLength, focalLength))
 		return false;
 
@@ -165,6 +171,7 @@ bool Camera::SetFocalLength(float focalLength)
 
 bool Camera::SetResolution(const Vec2f& resolution)
 {
+	FRONTEND_TRACE();
 	if (_resolution == std::exchange(_resolution, resolution))
 		return false;
 

@@ -12,17 +12,20 @@ GUI_NAMESPACE_OPEN_SCOPE
 
 Window::Window()
 {
+	GUI_TRACE();
 	IMGUI_CHECKVERSION();
 	ImGui::CreateContext();
 }
 
 int Window::RenderWindow(const std::string& scenePath)
 {
+	GUI_TRACE();
+
 	const char* description;
 	if (!glfwInit())
 	{
 		glfwGetError(&description);
-		std::cerr << "Could not init due to: " << description << "\n Exiting.\n";
+		spdlog::critical("Could not init due to {}.\n Exiting.", description);
 		exit(EXIT_FAILURE);
 	}
 
@@ -37,7 +40,7 @@ int Window::RenderWindow(const std::string& scenePath)
 	if (!window)
 	{
 		glfwGetError(&description);
-		std::cerr << "Could not create window due to: " << description << "\n Exiting.\n";
+		spdlog::critical("Could not create window due to {}.\n Exiting.", description);
 		glfwTerminate();
 		exit(EXIT_FAILURE);
 	}
@@ -82,6 +85,7 @@ int Window::RenderWindow(const std::string& scenePath)
 
 bool Window::PreRenderCallback(RenderManager* renderManager)
 {
+	GUI_TRACE();
 	float currentFrame(glfwGetTime());
 	deltaTime = currentFrame - lastFrame;
 	lastFrame = currentFrame;
@@ -111,6 +115,7 @@ bool Window::PreRenderCallback(RenderManager* renderManager)
 
 void Window::SetupGUI(RenderManager* renderManager)
 {
+	GUI_TRACE();
 	ImGui_ImplOpenGL3_NewFrame();
 	ImGui_ImplGlfw_NewFrame();
 	ImGui::NewFrame();
@@ -245,6 +250,7 @@ void Window::SetupGUI(RenderManager* renderManager)
 
 std::string Window::GetBrowserFilePath() const
 {
+	GUI_TRACE();
 	std::string filepath;
 
 	std::string formats = std::string(RenderManager::ValidSceneFormats());
@@ -265,11 +271,13 @@ std::string Window::GetBrowserFilePath() const
 
 void Window::RenderGUI()
 {
+	GUI_TRACE();
 	ImGui::Render();
 }
 
 void Window::StopGUI()
 {
+	GUI_TRACE();
 	ImGui_ImplOpenGL3_Shutdown();
 	ImGui_ImplGlfw_Shutdown();
 	ImGui::DestroyContext();
@@ -277,6 +285,7 @@ void Window::StopGUI()
 
 void Window::RenderConfigWindow(bool& guiOpen)
 {
+	GUI_TRACE();
 	ImGui::Begin("Render Config", &guiOpen);
 
 	ImGui::InputInt("Width", &renderGlobals.width);
@@ -293,6 +302,7 @@ void Window::RenderConfigWindow(bool& guiOpen)
 
 void Window::ProfilingWindow(bool& guiOpen, RenderManager* renderManager)
 {
+	GUI_TRACE();
 	ImGui::Begin("Profiling", &guiOpen, ImGuiWindowFlags_NoTitleBar |ImGuiWindowFlags_AlwaysAutoResize);
 
 	ImGui::Text("Total Samples (iterations * samples): %d", renderManager->GetIterations() * renderManager->GetSamples());
@@ -307,6 +317,7 @@ void Window::ProfilingWindow(bool& guiOpen, RenderManager* renderManager)
 
 void Window::AboutWindow(bool& guiOpen)
 {
+	GUI_TRACE();
 	ImGui::Begin("About", &guiOpen);
 
 	ImGui::Text("Spindulys by Linas Beresna\n\nEmail: linas_beresna@sfu.ca");
@@ -316,6 +327,7 @@ void Window::AboutWindow(bool& guiOpen)
 
 void Window::KeyboardCallback(ImGuiIO& guiIO, RenderManager* renderManager)
 {
+	GUI_TRACE();
 	if (guiIO.KeysDown[GLFW_KEY_ESCAPE])
 	{
 		glfwSetWindowShouldClose(window, GL_TRUE);
@@ -355,6 +367,7 @@ void Window::KeyboardCallback(ImGuiIO& guiIO, RenderManager* renderManager)
 
 void Window::MouseCallback(ImGuiIO& guiIO, Vec2f mousePos,RenderManager* renderManager)
 {
+	GUI_TRACE();
 	if (firstMouse)
 	{
 		prevMousePos = Vec2f(mousePos);
@@ -377,6 +390,7 @@ void Window::MouseCallback(ImGuiIO& guiIO, Vec2f mousePos,RenderManager* renderM
 
 void Window::RenderToScreenTexture(int width, int height, const Buffer3f& buffer)
 {
+	GUI_TRACE();
 	glBindTexture(GL_TEXTURE_2D, screenTextureID);
 
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_FLOAT, buffer.GetPixelData().data());
@@ -393,6 +407,7 @@ void Window::RenderToScreenTexture(int width, int height, const Buffer3f& buffer
 
 void Window::SetupScreenQuad(int width, int height)
 {
+	GUI_TRACE();
 	constexpr GLfloat screenQuadVertices[] =
 	{
 		-1.0f,  1.0f, 0.0f, 0.0f, 1.0f,
@@ -438,6 +453,7 @@ void Window::SetupScreenQuad(int width, int height)
 
 void Window::CleanScreenQuad()
 {
+	GUI_TRACE();
 	glBindBuffer(GL_ARRAY_BUFFER, screenQuadVBO);
 	glDeleteBuffers(1, &screenQuadVBO);
 
@@ -446,6 +462,7 @@ void Window::CleanScreenQuad()
 
 void Window::DrawScreenQuad()
 {
+	GUI_TRACE();
 	glBindVertexArray(screenQuadVAO);
 
 	glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);

@@ -16,4 +16,18 @@
 
 #endif // SPINDULYS_USE_NAMESPACE
 
+// Set to 0 to disable FRONTEND tracing.
+#define FRONTEND_TRACING 0
+#if FRONTEND_TRACING
+#define FRONTEND_TRACE() MTR_SCOPE("FRONTEND", __func__);
+#define FRONTEND_SCOPE(m) MTR_SCOPE("FRONTEND", m);
+#define FRONTEND_BEGIN(m) MTR_BEGIN("FRONTEND", m);
+#define FRONTEND_END(m) MTR_END("FRONTEND", m);
+#else
+#define FRONTEND_TRACE()
+#define FRONTEND_SCOPE(m)
+#define FRONTEND_BEGIN(m)
+#define FRONTEND_END(m)
+#endif // FRONTEND_TRACING
+
 #endif //SPINDULYS_FRONTEND_H

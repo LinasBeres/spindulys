@@ -15,5 +15,19 @@
 #define BACKEND_CPU_NAMESPACE_CLOSE_SCOPE 
 
 #endif // SPINDULYS_USE_NAMESPACE
+			 //
+// Set to 0 to disable BACKEND tracing.
+#define BACKEND_TRACING 0
+#if BACKEND_TRACING
+#define BACKEND_TRACE() MTR_SCOPE("BACKEND", __func__);
+#define BACKEND_SCOPE(m) MTR_SCOPE("BACKEND", m);
+#define BACKEND_BEGIN(m) MTR_BEGIN("BACKEND", m);
+#define BACKEND_END(m) MTR_END("BACKEND", m);
+#else
+#define BACKEND_TRACE()
+#define BACKEND_SCOPE(m)
+#define BACKEND_BEGIN(m)
+#define BACKEND_END(m)
+#endif // BACKEND_TRACING
 
 #endif //SPINDULYS_BACKEND_CPU_H

@@ -12,6 +12,7 @@ void UDPTIntegrator::GetPixelColor(Ray& ray,
 		RenderManager::Buffers buffers,
 		const RenderManager::RenderGlobals& renderGlobals)
 {
+	BACKEND_TRACE();
 	Col3f colorAccumulation(0.0f);
 	Col3f colorThroughput(1.0f);
 
@@ -19,7 +20,6 @@ void UDPTIntegrator::GetPixelColor(Ray& ray,
 	{
 		RTCIntersectContext intersectContext;
 		rtcInitIntersectContext(&intersectContext);
-
 		rtcIntersect1(scene->GetScene(), &intersectContext, RTCRayHit_(ray));
 
 		// TODO: Hardcoded sky color value for now.
