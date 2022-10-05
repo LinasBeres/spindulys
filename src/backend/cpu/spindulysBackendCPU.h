@@ -15,7 +15,7 @@
 #define BACKEND_CPU_NAMESPACE_CLOSE_SCOPE 
 
 #endif // SPINDULYS_USE_NAMESPACE
-			 //
+
 // Set to 0 to disable BACKEND tracing.
 #define BACKEND_TRACING 0
 #if BACKEND_TRACING

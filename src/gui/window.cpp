@@ -34,8 +34,6 @@ int Window::RenderWindow(const std::string& scenePath)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-
 	window = glfwCreateWindow(renderGlobals.width, renderGlobals.height, "Spindulys", nullptr, nullptr);
 	if (!window)
 	{
@@ -47,8 +45,15 @@ int Window::RenderWindow(const std::string& scenePath)
 
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // Enable vsync
+	// On a resize we just adjust the viewport size not the resolution of buffers
+	glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int width, int height) { glViewport(0, 0, width, height); });
 
-	gladLoadGL();
+	if (!gladLoadGL())
+	{
+		glfwGetError(&description);
+		spdlog::critical("Could load GL from glad due to {}.\n Exiting.", description);
+		exit(EXIT_FAILURE);
+	}
 
 	ImGui::StyleColorsClassic();
 
@@ -391,8 +396,15 @@ void Window::MouseCallback(ImGuiIO& guiIO, Vec2f mousePos,RenderManager* renderM
 void Window::RenderToScreenTexture(int width, int height, const Buffer3f& buffer)
 {
 	GUI_TRACE();
-	glBindTexture(GL_TEXTURE_2D, screenTextureID);
 
+	// TODO: do something here.
+	// if (width != renderGlobals.width || height != renderGlobals.height)
+	{
+		SetupScreenQuad(width, height);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	}
+
+	glBindTexture(GL_TEXTURE_2D, screenTextureID);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_FLOAT, buffer.GetPixelData().data());
 	screenQuadShader.Use();
 	glActiveTexture(GL_TEXTURE0);
