@@ -34,8 +34,6 @@ int Window::RenderWindow(const std::string& scenePath)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	glfwWindowHint(GLFW_RESIZABLE, GL_FALSE);
-
 	window = glfwCreateWindow(renderGlobals.width, renderGlobals.height, "Spindulys", nullptr, nullptr);
 	if (!window)
 	{
@@ -47,8 +45,15 @@ int Window::RenderWindow(const std::string& scenePath)
 
 	glfwMakeContextCurrent(window);
 	glfwSwapInterval(1); // Enable vsync
+	// On a resize we just adjust the viewport size not the resolution of buffers
+	glfwSetWindowSizeCallback(window, [](GLFWwindow* window, int width, int height) { glViewport(0, 0, width, height); });
 
-	gladLoadGL();
+	if (!gladLoadGL())
+	{
+		glfwGetError(&description);
+		spdlog::critical("Could load GL from glad due to {}.\n Exiting.", description);
+		exit(EXIT_FAILURE);
+	}
 
 	ImGui::StyleColorsClassic();
 
