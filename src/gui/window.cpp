@@ -396,8 +396,15 @@ void Window::MouseCallback(ImGuiIO& guiIO, Vec2f mousePos,RenderManager* renderM
 void Window::RenderToScreenTexture(int width, int height, const Buffer3f& buffer)
 {
 	GUI_TRACE();
-	glBindTexture(GL_TEXTURE_2D, screenTextureID);
 
+	// TODO: do something here.
+	// if (width != renderGlobals.width || height != renderGlobals.height)
+	{
+		SetupScreenQuad(width, height);
+		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	}
+
+	glBindTexture(GL_TEXTURE_2D, screenTextureID);
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGB, GL_FLOAT, buffer.GetPixelData().data());
 	screenQuadShader.Use();
 	glActiveTexture(GL_TEXTURE0);

@@ -16,16 +16,16 @@ CPURenderManager::CPURenderManager()
 void CPURenderManager::Trace(int iterations)
 {
 	BACKEND_TRACE();
-	tbb::parallel_for(tbb::blocked_range<int>(0, renderGlobals.height), [&](tbb::blocked_range<int> height_range)
+	tbb::parallel_for(tbb::blocked_range<int>(0, currentResolution.y), [&](tbb::blocked_range<int> height_range)
 		{
 			for (int pixelY = height_range.begin(); pixelY < height_range.end(); ++pixelY)
 			{
 				Sampler sampler;
 
-				for (int pixelX = 0; pixelX < renderGlobals.width; ++pixelX)
+				for (int pixelX = 0; pixelX < currentResolution.x; ++pixelX)
 				{
 					// We setup all the necessary data describing the current sample.
-					PixelSample pixelSample(sampler, pixelX, pixelY, pixelX + pixelY * renderGlobals.width, renderGlobals.samples, 0);
+					PixelSample pixelSample(sampler, pixelX, pixelY, pixelX + pixelY * currentResolution.x, renderGlobals.samples, 0);
 
 					// The final pixel color of the sample we are computed that will be added and averaged to the buffer.
 					Col3f pixelColor(zero);

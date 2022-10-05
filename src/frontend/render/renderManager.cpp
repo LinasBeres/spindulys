@@ -89,6 +89,17 @@ void RenderManager::Render()
 		if (update)
 			ResetRender();
 
+		if (renderGlobals.scaleResolution && frameSize < 1.0)
+		{
+			iterations = 0;
+			frameSize += 0.25f;
+			currentResolution = Vec2i(frameSize * renderGlobals.width, frameSize * renderGlobals.height);
+
+			for (const auto& bufferID : renderGlobals.currentBufferIds)
+				buffers[bufferID]->Clean(currentResolution.x, currentResolution.y);
+			GetCamera().SetResolution(Vec2f(currentResolution.x, currentResolution.y));
+		}
+
 		if (iterations < renderGlobals.maxIterations)
 		{
 			iterations++;
@@ -96,7 +107,7 @@ void RenderManager::Render()
 		}
 
 		if (drawBufferFunction)
-			drawBufferFunction(renderGlobals.width, renderGlobals.height, *(buffers[renderGlobals.bufferID]));
+			drawBufferFunction(currentResolution.x, currentResolution.y, *(buffers[renderGlobals.bufferID]));
 	}
 }
 
@@ -104,9 +115,13 @@ void RenderManager::ResetRender()
 {
 	FRONTEND_TRACE();
 	iterations = 0;
+	frameSize = 0.f;
+
+	currentResolution = Vec2i(renderGlobals.width, renderGlobals.height);
 
 	for (const auto& bufferID : renderGlobals.currentBufferIds)
-		buffers[bufferID]->Clean(renderGlobals.width, renderGlobals.height);
+		buffers[bufferID]->Clean(currentResolution.x, currentResolution.y);
+	GetCamera().SetResolution(Vec2f(currentResolution.x, currentResolution.y));
 
 	update = false;
 }

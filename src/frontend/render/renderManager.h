@@ -52,6 +52,7 @@ class RenderManager
 			BufferIds bufferID = BufferIds::Beauty;            // The current buffer being read.
 			std::unordered_set<BufferIds> currentBufferIds =   // Available buffers to read.
 			{ BufferIds::Beauty, BufferIds::Diffuse, BufferIds::Position, BufferIds::Normal, BufferIds::Debug };
+			bool scaleResolution = true;
 		};
 
 		RenderManager();
@@ -74,11 +75,12 @@ class RenderManager
 		virtual void Trace(int iterations) = 0;
 
 		// Set Methods - return true if the class parameter was changed.
-		bool SetMaxIterations(int maxIterations)       { return maxIterations != std::exchange(renderGlobals.maxIterations, maxIterations); }
-		bool SetDepth(int depth)                       { return depth         != std::exchange(renderGlobals.depth, depth);                 }
-		bool SetSamples(int samples)                   { return samples       != std::exchange(renderGlobals.samples, samples);             }
-		bool SetIntegrator(IntegratorIds integratorID) { return integratorID  != std::exchange(renderGlobals.integratorID, integratorID);   }
-		bool SetCurrentBuffer(BufferIds bufferID)      { return bufferID      != std::exchange(renderGlobals.bufferID, bufferID);           } // Note that the render does NOT need to be reset after this.
+		bool SetMaxIterations(int maxIterations)       { return maxIterations != std::exchange(renderGlobals.maxIterations, maxIterations);       }
+		bool SetDepth(int depth)                       { return depth         != std::exchange(renderGlobals.depth, depth);                       }
+		bool SetSamples(int samples)                   { return samples       != std::exchange(renderGlobals.samples, samples);                   }
+		bool SetIntegrator(IntegratorIds integratorID) { return integratorID  != std::exchange(renderGlobals.integratorID, integratorID);         }
+		bool SetCurrentBuffer(BufferIds bufferID)      { return bufferID      != std::exchange(renderGlobals.bufferID, bufferID);                 } // Note that the render does NOT need to be reset after this.
+		bool SetScaleResolution(bool scaleResolution)  { return scaleResolution != std::exchange(renderGlobals.scaleResolution, scaleResolution); }
 
 		bool SetCurrentCamera(size_t cameraId)         { return scene->SetSceneCamera(cameraId); }
 
@@ -87,14 +89,15 @@ class RenderManager
 		bool RemoveBuffer(BufferIds bufferID);
 
 		// Get Methods
-		int             GetIterations()    const { return iterations;                                  }
-		int             GetMaxIterations() const { return renderGlobals.maxIterations;                 }
-		int             GetDepth()         const { return renderGlobals.depth;                         }
-		int             GetSamples()       const { return renderGlobals.samples;                       }
-		IntegratorIds   GetIntegrator()    const { return renderGlobals.integratorID;                  }
-		const Buffer3f& GetBuffer()        const { return *(buffers.at(renderGlobals.bufferID));       }
-		const Buffers&  GetBuffers()       const { return buffers;                                     }
-		const Scene*    GetScene()         const { return scene;                                       }
+		int             GetIterations()      const { return iterations;                                  }
+		int             GetMaxIterations()   const { return renderGlobals.maxIterations;                 }
+		int             GetDepth()           const { return renderGlobals.depth;                         }
+		int             GetSamples()         const { return renderGlobals.samples;                       }
+		IntegratorIds   GetIntegrator()      const { return renderGlobals.integratorID;                  }
+		bool            GetScaleResolution() const { return renderGlobals.scaleResolution;               }
+		const Buffer3f& GetBuffer()          const { return *(buffers.at(renderGlobals.bufferID));       }
+		const Buffers&  GetBuffers()         const { return buffers;                                     }
+		const Scene*    GetScene()           const { return scene;                                       }
 
 		// TODO: Tidy the camera handling.
 		Camera& GetCamera() { return scene->UpdateSceneCamera(); }
@@ -102,7 +105,12 @@ class RenderManager
 	protected:
 		// Render Info
 		int iterations = 0;
+		// TODO: Find better heuristics
+		// We start at 25% frame size and then go up from there to 100 in 25% incremements
+		float frameSize = 0.f;
 		RenderGlobals renderGlobals;
+
+		Vec2i currentResolution = Vec2i(renderGlobals.width, renderGlobals.height);
 
 		Buffers buffers;
 
