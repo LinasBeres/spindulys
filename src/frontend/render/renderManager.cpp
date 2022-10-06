@@ -89,7 +89,7 @@ void RenderManager::Render()
 		if (update)
 			ResetRender();
 
-		if (renderGlobals.scaleResolution && frameSize < 1.0)
+		if (renderGlobals.scaleResolution && frameSize < 1.f)
 		{
 			iterations = 0;
 			frameSize += 0.25f;

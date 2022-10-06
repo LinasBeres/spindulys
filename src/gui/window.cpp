@@ -400,8 +400,22 @@ void Window::RenderToScreenTexture(int width, int height, const Buffer3f& buffer
 	// TODO: do something here.
 	// if (width != renderGlobals.width || height != renderGlobals.height)
 	{
-		SetupScreenQuad(width, height);
-		glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+		glBindTexture(GL_TEXTURE_2D, screenTextureID);
+		glDeleteTextures(1, &screenTextureID);
+
+		glGenTextures(1, &screenTextureID);
+		glActiveTexture(GL_TEXTURE0);
+
+		glBindTexture(GL_TEXTURE_2D, screenTextureID);
+
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, nullptr);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+		glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+		glGenerateMipmap(GL_TEXTURE_2D);
+
+		glBindTexture(GL_TEXTURE_2D, 0);
 	}
 
 	glBindTexture(GL_TEXTURE_2D, screenTextureID);
@@ -466,10 +480,18 @@ void Window::SetupScreenQuad(int width, int height)
 void Window::CleanScreenQuad()
 {
 	GUI_TRACE();
+	glBindVertexArray(screenQuadVAO);
+	glDeleteVertexArrays(1, &screenQuadVAO);
+
 	glBindBuffer(GL_ARRAY_BUFFER, screenQuadVBO);
 	glDeleteBuffers(1, &screenQuadVBO);
 
+	glBindTexture(GL_TEXTURE_2D, screenTextureID);
+	glDeleteTextures(1, &screenTextureID);
+
 	screenQuadVBO = 0;
+	screenQuadVAO = 0;
+	screenTextureID = 0;
 }
 
 void Window::DrawScreenQuad()
