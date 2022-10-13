@@ -12,6 +12,7 @@ CPUScene::CPUScene()
 {
 	_device = rtcNewDevice("");
 	_scene = rtcNewScene(_device);
+  rtcSetSceneFlags(_scene, RTC_SCENE_FLAG_DYNAMIC);
 }
 
 CPUScene::~CPUScene()
@@ -64,6 +65,7 @@ void CPUScene::ResetScene()
 	// Reset embree render scene.
 	rtcReleaseScene(_scene);
 	_scene = rtcNewScene(_device);
+  rtcSetSceneFlags(_scene, RTC_SCENE_FLAG_DYNAMIC);
 
 	// Reset Parent scene stuff
 	Scene::ResetScene();
