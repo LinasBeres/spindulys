@@ -71,4 +71,14 @@ void CPUScene::ResetScene()
 	Scene::ResetScene();
 }
 
+
+// TODO: This should return a surface interaction
+void CPUScene::RayIntersect(const Ray& ray) const
+{
+	RTCIntersectContext context;
+	rtcInitIntersectContext(&context);
+
+	rtcIntersect1(_scene, &context, RTCRayHit_(ray));
+}
+
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE

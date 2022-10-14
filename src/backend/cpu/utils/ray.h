@@ -70,6 +70,11 @@ __forceinline RTCRayHit *RTCRayHit_(Ray& ray)
 	return (RTCRayHit *) &ray;
 }
 
+__forceinline RTCRayHit *RTCRayHit_(const Ray& ray)
+{
+	return (RTCRayHit *) &ray;
+}
+
 FRONTEND_NAMESPACE_CLOSE_SCOPE
 
 #endif // RAY_H

@@ -10,6 +10,8 @@
 
 #include "../geometry/cpuGeometry.h"
 
+#include "../utils/ray.h"
+
 BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 
 class CPUScene final : public Scene
@@ -25,6 +27,8 @@ class CPUScene final : public Scene
 		RTCScene GetScene() { return _scene; }
 
 		virtual void ResetScene() override;
+
+		void RayIntersect(const Ray& ray) const;
 
 	private:
 		RTCDevice _device = nullptr;
