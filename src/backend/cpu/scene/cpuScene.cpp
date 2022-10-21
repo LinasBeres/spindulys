@@ -75,10 +75,29 @@ void CPUScene::ResetScene()
 // TODO: This should return a surface interaction
 void CPUScene::RayIntersect(const Ray& ray) const
 {
+	const float ray_maxt = ray.tfar;
+
 	RTCIntersectContext context;
 	rtcInitIntersectContext(&context);
 
 	rtcIntersect1(_scene, &context, RTCRayHit_(ray));
+
+	if (ray.tfar != ray_maxt)
+	{
+		uint32_t shape_index = ray.geomID;
+		uint32_t prim_index  = ray.primID;
+
+		// We get level 0 because we only support one level of instancing
+		uint32_t inst_index = ray.instID;
+
+		// If the hit is not on an instance
+		bool hit_instance = inst_index != RTC_INVALID_GEOMETRY_ID;
+		uint32_t index = hit_instance ? inst_index : shape_index;
+
+		const Geometry& geom = GetGeometery(index);
+
+		std::cerr << "Hit: " << geom.GetName() << " with prim id: " << prim_index << "\n";
+	}
 }
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE

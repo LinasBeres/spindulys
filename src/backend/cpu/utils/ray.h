@@ -14,9 +14,7 @@
 
 #include "../spindulysBackendCPU.h"
 
-
-
-FRONTEND_NAMESPACE_OPEN_SCOPE
+BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 
 struct __aligned(16) Ray
 {
@@ -75,6 +73,6 @@ __forceinline RTCRayHit *RTCRayHit_(const Ray& ray)
 	return (RTCRayHit *) &ray;
 }
 
-FRONTEND_NAMESPACE_CLOSE_SCOPE
+BACKEND_CPU_NAMESPACE_CLOSE_SCOPE
 
 #endif // RAY_H

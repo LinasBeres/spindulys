@@ -190,6 +190,17 @@ extern MAYBE_UNUSED FullTy full;
 struct UndefinedTy {
 };
 
+#if defined(__GNUC__)
+template <typename T> constexpr auto Infinity = T(__builtin_inf());
+#else
+template <typename T> constexpr auto Infinity = T(__builtin_huge_val());
+#endif
+
+template <typename T> constexpr auto NaN = T(__builtin_nan(""));
+
+template <typename T> constexpr auto Epsilon = T(sizeof(T) == 8 ? 0x1p-53 : 0x1p-24);
+template <typename T> constexpr auto Largest = T(sizeof(T) == 8 ? 0x1.fffffffffffffp+1023 : 0x1.fffffep+127);
+
 SPINDULYS_NAMESPACE_CLOSE_SCOPE
 
 #endif // SPINDULYS_CONSTANTS_H
