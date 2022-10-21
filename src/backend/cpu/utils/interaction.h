@@ -36,21 +36,21 @@ struct Interaction
 		: t(t), time(time), p(p), n(n) { }
 
 	// Is the current interaction valid?
-	int is_valid() const
+	int IsValid() const
 	{
 		return t != static_cast<float>(PosInfTy());
 	}
 
 	// Spawn a semi-infinite ray towards the given direction
-	Ray spawn_ray(const Vec3f& d) const
+	Ray SpawnRay(const Vec3f& d) const
 	{
-		return Ray(offset_p(d), d, 0.f, Largest<float>, time);
+		return Ray(OffsetP(d), d, 0.f, Largest<float>, time);
 	}
 
 	/// Spawn a finite ray towards the given position
-	Ray spawn_ray_to(const Vec3f& t) const
+	Ray SpawnRayTo(const Vec3f& t) const
 	{
-		Vec3f o = offset_p(t - p);
+		Vec3f o = OffsetP(t - p);
 		Vec3f d = t - o;
 		float dist = norm(d);
 		d /= dist;
@@ -63,7 +63,7 @@ struct Interaction
 	 * interaction. When the interaction is on the surface of a shape, the
 	 * position is offset along the surface normal to prevent self intersection.
 	 */
-	Vec3f offset_p(const Vec3f& d) const
+	Vec3f OffsetP(const Vec3f& d) const
 	{
 		float mag = (1.f + reduce_max(abs(p))) * RayEpsilon<float>;
 		mag = dot(n, d) >= 0 ? mag : -mag;
@@ -83,7 +83,7 @@ struct SurfaceInteraction : Interaction
 	Vec2f uv = Vec2f(zero);
 
 	/// Shading frame
-	// Frame3f sh_frame;
+	LinearSpace3f shadingFrame;
 
 	/// Position partials wrt. the UV parameterization
 	// Vec3f dp_du, dp_dv;
@@ -96,6 +96,9 @@ struct SurfaceInteraction : Interaction
 
 	/// Incident direction in the local shading frame
 	Vec3f wi = Vec3f(zero);
+
+	/// Primitive index, e.g. the triangle ID (if applicable)
+	uint32_t primIndex;
 
 	unsigned int geomID = SPINDULYS_INVALID_GEOMETRY_ID;  // Embree Geometry ID of the object the ray hit.
 	unsigned int primID = SPINDULYS_INVALID_GEOMETRY_ID;  // Embree Primitive ID of the object the ray hit.
@@ -111,8 +114,12 @@ struct SurfaceInteraction : Interaction
 	 * non-negative values reflecting the distance of the surface interaction to
 	 * this closest point on the silhouette.
 	 */
-	float boundary_test = 0.f;
+	float boundaryTest = 0.f;
 
+	void InitializeShadingFrame()
+	{
+		shadingFrame = frame(shadingFrame.vz);
+	}
 };
 
 // -----------------------------------------------------------------------------
@@ -149,67 +156,6 @@ struct MediumInteraction : Interaction
 // -----------------------------------------------------------------------------
 
 /**
- * \brief This list of flags is used to determine which members of \ref SurfaceInteraction
- * should be computed when calling \ref compute_surface_interaction().
- *
- * It also specifies whether the \ref SurfaceInteraction should be differentiable with
- * respect to the shapes parameters.
- */
-enum class RayFlags : uint32_t {
-
-	// =============================================================
-	//             Surface interaction compute flags
-	// =============================================================
-
-	/// No flags set
-	Empty = 0x0,
-
-	/// Compute position and geometric normal
-	Minimal = 0x1,
-
-	/// Compute UV coordinates
-	UV = 0x2,
-
-	/// Compute position partials wrt. UV coordinates
-	dPdUV = 0x4,
-
-	/// Compute shading normal and shading frame
-	ShadingFrame = 0x8,
-
-	/// Compute the geometric normal partials wrt. the UV coordinates
-	dNGdUV = 0x10,
-
-	/// Compute the shading normal partials wrt. the UV coordinates
-	dNSdUV = 0x20,
-
-	/// Compute the boundary-test used in reparameterized integrators
-	BoundaryTest = 0x40,
-
-	// =============================================================
-	//!              Differentiability compute flags
-	// =============================================================
-
-	/// Derivatives of the SurfaceInteraction fields follow shape's motion
-	FollowShape = 0x80,
-
-	/// Derivatives of the SurfaceInteraction fields ignore shape's motion
-	DetachShape = 0x100,
-
-	// =============================================================
-	//!                 Compound compute flags
-	// =============================================================
-
-	/* \brief Default: compute all fields of the surface interaction data
-		 structure except shading/geometric normal derivatives */
-	All = UV | dPdUV | ShadingFrame,
-
-	/// Compute all fields of the surface interaction ignoring shape's motion
-	AllNonDifferentiable = All | DetachShape,
-};
-
-// -----------------------------------------------------------------------------
-
-/**
  * \brief Stores preliminary information related to a ray intersection
  *
  * This data structure is used as return type for the \ref Shape::ray_intersect_preliminary
@@ -219,18 +165,19 @@ enum class RayFlags : uint32_t {
  * If the intersection is deemed relevant, detailed intersection information can later be
  * obtained via the  \ref create_surface_interaction() method.
  */
-struct PreliminaryIntersection {
+struct PreliminaryIntersection
+{
 	// Distance traveled along the ray
 	float t = Infinity<float>;
 
 	// 2D coordinates on the primitive surface parameterization
-	Vec2f prim_uv;
+	Vec2f primUV;
 
 	// Primitive index, e.g. the triangle ID (if applicable)
-	uint32_t prim_index;
+	uint32_t primIndex;
 
 	// Shape index, e.g. the shape ID in shapegroup (if applicable)
-	uint32_t shape_index;
+	uint32_t shapeIndex;
 
 	// Pointer to the associated shape
 	const CPUGeometry* shape = nullptr;
@@ -239,7 +186,7 @@ struct PreliminaryIntersection {
 	const CPUGeometry* instance = nullptr;
 
 	/// Is the current interaction valid?
-	bool is_valid() const
+	bool isValid() const
 	{
 		return t != Infinity<float>;
 	}
@@ -254,9 +201,9 @@ struct PreliminaryIntersection {
 	 * \return
 	 *      A data structure containing the detailed information
 	 */
-	SurfaceInteraction ComputeSurfaceInteraction(const Ray& ray, uint32_t ray_flags = (uint32_t) RayFlags::All, bool active = true)
+	SurfaceInteraction ComputeSurfaceInteraction(const Ray& ray, uint32_t rayFlags = (uint32_t) RayFlags::All, bool active = true) const
 	{
-		active &= is_valid();
+		active &= isValid();
 		if (!active)
 		{
 			SurfaceInteraction si;
@@ -265,118 +212,117 @@ struct PreliminaryIntersection {
 		}
 
 		const CPUGeometry* target = instance ? instance : shape;
-		SurfaceInteraction si = target->ComputeSurfaceInteraction(ray, *this, ray_flags, 0u, active);
+		SurfaceInteraction si = target->ComputeSurfaceInteraction(ray, *this, rayFlags, 0u, active);
 
-		// dr::masked(si.t, !active) = dr::Infinity<Float>;
-		// active &= si.is_valid();
-//
-		// dr::masked(si.shape,    !active) = nullptr;
-		// dr::masked(si.instance, !active) = nullptr;
-//
-		// si.prim_index  = prim_index;
-		// si.time        = ray.time;
-		// si.wavelengths = ray.wavelengths;
-//
-		// if (has_flag(ray_flags, RayFlags::ShadingFrame))
-			// si.initialize_sh_frame();
-//
-		// // Incident direction in local coordinates
-		// si.wi = dr::select(active, si.to_local(-ray.d), -ray.d);
-//
-		// si.duv_dx = si.duv_dy = dr::zeros<Point2f>();
-//
-		// if (has_flag(ray_flags, RayFlags::BoundaryTest))
-			// si.boundary_test =
-				// dr::select(active, dr::detach(si.boundary_test), 1e8f);
+		si.t = active ? si.t : Infinity<float>;
+		active &= si.IsValid();
+
+		if (!active)
+		{
+			si.geometry = nullptr;
+			si.instance = nullptr;
+		}
+
+		si.primIndex  = primIndex;
+		si.time       = ray.time;
+
+		if (rayFlags & (uint32_t) RayFlags::ShadingFrame)
+			si.InitializeShadingFrame();
+
+		// Incident direction in local coordinates
+		si.wi = select(active, toLocal(si.shadingFrame, -ray.direction), -ray.direction);
+
+		if (rayFlags & (uint32_t) RayFlags::BoundaryTest)
+			si.boundaryTest = active ? si.boundaryTest : 1e8f;
 
 		return si;
 	}
 };
 
 // -----------------------------------------------------------------------------
+// TODO:
 
-template <typename Float, typename Spectrum>
-std::ostream &operator<<(std::ostream &os, const Interaction<Float, Spectrum> &it) {
-	if (dr::none(it.is_valid())) {
-		os << "Interaction[invalid]";
-	} else {
-		os << "Interaction[" << std::endl
-			<< "  t = " << it.t << "," << std::endl
-			<< "  time = " << it.time << "," << std::endl
-			<< "  wavelengths = " << it.wavelengths << "," << std::endl
-			<< "  p = " << string::indent(it.p, 6) << std::endl
-			<< "]";
-	}
-	return os;
-}
+// template <typename Float, typename Spectrum>
+// std::ostream &operator<<(std::ostream &os, const Interaction<Float, Spectrum> &it) {
+// if (dr::none(it.is_valid())) {
+// os << "Interaction[invalid]";
+// } else {
+// os << "Interaction[" << std::endl
+// << "  t = " << it.t << "," << std::endl
+// << "  time = " << it.time << "," << std::endl
+// << "  wavelengths = " << it.wavelengths << "," << std::endl
+// << "  p = " << string::indent(it.p, 6) << std::endl
+// << "]";
+// }
+// return os;
+// }
 
-template <typename Float, typename Spectrum>
-std::ostream &operator<<(std::ostream &os, const SurfaceInteraction<Float, Spectrum> &it) {
-	if (dr::none(it.is_valid())) {
-		os << "SurfaceInteraction[invalid]";
-	} else {
-		os << "SurfaceInteraction[" << std::endl
-			<< "  t = " << it.t << "," << std::endl
-			<< "  time = " << it.time << "," << std::endl
-			<< "  wavelengths = " << string::indent(it.wavelengths, 16) << "," << std::endl
-			<< "  p = " << string::indent(it.p, 6) << "," << std::endl
-			<< "  shape = " << string::indent(it.shape, 2) << "," << std::endl
-			<< "  uv = " << string::indent(it.uv, 7) << "," << std::endl
-			<< "  n = " << string::indent(it.n, 6) << "," << std::endl
-			<< "  sh_frame = " << string::indent(it.sh_frame, 2) << "," << std::endl
-			<< "  dp_du = " << string::indent(it.dp_du, 10) << "," << std::endl
-			<< "  dp_dv = " << string::indent(it.dp_dv, 10) << "," << std::endl;
-
-		if (it.has_n_partials())
-			os << "  dn_du = " << string::indent(it.dn_du, 11) << "," << std::endl
-				<< "  dn_dv = " << string::indent(it.dn_dv, 11) << "," << std::endl;
-
-		if (it.has_uv_partials())
-			os << "  duv_dx = " << string::indent(it.duv_dx, 11) << "," << std::endl
-				<< "  duv_dy = " << string::indent(it.duv_dy, 11) << "," << std::endl;
-
-		os << "  wi = " << string::indent(it.wi, 7) << "," << std::endl
-			<< "  prim_index = " << it.prim_index << "," << std::endl
-			<< "  instance = " << string::indent(it.instance, 13) << std::endl
-			<< "]";
-	}
-	return os;
-}
-
-template <typename Float, typename Spectrum>
-std::ostream &operator<<(std::ostream &os, const MediumInteraction<Float, Spectrum> &it) {
-	if (dr::none(it.is_valid())) {
-		os << "MediumInteraction[invalid]";
-	} else {
-		os << "MediumInteraction[" << std::endl
-			<< "  t = " << it.t << "," << std::endl
-			<< "  time = " << it.time << "," << std::endl
-			<< "  wavelengths = " << it.wavelengths << "," << std::endl
-			<< "  p = " << string::indent(it.p, 6) << "," << std::endl
-			<< "  medium = " << string::indent(it.medium, 2) << "," << std::endl
-			<< "  sh_frame = " << string::indent(it.sh_frame, 2) << "," << std::endl
-			<< "  wi = " << string::indent(it.wi, 7) << "," << std::endl
-			<< "]";
-	}
-	return os;
-}
-
-template <typename Float, typename Shape>
-std::ostream &operator<<(std::ostream &os, const PreliminaryIntersection<Float, Shape> &pi) {
-	if (dr::none(pi.is_valid())) {
-		os << "PreliminaryIntersection[invalid]";
-	} else {
-		os << "PreliminaryIntersection[" << std::endl
-			<< "  t = " << pi.t << "," << std::endl
-			<< "  prim_uv = " << pi.prim_uv << "," << std::endl
-			<< "  prim_index = " << pi.prim_index << "," << std::endl
-			<< "  shape_index = " << pi.shape_index << "," << std::endl
-			<< "  shape = " << string::indent(pi.shape, 6) << "," << std::endl
-			<< "  instance = " << string::indent(pi.instance, 6) << "," << std::endl
-			<< "]";
-	}
-	return os;
-}
+// template <typename Float, typename Spectrum>
+// std::ostream &operator<<(std::ostream &os, const SurfaceInteraction<Float, Spectrum> &it) {
+// if (dr::none(it.is_valid())) {
+// os << "SurfaceInteraction[invalid]";
+// } else {
+// os << "SurfaceInteraction[" << std::endl
+// << "  t = " << it.t << "," << std::endl
+// << "  time = " << it.time << "," << std::endl
+// << "  p = " << std::string::indent(it.p, 6) << "," << std::endl
+// << "  shape = " << std::string::indent(it.shape, 2) << "," << std::endl
+// << "  uv = " << std::string::indent(it.uv, 7) << "," << std::endl
+// << "  n = " << std::string::indent(it.n, 6) << "," << std::endl
+// << "  sh_frame = " << std::string::indent(it.sh_frame, 2) << "," << std::endl
+// << "  dp_du = " << std::string::indent(it.dp_du, 10) << "," << std::endl
+// << "  dp_dv = " << std::string::indent(it.dp_dv, 10) << "," << std::endl;
+//
+// if (it.has_n_partials())
+// os << "  dn_du = " << string::indent(it.dn_du, 11) << "," << std::endl
+// << "  dn_dv = " << string::indent(it.dn_dv, 11) << "," << std::endl;
+//
+// if (it.has_uv_partials())
+// os << "  duv_dx = " << string::indent(it.duv_dx, 11) << "," << std::endl
+// << "  duv_dy = " << string::indent(it.duv_dy, 11) << "," << std::endl;
+//
+// os << "  wi = " << string::indent(it.wi, 7) << "," << std::endl
+// << "  prim_index = " << it.prim_index << "," << std::endl
+// << "  instance = " << string::indent(it.instance, 13) << std::endl
+// << "]";
+// }
+// return os;
+// }
+//
+// template <typename Float, typename Spectrum>
+// std::ostream &operator<<(std::ostream &os, const MediumInteraction<Float, Spectrum> &it) {
+// if (dr::none(it.is_valid())) {
+// os << "MediumInteraction[invalid]";
+// } else {
+// os << "MediumInteraction[" << std::endl
+// << "  t = " << it.t << "," << std::endl
+// << "  time = " << it.time << "," << std::endl
+// << "  wavelengths = " << it.wavelengths << "," << std::endl
+// << "  p = " << string::indent(it.p, 6) << "," << std::endl
+// << "  medium = " << string::indent(it.medium, 2) << "," << std::endl
+// << "  sh_frame = " << string::indent(it.sh_frame, 2) << "," << std::endl
+// << "  wi = " << string::indent(it.wi, 7) << "," << std::endl
+// << "]";
+// }
+// return os;
+// }
+//
+// template <typename Float, typename Shape>
+// std::ostream &operator<<(std::ostream &os, const PreliminaryIntersection<Float, Shape> &pi) {
+// if (dr::none(pi.is_valid())) {
+// os << "PreliminaryIntersection[invalid]";
+// } else {
+// os << "PreliminaryIntersection[" << std::endl
+// << "  t = " << pi.t << "," << std::endl
+// << "  prim_uv = " << pi.prim_uv << "," << std::endl
+// << "  prim_index = " << pi.prim_index << "," << std::endl
+// << "  shape_index = " << pi.shape_index << "," << std::endl
+// << "  shape = " << string::indent(pi.shape, 6) << "," << std::endl
+// << "  instance = " << string::indent(pi.instance, 6) << "," << std::endl
+// << "]";
+// }
+// return os;
+// }
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE
 

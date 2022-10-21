@@ -1,5 +1,7 @@
 #include "cpuGeometry.h"
 
+#include "../utils/interaction.h"
+
 
 BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 
@@ -37,6 +39,16 @@ bool CPUGeometry::Create(const RTCDevice& device,
 	rtcReleaseGeometry(_geomInstance);
 
 	return true;
+}
+
+SurfaceInteraction CPUGeometry::ComputeSurfaceInteraction(const Ray& ray,
+		const PreliminaryIntersection& pi,
+		uint32_t rayFlags,
+		uint32_t recursionDepth, bool active) const
+{
+	// TODO
+	SurfaceInteraction si;
+	return si;
 }
 
 
