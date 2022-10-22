@@ -3,6 +3,7 @@
 
 #include <spindulys/math/constants.h>
 #include <spindulys/math/vec3.h>
+#include <spindulys/math/linearspace3.h>
 
 #include "../spindulysBackendCPU.h"
 
@@ -29,9 +30,8 @@ struct Interaction
 	// Geometric normal (only valid for \c SurfaceInteraction)
 	Vec3f n = Vec3f(zero);
 
-	/// Constructor
+	// Constructor
 	Interaction() {}
-
 	Interaction(float t, float time, const Vec3f& p, const Vec3f& n = Vec3f(zero))
 		: t(t), time(time), p(p), n(n) { }
 
@@ -47,7 +47,7 @@ struct Interaction
 		return Ray(OffsetP(d), d, 0.f, Largest<float>, time);
 	}
 
-	/// Spawn a finite ray towards the given position
+	// Spawn a finite ray towards the given position
 	Ray SpawnRayTo(const Vec3f& t) const
 	{
 		Vec3f o = OffsetP(t - p);
@@ -58,17 +58,17 @@ struct Interaction
 	}
 
 	private:
-	/**
-	 * Compute an offset position, used when spawning a ray from this
-	 * interaction. When the interaction is on the surface of a shape, the
-	 * position is offset along the surface normal to prevent self intersection.
-	 */
-	Vec3f OffsetP(const Vec3f& d) const
-	{
-		float mag = (1.f + reduce_max(abs(p))) * RayEpsilon<float>;
-		mag = dot(n, d) >= 0 ? mag : -mag;
-		return madd(mag, n, p);
-	}
+		/**
+		 * Compute an offset position, used when spawning a ray from this
+		 * interaction. When the interaction is on the surface of a shape, the
+		 * position is offset along the surface normal to prevent self intersection.
+		 */
+		Vec3f OffsetP(const Vec3f& d) const
+		{
+			float mag = (1.f + reduce_max(abs(p))) * RayEpsilon<float>;
+			mag = dot(n, d) >= 0 ? mag : -mag;
+			return madd(mag, n, p);
+		}
 };
 
 // -----------------------------------------------------------------------------
@@ -85,24 +85,12 @@ struct SurfaceInteraction : Interaction
 	/// Shading frame
 	LinearSpace3f shadingFrame;
 
-	/// Position partials wrt. the UV parameterization
-	// Vec3f dp_du, dp_dv;
-
-	/// Normal partials wrt. the UV parameterization
-	// Vec3f dn_du, dn_dv;
-
-	/// UV partials wrt. changes in screen-space
-	// Vec2f duv_dx, duv_dy;
-
 	/// Incident direction in the local shading frame
 	Vec3f wi = Vec3f(zero);
 
-	/// Primitive index, e.g. the triangle ID (if applicable)
-	uint32_t primIndex;
-
-	unsigned int geomID = SPINDULYS_INVALID_GEOMETRY_ID;  // Embree Geometry ID of the object the ray hit.
-	unsigned int primID = SPINDULYS_INVALID_GEOMETRY_ID;  // Embree Primitive ID of the object the ray hit.
-	unsigned int instID = SPINDULYS_INVALID_GEOMETRY_ID;  // Embree Instance ID of the object the ray hit.
+	unsigned int geomID = SPINDULYS_INVALID_GEOMETRY_ID;
+	unsigned int primID = SPINDULYS_INVALID_GEOMETRY_ID;
+	unsigned int instID = SPINDULYS_INVALID_GEOMETRY_ID;
 
 	/// Stores a pointer to the parent instance (if applicable)
 	const CPUGeometry* instance = nullptr;
@@ -174,10 +162,10 @@ struct PreliminaryIntersection
 	Vec2f primUV;
 
 	// Primitive index, e.g. the triangle ID (if applicable)
-	uint32_t primIndex;
+	unsigned int primIndex;
 
 	// Shape index, e.g. the shape ID in shapegroup (if applicable)
-	uint32_t shapeIndex;
+	unsigned int shapeIndex;
 
 	// Pointer to the associated shape
 	const CPUGeometry* shape = nullptr;
@@ -223,8 +211,8 @@ struct PreliminaryIntersection
 			si.instance = nullptr;
 		}
 
-		si.primIndex  = primIndex;
-		si.time       = ray.time;
+		si.primID = primIndex;
+		si.time   = ray.time;
 
 		if (rayFlags & (uint32_t) RayFlags::ShadingFrame)
 			si.InitializeShadingFrame();
@@ -242,88 +230,47 @@ struct PreliminaryIntersection
 // -----------------------------------------------------------------------------
 // TODO:
 
-// template <typename Float, typename Spectrum>
-// std::ostream &operator<<(std::ostream &os, const Interaction<Float, Spectrum> &it) {
-// if (dr::none(it.is_valid())) {
-// os << "Interaction[invalid]";
-// } else {
-// os << "Interaction[" << std::endl
-// << "  t = " << it.t << "," << std::endl
-// << "  time = " << it.time << "," << std::endl
-// << "  wavelengths = " << it.wavelengths << "," << std::endl
-// << "  p = " << string::indent(it.p, 6) << std::endl
-// << "]";
-// }
-// return os;
-// }
+static std::ostream &operator<<(std::ostream &os, const Interaction& iteraction)
+{
+	return os << "{ "
+		<< "t = " << iteraction.t
+		<< ", time = " << iteraction.time
+		<< ", p = " << iteraction.p
+		<< ", n = " << iteraction.n
+		<< "}";
+}
 
-// template <typename Float, typename Spectrum>
-// std::ostream &operator<<(std::ostream &os, const SurfaceInteraction<Float, Spectrum> &it) {
-// if (dr::none(it.is_valid())) {
-// os << "SurfaceInteraction[invalid]";
-// } else {
-// os << "SurfaceInteraction[" << std::endl
-// << "  t = " << it.t << "," << std::endl
-// << "  time = " << it.time << "," << std::endl
-// << "  p = " << std::string::indent(it.p, 6) << "," << std::endl
-// << "  shape = " << std::string::indent(it.shape, 2) << "," << std::endl
-// << "  uv = " << std::string::indent(it.uv, 7) << "," << std::endl
-// << "  n = " << std::string::indent(it.n, 6) << "," << std::endl
-// << "  sh_frame = " << std::string::indent(it.sh_frame, 2) << "," << std::endl
-// << "  dp_du = " << std::string::indent(it.dp_du, 10) << "," << std::endl
-// << "  dp_dv = " << std::string::indent(it.dp_dv, 10) << "," << std::endl;
-//
-// if (it.has_n_partials())
-// os << "  dn_du = " << string::indent(it.dn_du, 11) << "," << std::endl
-// << "  dn_dv = " << string::indent(it.dn_dv, 11) << "," << std::endl;
-//
-// if (it.has_uv_partials())
-// os << "  duv_dx = " << string::indent(it.duv_dx, 11) << "," << std::endl
-// << "  duv_dy = " << string::indent(it.duv_dy, 11) << "," << std::endl;
-//
-// os << "  wi = " << string::indent(it.wi, 7) << "," << std::endl
-// << "  prim_index = " << it.prim_index << "," << std::endl
-// << "  instance = " << string::indent(it.instance, 13) << std::endl
-// << "]";
-// }
-// return os;
-// }
-//
-// template <typename Float, typename Spectrum>
-// std::ostream &operator<<(std::ostream &os, const MediumInteraction<Float, Spectrum> &it) {
-// if (dr::none(it.is_valid())) {
-// os << "MediumInteraction[invalid]";
-// } else {
-// os << "MediumInteraction[" << std::endl
-// << "  t = " << it.t << "," << std::endl
-// << "  time = " << it.time << "," << std::endl
-// << "  wavelengths = " << it.wavelengths << "," << std::endl
-// << "  p = " << string::indent(it.p, 6) << "," << std::endl
-// << "  medium = " << string::indent(it.medium, 2) << "," << std::endl
-// << "  sh_frame = " << string::indent(it.sh_frame, 2) << "," << std::endl
-// << "  wi = " << string::indent(it.wi, 7) << "," << std::endl
-// << "]";
-// }
-// return os;
-// }
-//
-// template <typename Float, typename Shape>
-// std::ostream &operator<<(std::ostream &os, const PreliminaryIntersection<Float, Shape> &pi) {
-// if (dr::none(pi.is_valid())) {
-// os << "PreliminaryIntersection[invalid]";
-// } else {
-// os << "PreliminaryIntersection[" << std::endl
-// << "  t = " << pi.t << "," << std::endl
-// << "  prim_uv = " << pi.prim_uv << "," << std::endl
-// << "  prim_index = " << pi.prim_index << "," << std::endl
-// << "  shape_index = " << pi.shape_index << "," << std::endl
-// << "  shape = " << string::indent(pi.shape, 6) << "," << std::endl
-// << "  instance = " << string::indent(pi.instance, 6) << "," << std::endl
-// << "]";
-// }
-// return os;
-// }
+static std::ostream &operator<<(std::ostream &os, const SurfaceInteraction& surfaceInteraction)
+{
+	return os << "{ "
+		<< "t = " << surfaceInteraction.t
+		<< ", time = " << surfaceInteraction.time
+		<< ", p = " << surfaceInteraction.p
+		<< ", n = " << surfaceInteraction.n
+		// TODO: Add print statements for each shape << ", geometry = " << surfaceInteraction.geometry
+		<< ", uv = " << surfaceInteraction.uv
+		<< ", shadingFrame = " << surfaceInteraction.shadingFrame
+		<< ", wi = " << surfaceInteraction.wi
+		<< ", geomID = " << surfaceInteraction.geomID
+		<< ", primID = " << surfaceInteraction.primID
+		<< ", instID = " << surfaceInteraction.instID
+		// TODO: Add print statements for each shape << ", instance = " << surfaceInteraction.instance
+		<< ", boundaryTest = " << surfaceInteraction.boundaryTest
+		<< "}";
+}
+
+static std::ostream &operator<<(std::ostream &os, const PreliminaryIntersection& pi)
+{
+	return os << "{ "
+	<< "t = " << pi.t << "," << std::endl
+	<< ", primUV = " << pi.primUV
+	<< ", primIndex = " << pi.primIndex
+	<< ", shapeIndex = " << pi.shapeIndex
+	// TODO: << ", shape = " << string::indent(pi.shape, 6) << "," << std::endl
+	// TODO: << ", instance = " << string::indent(pi.instance, 6) << "," << std::endl
+	<< "}";
+}
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE
 
-#endif // RAY_H
+#endif // CPU_INTERACTION_H
