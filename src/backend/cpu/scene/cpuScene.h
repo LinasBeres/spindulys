@@ -11,6 +11,7 @@
 #include "../geometry/cpuGeometry.h"
 
 #include "../utils/ray.h"
+#include "../utils/interaction.h"
 
 BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 
@@ -28,11 +29,15 @@ class CPUScene final : public Scene
 
 		virtual void ResetScene() override;
 
-		void RayIntersect(const Ray& ray) const;
+		const CPUGeometry* GetGeometery(unsigned int geomInstanceID) const { return _sceneGeometry.at(geomInstanceID).get(); }
+
+		SurfaceInteraction RayIntersect(const Ray& ray) const;
 
 	private:
 		RTCDevice _device = nullptr;
 		RTCScene _scene = nullptr; // Contains the instanced (single or not) geometry objects. This is the scene we are tracing against.
+
+		std::unordered_map<unsigned int, std::unique_ptr<CPUGeometry>> _sceneGeometry;
 };
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE

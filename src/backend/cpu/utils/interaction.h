@@ -77,7 +77,7 @@ struct Interaction
 struct SurfaceInteraction : Interaction
 {
 	// Reference to the geom
-	const CPUGeometry* geometry = nullptr;
+	const CPUGeometry* shape = nullptr;
 
 	/// UV surface coordinates
 	Vec2f uv = Vec2f(zero);
@@ -88,8 +88,8 @@ struct SurfaceInteraction : Interaction
 	/// Incident direction in the local shading frame
 	Vec3f wi = Vec3f(zero);
 
-	unsigned int geomID = SPINDULYS_INVALID_GEOMETRY_ID;
 	unsigned int primID = SPINDULYS_INVALID_GEOMETRY_ID;
+	unsigned int shapeID = SPINDULYS_INVALID_GEOMETRY_ID;
 	unsigned int instID = SPINDULYS_INVALID_GEOMETRY_ID;
 
 	/// Stores a pointer to the parent instance (if applicable)
@@ -159,13 +159,13 @@ struct PreliminaryIntersection
 	float t = Infinity<float>;
 
 	// 2D coordinates on the primitive surface parameterization
-	Vec2f primUV;
+	Vec2f primUV = Vec2f(zero);
 
 	// Primitive index, e.g. the triangle ID (if applicable)
-	unsigned int primIndex;
+	unsigned int primIndex = SPINDULYS_INVALID_GEOMETRY_ID;
 
 	// Shape index, e.g. the shape ID in shapegroup (if applicable)
-	unsigned int shapeIndex;
+	unsigned int shapeIndex = SPINDULYS_INVALID_GEOMETRY_ID;
 
 	// Pointer to the associated shape
 	const CPUGeometry* shape = nullptr;
@@ -207,7 +207,7 @@ struct PreliminaryIntersection
 
 		if (!active)
 		{
-			si.geometry = nullptr;
+			si.shape = nullptr;
 			si.instance = nullptr;
 		}
 
@@ -230,7 +230,7 @@ struct PreliminaryIntersection
 // -----------------------------------------------------------------------------
 // TODO:
 
-static std::ostream &operator<<(std::ostream &os, const Interaction& iteraction)
+MAYBE_UNUSED static std::ostream& operator<<(std::ostream& os, const Interaction& iteraction)
 {
 	return os << "{ "
 		<< "t = " << iteraction.t
@@ -240,7 +240,7 @@ static std::ostream &operator<<(std::ostream &os, const Interaction& iteraction)
 		<< "}";
 }
 
-static std::ostream &operator<<(std::ostream &os, const SurfaceInteraction& surfaceInteraction)
+MAYBE_UNUSED static std::ostream& operator<<(std::ostream& os, const SurfaceInteraction& surfaceInteraction)
 {
 	return os << "{ "
 		<< "t = " << surfaceInteraction.t
@@ -251,7 +251,7 @@ static std::ostream &operator<<(std::ostream &os, const SurfaceInteraction& surf
 		<< ", uv = " << surfaceInteraction.uv
 		<< ", shadingFrame = " << surfaceInteraction.shadingFrame
 		<< ", wi = " << surfaceInteraction.wi
-		<< ", geomID = " << surfaceInteraction.geomID
+		<< ", shapeID = " << surfaceInteraction.shapeID
 		<< ", primID = " << surfaceInteraction.primID
 		<< ", instID = " << surfaceInteraction.instID
 		// TODO: Add print statements for each shape << ", instance = " << surfaceInteraction.instance
@@ -259,7 +259,7 @@ static std::ostream &operator<<(std::ostream &os, const SurfaceInteraction& surf
 		<< "}";
 }
 
-static std::ostream &operator<<(std::ostream &os, const PreliminaryIntersection& pi)
+MAYBE_UNUSED static std::ostream& operator<<(std::ostream& os, const PreliminaryIntersection& pi)
 {
 	return os << "{ "
 	<< "t = " << pi.t << "," << std::endl

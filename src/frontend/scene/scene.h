@@ -26,8 +26,6 @@ class Scene
 		void AddFilePath(const std::string& filepath) { _filepaths.emplace_back(filepath); }
 		const std::vector<std::string>& GetFilePaths() const { return _filepaths; }
 
-		const Geometry& GetGeometery(unsigned int geomInstanceID) const { return *(_sceneGeometry.at(geomInstanceID).get()); }
-
 		bool SetSceneCamera(size_t cameraIndex) { return cameraIndex != std::exchange(_mainCamera, cameraIndex); }
 		const Camera& GetSceneCamera() const { return *(_cameras[_mainCamera].get()); }
 		Camera& UpdateSceneCamera() { return *(_cameras[_mainCamera].get()); }
@@ -41,15 +39,11 @@ class Scene
 
 		virtual void ResetScene();
 
-		void PrintGeometry() const;
-
 	protected:
 		std::vector<std::string> _filepaths;
 
 		size_t _mainCamera = 0;
 		std::vector<std::unique_ptr<Camera>> _cameras;
-
-		std::unordered_map<unsigned int, std::unique_ptr<Geometry>> _sceneGeometry;
 
 		bool _update = false;
 

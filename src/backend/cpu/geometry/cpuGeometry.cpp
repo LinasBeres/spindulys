@@ -41,14 +41,16 @@ bool CPUGeometry::Create(const RTCDevice& device,
 	return true;
 }
 
-SurfaceInteraction CPUGeometry::ComputeSurfaceInteraction(const Ray& ray,
-		const PreliminaryIntersection& pi,
-		uint32_t rayFlags,
-		uint32_t recursionDepth, bool active) const
+void CPUGeometry::ComputeInstanceSurfaceInteraction(SurfaceInteraction& si) const
 {
-	// TODO
-	SurfaceInteraction si;
-	return si;
+	si.p = xfmPoint(GetTransform(), si.p);
+	si.n = normalize(xfmVector(GetTransform(), si.n));
+
+	si.shadingFrame.vz = normalize(xfmVector(GetTransform(), si.shadingFrame.vz));
+
+	si.instID = _geomInstanceID;
+
+	si.instance = this;
 }
 
 

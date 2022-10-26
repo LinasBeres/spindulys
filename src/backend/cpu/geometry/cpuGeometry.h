@@ -30,7 +30,9 @@ class CPUGeometry : virtual public Geometry
 		virtual SurfaceInteraction ComputeSurfaceInteraction(const Ray& ray,
 				const PreliminaryIntersection& pi,
 				uint32_t rayFlags = (uint32_t) RayFlags::All,
-				uint32_t recursionDepth = 0, bool active = true) const;
+				uint32_t recursionDepth = 0, bool active = true) const = 0;
+
+		void ComputeInstanceSurfaceInteraction(SurfaceInteraction& si) const;
 
 	protected:
 		RTCScene _scene = nullptr;

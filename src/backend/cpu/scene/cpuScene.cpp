@@ -54,7 +54,7 @@ bool CPUScene::CommitGeometry(CPUGeometry* geometry)
 		return false;
 
 	_sceneMutex.lock();
-	_sceneGeometry[geometry->GetGeomInstanceID()] = std::unique_ptr<Geometry>(geometry);
+	_sceneGeometry[geometry->GetGeomInstanceID()] = std::unique_ptr<CPUGeometry>(geometry);
 	_sceneMutex.unlock();
 
 	return true;
@@ -67,37 +67,50 @@ void CPUScene::ResetScene()
 	_scene = rtcNewScene(_device);
   rtcSetSceneFlags(_scene, RTC_SCENE_FLAG_DYNAMIC);
 
+	_sceneGeometry.clear();
+
 	// Reset Parent scene stuff
 	Scene::ResetScene();
 }
 
 
 // TODO: This should return a surface interaction
-void CPUScene::RayIntersect(const Ray& ray) const
+SurfaceInteraction CPUScene::RayIntersect(const Ray& ray) const
 {
 	const float ray_maxt = ray.tfar;
 
 	RTCIntersectContext context;
 	rtcInitIntersectContext(&context);
 
+	PreliminaryIntersection pi;
+
 	rtcIntersect1(_scene, &context, RTCRayHit_(ray));
 
-	if (ray.tfar != ray_maxt)
+	if (ray.tfar == ray_maxt)
 	{
-		uint32_t shape_index = ray.geomID;
-		uint32_t prim_index  = ray.primID;
+		uint32_t shapeIndex = ray.geomID;
+		uint32_t primIndex  = ray.primID;
 
 		// We get level 0 because we only support one level of instancing
-		uint32_t inst_index = ray.instID;
+		uint32_t instIndex = ray.instID;
 
 		// If the hit is not on an instance
-		bool hit_instance = inst_index != RTC_INVALID_GEOMETRY_ID;
-		uint32_t index = hit_instance ? inst_index : shape_index;
+		bool hit_instance = instIndex != RTC_INVALID_GEOMETRY_ID;
+		uint32_t index = hit_instance ? instIndex : shapeIndex;
 
-		const Geometry& geom = GetGeometery(index);
+		const CPUGeometry* geom = GetGeometery(index);
 
-		std::cerr << "Hit: " << geom.GetName() << " with prim id: " << prim_index << "\n";
+		// Initialise preliminary intersection
+		pi.t = ray.tfar;
+		pi.instance = geom;
+		pi.shape = geom;
+
+		pi.shapeIndex = shapeIndex;
+		pi.primIndex = primIndex;
+		pi.primUV = Vec2f(ray.u, ray.v);
 	}
+
+	return pi.ComputeSurfaceInteraction(ray);
 }
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE

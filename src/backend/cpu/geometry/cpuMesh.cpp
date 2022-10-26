@@ -1,5 +1,6 @@
 #include "cpuMesh.h"
 
+#include "../utils/interaction.h"
 
 BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 
@@ -59,6 +60,69 @@ bool CPUMesh::CreatePrototype(const RTCDevice& device)
 	}
 
 	return true;
+}
+
+SurfaceInteraction CPUMesh::ComputeSurfaceInteraction(const Ray& ray,
+		const PreliminaryIntersection& pi,
+		uint32_t rayFlags,
+		uint32_t recursionDepth, bool active) const
+{
+	SurfaceInteraction si;
+
+	si.primID = si.primID;
+	si.shapeID = _geomID;
+
+	si.t = pi.t;
+
+	const Vec2f primUV = pi.primUV;
+
+	const Vec3i fi = GetTriangleFaceIndex(pi.primIndex);
+
+	const Vec3f p0 = GetVertexPosition(fi[0]);
+	const Vec3f p1 = GetVertexPosition(fi[1]);
+	const Vec3f p2 = GetVertexPosition(fi[2]);
+
+	const float b1 = primUV.x;
+	const float b2 = primUV.y;
+	const float b0 = 1.f - b1 - b2;
+
+	const Vec3f dp0 = p1 - p0;
+	const Vec3f dp1 = p2 - p0;
+
+	si.p = p0 * b0 + p1 * b1 + p2 * b2;
+	si.n = normalize(cross(dp0, dp1));
+
+	si.uv = Vec2f(b1, b2);
+
+	if (HasVertexNormals())
+	{
+		const Vec3f n0 = GetVertexNormal(fi[0]);
+		const Vec3f n1 = GetVertexNormal(fi[1]);
+		const Vec3f n2 = GetVertexNormal(fi[2]);
+
+		Vec3f n = n2 * b2 + n1 * b1 + n0 * b0;
+		const float il = rcp_length(n);
+		n *= il;
+
+		si.shadingFrame.vz = n;
+	}
+	else
+	{
+		si.shadingFrame.vz = si.n;
+	}
+	// TODO: Flip normals
+
+	// TODO: Tex coord
+
+	si.shape = this;
+	si.instance = nullptr;
+
+	// TODO: Boundry test
+
+	// Currently everything is an instance so...
+	ComputeInstanceSurfaceInteraction(si);
+
+	return si;
 }
 
 

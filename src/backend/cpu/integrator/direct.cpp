@@ -34,6 +34,10 @@ std::pair<Col3f, float> Direct::Sample(const CPUScene* scene, PixelSample* pixel
 {
 	Col3f result(zero);
 
+	// SurfaceInteraction si = scene->RayIntersect(ray);
+
+	// bool validRay = si.IsValid();
+
 	// ----------------------- Visible emitters -----------------------
 	// TODO:
 

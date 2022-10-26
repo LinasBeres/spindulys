@@ -18,6 +18,11 @@ class CPUCurve final : public CPUGeometry, public Curve
 
 		virtual bool CreatePrototype(const RTCDevice& device) override;
 
+		virtual SurfaceInteraction ComputeSurfaceInteraction(const Ray& ray,
+				const PreliminaryIntersection& pi,
+				uint32_t rayFlags = (uint32_t) RayFlags::All,
+				uint32_t recursionDepth = 0, bool active = true) const override;
+
 	private:
 };
 

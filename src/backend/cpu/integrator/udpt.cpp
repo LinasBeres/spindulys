@@ -16,7 +16,7 @@ void UDPTIntegrator::GetPixelColor(Ray& ray,
 	Col3f colorAccumulation(0.0f);
 	Col3f colorThroughput(1.0f);
 
-	for (int bounce = 0; bounce < renderGlobals.depth; ++bounce)
+	for (int bounce = 0; bounce < 2; ++bounce)
 	{
 		RTCIntersectContext intersectContext;
 		rtcInitIntersectContext(&intersectContext);
