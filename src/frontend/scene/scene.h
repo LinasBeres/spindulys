@@ -23,6 +23,8 @@ class Scene
 		virtual void CommitScene() = 0;
 		virtual bool CreateGeomerty(Geometry* geom) = 0;
 
+		virtual bool CreateLights() = 0;
+
 		void AddFilePath(const std::string& filepath) { _filepaths.emplace_back(filepath); }
 		const std::vector<std::string>& GetFilePaths() const { return _filepaths; }
 

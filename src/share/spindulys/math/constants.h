@@ -190,16 +190,47 @@ extern MAYBE_UNUSED FullTy full;
 struct UndefinedTy {
 };
 
+template <typename T> constexpr auto E               = T(2.71828182845904523536);
+template <typename T> constexpr auto LogTwo          = T(0.69314718055994530942);
+template <typename T> constexpr auto InvLogTwo       = T(1.44269504088896340736);
+
+template <typename T> constexpr auto Pi              = T(3.14159265358979323846);
+template <typename T> constexpr auto InvPi           = T(0.31830988618379067154);
+template <typename T> constexpr auto SqrtPi          = T(1.77245385090551602793);
+template <typename T> constexpr auto InvSqrtPi       = T(0.56418958354775628695);
+
+template <typename T> constexpr auto TwoPi           = T(6.28318530717958647692);
+template <typename T> constexpr auto InvTwoPi        = T(0.15915494309189533577);
+template <typename T> constexpr auto SqrtTwoPi       = T(2.50662827463100050242);
+template <typename T> constexpr auto InvSqrtTwoPi    = T(0.39894228040143267794);
+
+template <typename T> constexpr auto FourPi          = T(12.5663706143591729539);
+template <typename T> constexpr auto InvFourPi       = T(0.07957747154594766788);
+template <typename T> constexpr auto SqrtFourPi      = T(3.54490770181103205460);
+template <typename T> constexpr auto InvSqrtFourPi   = T(0.28209479177387814347);
+
+template <typename T> constexpr auto SqrtTwo         = T(1.41421356237309504880);
+template <typename T> constexpr auto InvSqrtTwo      = T(0.70710678118654752440);
+
 #if defined(__GNUC__)
-template <typename T> constexpr auto Infinity = T(__builtin_inf());
+template <typename T> constexpr auto Infinity        = T(__builtin_inf());
 #else
-template <typename T> constexpr auto Infinity = T(__builtin_huge_val());
+template <typename T> constexpr auto Infinity        = T(__builtin_huge_val());
 #endif
 
-template <typename T> constexpr auto NaN = T(__builtin_nan(""));
+template <typename T> constexpr auto NaN             = T(__builtin_nan(""));
 
-template <typename T> constexpr auto Epsilon = T(sizeof(T) == 8 ? 0x1p-53 : 0x1p-24);
-template <typename T> constexpr auto Largest = T(sizeof(T) == 8 ? 0x1.fffffffffffffp+1023 : 0x1.fffffep+127);
+template <typename T> constexpr auto Epsilon         = T(sizeof(T) == 8 ? 0x1p-53 : 0x1p-24);
+
+/// 1 - Machine epsilon
+template <typename T> constexpr auto OneMinusEpsilon = T(sizeof(T) == 8 ? 0x1.fffffffffffffp-1 : 0x1.fffffep-1);
+
+/// Any numbers below this threshold will overflow to infinity when a reciprocal is evaluated
+template <typename T> constexpr auto RecipOverflow   = T(sizeof(T) == 8 ? 0x1p-1024 : 0x1p-128);
+
+/// Smallest normalized floating point value
+template <typename T> constexpr auto Smallest        = T(sizeof(T) == 8 ? 0x1p-1022 : 0x1p-126);
+template <typename T> constexpr auto Largest         = T(sizeof(T) == 8 ? 0x1.fffffffffffffp+1023 : 0x1.fffffep+127);
 
 SPINDULYS_NAMESPACE_CLOSE_SCOPE
 

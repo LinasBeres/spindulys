@@ -25,6 +25,8 @@ class CPUScene final : public Scene
 		virtual bool CreateGeomerty(Geometry* geom) override;
 		bool CommitGeometry(CPUGeometry* geometry);
 
+		virtual bool CreateLights() override { return true; }
+
 		RTCScene GetScene() { return _scene; }
 
 		virtual void ResetScene() override;
