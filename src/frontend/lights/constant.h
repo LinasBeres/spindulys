@@ -12,23 +12,21 @@
 FRONTEND_NAMESPACE_OPEN_SCOPE
 
 
-class Constant : virtual public Light
+class ConstantLight : virtual public Light
 {
 	public:
-		Constant() { m_flags = (uint32_t) LightFlags::Infinite; }
-
-		Constant(float radius = 1.f, const Vec3f& point = Vec3f(zero),
+		ConstantLight(float radius = 1.f, const Vec3f& point = Vec3f(zero),
 				float surfaceArea = 1.f, float radiance = 1.f)
 			: m_radius(radius), m_point(point), m_surfaceArea(surfaceArea), m_radiance(radiance)
 		{ m_flags = (uint32_t) LightFlags::Infinite; }
 
-		virtual ~Constant() = default;
+		virtual ~ConstantLight() = default;
 
 		// Get Methods
 		float        GetRadius()      const { return m_radius;      }
 		const Vec3f& GetPoint()       const { return m_point;       }
 		float        GetSurfaceArea() const { return m_surfaceArea; }
-		float        GetRadiance()    const { return m_radius;      }
+		float        GetRadiance()    const { return m_radiance;    }
 
 		// Set Methods
 		bool SetRadius(float radius)           { return radius      != std::exchange(m_radius, radius);           }

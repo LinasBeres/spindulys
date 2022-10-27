@@ -3,6 +3,8 @@
 
 #include "../spindulysFrontend.h"
 
+#include <spindulys/math/affinespace.h>
+
 
 FRONTEND_NAMESPACE_OPEN_SCOPE
 
@@ -48,15 +50,24 @@ class Light
 {
 	public:
 		Light() = default;
+		Light(const AffineSpace3f& transform) : m_transform(transform) { }
+
 		virtual ~Light() = default;
 
 		bool IsEnvironment() const
 		{ return (m_flags & (uint32_t) LightFlags::Infinite) != 0 && (m_flags & (uint32_t) LightFlags::Infinite) == 0; }
 
-		uint32_t GetFlags() const { return m_flags; }
+		// Get Methods
+		uint32_t             GetFlags()     const { return m_flags;     }
+		const AffineSpace3f& GetTransform() const { return m_transform; }
+
+		// Set Methods
+		bool SetRadius(const AffineSpace3f& transform) { return transform != std::exchange(m_transform, transform); }
 
 	protected:
 		uint32_t m_flags;
+
+		AffineSpace3f m_transform = AffineSpace3f(one, zero);
 
 	private:
 };
