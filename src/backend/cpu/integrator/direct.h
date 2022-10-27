@@ -11,7 +11,7 @@
 
 BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 
-class Direct
+class Direct final : public Integrator
 {
 	public:
 		Direct();
