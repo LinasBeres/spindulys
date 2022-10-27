@@ -18,6 +18,16 @@ Vec3f Lambert::Evaluate(PixelSample& pixelSample,
 	return (geometryColor / static_cast<float>(M_PI)) * bsdfSample.NdotL;
 }
 
+Vec3f Lambert::Evaluate2(PixelSample& pixelSample,
+		SurfaceInteraction& shadingPoint,
+		BSDFSample& bsdfSample)
+{
+	BACKEND_TRACE();
+	// TODO: "NdotL" should not be the same one as from "Sample()", but the actual dot product of the normal and the light direction?
+	const Vec3f geometryColor = Vec3f(shadingPoint.shape->GetDisplayColor().r, shadingPoint.shape->GetDisplayColor().g, shadingPoint.shape->GetDisplayColor().b);
+	return (geometryColor / static_cast<float>(M_PI)) * bsdfSample.NdotL;
+}
+
 Vec3f Lambert::Sample(PixelSample& pixelSample,
 		ShadingPoint& shadingPoint,
 		BSDFSample& bsdfSample)
@@ -50,8 +60,47 @@ Vec3f Lambert::Sample(PixelSample& pixelSample,
 	return wi;
 }
 
+Vec3f Lambert::Sample2(PixelSample& pixelSample,
+		SurfaceInteraction& shadingPoint,
+		BSDFSample& bsdfSample)
+{
+	BACKEND_TRACE();
+	float rand0 = pixelSample.sampler.Uniform1D();
+	float rand1 = pixelSample.sampler.Uniform1D();
+	Vec3f randomDirection(pixelSample.sampler.HemisphereCosineWeighted(rand0, rand1));
+
+	float r = sqrt(rand0);
+	float theta = 2.0f * M_PI * rand1;
+	float phi = sqrt(1.0f - rand1);
+	float x = r * cos(theta);
+	float y = r * sin(theta);
+
+	// We are orienting the random direction along the normal of the shading point,
+	// somehow like when using a orthonormal basis.
+	Vec3f u(normalize(cross(shadingPoint.shadingFrame.vz, randomDirection)));
+	Vec3f v(cross(shadingPoint.shadingFrame.vz, u));
+
+	Vec3f wi(shadingPoint.shadingFrame.vz);
+	wi *= phi;
+	wi += (u * x);
+	wi += (v * y);
+
+	bsdfSample.NdotL = dot(shadingPoint.shadingFrame.vz, wi);
+	bsdfSample.pdf = Pdf2(pixelSample, shadingPoint, bsdfSample);
+
+	// TODO: Using the basis directly does not yield the same result. This should get looked into.
+	return wi;
+}
+
 float Lambert::Pdf(PixelSample& pixelSample,
 		ShadingPoint& shadingPoint,
+		BSDFSample& bsdfSample)
+{
+	return bsdfSample.NdotL > 0.0f ? bsdfSample.NdotL / M_PI : 1.0f;
+}
+
+float Lambert::Pdf2(PixelSample& pixelSample,
+		SurfaceInteraction& shadingPoint,
 		BSDFSample& bsdfSample)
 {
 	return bsdfSample.NdotL > 0.0f ? bsdfSample.NdotL / M_PI : 1.0f;

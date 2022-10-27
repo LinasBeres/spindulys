@@ -9,6 +9,15 @@ Integrator::Integrator()
 {
 }
 
+void Integrator::GetPixelColor(Ray& ray,
+		PixelSample& pixelSample,
+		CPUScene* scene,
+		RenderManager::Buffers buffers,
+		const RenderManager::RenderGlobals& renderGlobals)
+{
+	BACKEND_TRACE();
+}
+
 ShadingPoint Integrator::SetupShadingPoint(const CPUScene* scene, const Ray& ray)
 {
 	BACKEND_TRACE();

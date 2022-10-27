@@ -21,7 +21,7 @@ class Integrator
 				PixelSample& pixelSample,
 				CPUScene* scene,
 				RenderManager::Buffers buffers,
-				const RenderManager::RenderGlobals& renderGlobals) = 0;
+				const RenderManager::RenderGlobals& renderGlobals);
 		virtual ShadingPoint SetupShadingPoint(const CPUScene* scene, const Ray& ray);
 
 	private:

@@ -4,6 +4,7 @@ file(GLOB BACKEND_CPU_HEADERS
 	geometry/*.h
 	integrator/integrator.h
 	integrator/udpt.h
+	integrator/direct.h
 	render/*.h
 	scene/*.h
 	spindulysCPUBackend.h
@@ -15,6 +16,7 @@ file(GLOB BACKEND_CPU_SOURCES
 	geometry/*.cpp
 	integrator/integrator.cpp
 	integrator/udpt.cpp
+	integrator/direct.cpp
 	render/*.cpp
 	scene/*.cpp
 )

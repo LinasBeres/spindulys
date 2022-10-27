@@ -5,6 +5,8 @@
 
 #include "../spindulysBackendCPU.h"
 
+#include "../utils/interaction.h"
+
 
 BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 
@@ -16,12 +18,24 @@ class Lambert final : public BSDF
 		virtual Vec3f Evaluate(PixelSample& pixelSample,
 				ShadingPoint& shadingPoint,
 				BSDFSample& bsdfSample) override;
+		Vec3f Evaluate2(PixelSample& pixelSample,
+				SurfaceInteraction& shadingPoint,
+				BSDFSample& bsdfSample);
+
 		virtual Vec3f Sample(PixelSample& pixelSample,
 				ShadingPoint& shadingPoint,
 				BSDFSample& bsdfSample) override;
+		Vec3f Sample2(PixelSample& pixelSample,
+				SurfaceInteraction& shadingPoint,
+				BSDFSample& bsdfSample);
+
 		virtual float Pdf(PixelSample& pixelSample,
 				ShadingPoint& shadingPoint,
 				BSDFSample& bsdfSample) override;
+
+		float Pdf2(PixelSample& pixelSample,
+				SurfaceInteraction& shadingPoint,
+				BSDFSample& bsdfSample);
 	private:
 };
 

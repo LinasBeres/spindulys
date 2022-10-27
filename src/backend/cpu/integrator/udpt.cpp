@@ -13,7 +13,6 @@ void UDPTIntegrator::GetPixelColor(Ray& ray,
 		const RenderManager::RenderGlobals& renderGlobals)
 {
 	BACKEND_TRACE();
-	Col3f colorAccumulation(0.0f);
 	Col3f colorThroughput(1.0f);
 
 	for (int bounce = 0; bounce < 2; ++bounce)
@@ -86,7 +85,7 @@ void UDPTIntegrator::GetPixelColor(Ray& ray,
 		colorThroughput = colorThroughput * Col3f(color.x, color.y, color.z);
 	}
 
-	buffers[RenderManager::BufferIds::Beauty]->AddPixel(pixelSample.pixelIdx, colorAccumulation);
+	buffers[RenderManager::BufferIds::Beauty]->AddPixel(pixelSample.pixelIdx, colorThroughput);
 }
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE
