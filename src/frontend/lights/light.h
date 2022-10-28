@@ -1,9 +1,9 @@
 #ifndef LIGHT_H
 #define LIGHT_H
 
-#include "../spindulysFrontend.h"
-
 #include <spindulys/math/affinespace.h>
+
+#include "../spindulysFrontend.h"
 
 
 FRONTEND_NAMESPACE_OPEN_SCOPE
