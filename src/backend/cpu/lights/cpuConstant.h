@@ -13,7 +13,9 @@ BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 class CPUConstantLight final : public CPULight, public ConstantLight
 {
 	public:
-		CPUConstantLight();
+		CPUConstantLight(float radius = 1.f, const Vec3f& point = Vec3f(zero),
+				float surfaceArea = 1.f, const Col3f& radiance = Col3f(one))
+			: ConstantLight(radius, point, surfaceArea, radiance) { }
 
 		virtual Col3f Eval(const SurfaceInteraction& si, uint32_t active) const override;
 

@@ -47,7 +47,7 @@ void CPURenderManager::Trace(int iterations)
 							// UDPTIntegrator().GetPixelColor(primaryRay, pixelSample, dynamic_cast<CPUScene*>(scene), buffers, renderGlobals);
 						if (renderGlobals.integratorID == IntegratorIds::UDPT)
 						{
-							auto [color, mask] = Direct().Sample(dynamic_cast<CPUScene*>(scene), pixelSample, primaryRay, nullptr);
+							const auto [color, mask] = Direct().Sample(dynamic_cast<CPUScene*>(scene), pixelSample, primaryRay, nullptr);
 							if (mask) { ; }
 							buffers[RenderManager::BufferIds::Beauty]->AddPixel(pixelSample.pixelIdx, color);
 						}

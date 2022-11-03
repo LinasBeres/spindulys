@@ -13,10 +13,13 @@ std::pair<Col3f, float> Direct::Sample(const CPUScene* scene, PixelSample& pixel
 	SurfaceInteraction si = scene->RayIntersect(ray);
 
 	// ----------------------- Visible emitters -----------------------
-	// TODO:
+
+	if (/* TODO: not hide lights: */ true)
+		if (const CPULight* visibleLight = scene->LightHit(si))
+			result += visibleLight->Eval(si, true);
 
 	if (!si.IsValid())
-		return { Col3f(0.7, 0.8, 0.9), 0.f };
+		return { result, 0.f };
 
 	// ----------------------- Emitter sampling -----------------------
 	// TODO:
@@ -36,7 +39,7 @@ std::pair<Col3f, float> Direct::Sample(const CPUScene* scene, PixelSample& pixel
 	if (rh.time != 0) { ; }
 	const Vec3f color = bsdfSample.reflectance / bsdfSample.pdf;
 
-	result = result * Col3f(color.x, color.y, color.z);
+	result = result + Col3f(color.x, color.y, color.z);
 
 	return { result, 0.f };
 }

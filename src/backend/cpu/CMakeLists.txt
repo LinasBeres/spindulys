@@ -8,6 +8,7 @@ file(GLOB BACKEND_CPU_HEADERS
 	lights/*.h
 	render/*.h
 	scene/*.h
+	utils/*.h
 	spindulysCPUBackend.h
 )
 

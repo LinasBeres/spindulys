@@ -10,6 +10,8 @@
 
 #include "../geometry/cpuGeometry.h"
 
+#include "../lights/cpuLight.h"
+
 #include "../utils/ray.h"
 #include "../utils/interaction.h"
 
@@ -25,21 +27,29 @@ class CPUScene final : public Scene
 		virtual bool CreateGeomerty(Geometry* geom) override;
 		bool CommitGeometry(CPUGeometry* geometry);
 
-		virtual bool CreateLights() override { return true; }
+		virtual bool CreateLights(Light* light) override;
 
 		RTCScene GetScene() { return _scene; }
 
 		virtual void ResetScene() override;
 
-		const CPUGeometry* GetGeometery(unsigned int geomInstanceID) const { return _sceneGeometry.at(geomInstanceID).get(); }
+		// Get Methods
+		const CPUGeometry* GetGeometery(unsigned int geomInstanceID) const { return m_sceneGeometry.at(geomInstanceID).get(); }
+		const CPULight*    GetEnvironment()                          const { return m_environment.get(); }
 
 		SurfaceInteraction RayIntersect(const Ray& ray) const;
+
+		const CPULight* LightHit(const SurfaceInteraction& si, uint32_t active = true) const;
 
 	private:
 		RTCDevice _device = nullptr;
 		RTCScene _scene = nullptr; // Contains the instanced (single or not) geometry objects. This is the scene we are tracing against.
 
-		std::unordered_map<unsigned int, std::unique_ptr<CPUGeometry>> _sceneGeometry;
+		std::unordered_map<unsigned int, std::unique_ptr<CPUGeometry>> m_sceneGeometry;
+
+		std::vector<std::unique_ptr<CPULight>> m_lights;
+
+		std::unique_ptr<CPULight> m_environment;
 };
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE

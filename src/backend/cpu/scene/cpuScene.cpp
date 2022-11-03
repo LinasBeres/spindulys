@@ -3,6 +3,8 @@
 #include "../geometry/cpuMesh.h"
 #include "../geometry/cpuCurve.h"
 
+#include "../lights/cpuConstant.h"
+
 #include <spindulys/math/linearspace3.h>
 
 
@@ -13,6 +15,8 @@ CPUScene::CPUScene()
 	_device = rtcNewDevice("");
 	_scene = rtcNewScene(_device);
   rtcSetSceneFlags(_scene, RTC_SCENE_FLAG_DYNAMIC);
+
+	m_environment = std::make_unique<CPUConstantLight>(10.f, Vec3f(zero), 1.f, Col3f(0.7, 0.8, 0.9));
 }
 
 CPUScene::~CPUScene()
@@ -54,8 +58,14 @@ bool CPUScene::CommitGeometry(CPUGeometry* geometry)
 		return false;
 
 	_sceneMutex.lock();
-	_sceneGeometry[geometry->GetGeomInstanceID()] = std::unique_ptr<CPUGeometry>(geometry);
+	m_sceneGeometry[geometry->GetGeomInstanceID()] = std::unique_ptr<CPUGeometry>(geometry);
 	_sceneMutex.unlock();
+
+	return true;
+}
+
+bool CPUScene::CreateLights(Light* light)
+{
 
 	return true;
 }
@@ -67,7 +77,10 @@ void CPUScene::ResetScene()
 	_scene = rtcNewScene(_device);
   rtcSetSceneFlags(_scene, RTC_SCENE_FLAG_DYNAMIC);
 
-	_sceneGeometry.clear();
+	m_sceneGeometry.clear();
+	m_lights.clear();
+	m_environment.reset(nullptr);
+	m_environment = std::make_unique<CPUConstantLight>(10.f, Vec3f(zero), 1.f, Col3f(0.7, 0.8, 0.9));
 
 	// Reset Parent scene stuff
 	Scene::ResetScene();
@@ -111,6 +124,13 @@ SurfaceInteraction CPUScene::RayIntersect(const Ray& ray) const
 	}
 
 	return pi.ComputeSurfaceInteraction(ray);
+}
+
+
+const CPULight* CPUScene::LightHit(const SurfaceInteraction& si, uint32_t active) const
+{
+	// TODO: Return shape light if hit that.
+	return GetEnvironment();
 }
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE

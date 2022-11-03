@@ -139,6 +139,7 @@ __forceinline double tanh ( const double x ) { return ::tanh (x); }
 __forceinline double floor( const double x ) { return ::floor (x); }
 __forceinline double ceil ( const double x ) { return ::ceil (x); }
 
+
 #if defined(__SSE4_1__)
 __forceinline float mini(float a, float b) {
 	const __m128i ai = _mm_castps_si128(_mm_set_ss(a));
@@ -198,6 +199,9 @@ template<typename T> __forceinline T maxi(const T& a, const T& b, const T& c, co
 __forceinline ssize_t min(ssize_t a, ssize_t b) { return a<b ? a:b; }
 __forceinline ssize_t max(ssize_t a, ssize_t b) { return a<b ? b:a; }
 #endif
+
+__forceinline float  safe_sqrt ( const float x )  { return ::sqrtf(max(x, 0.f)); }
+__forceinline double safe_sqrt ( const double x ) { return ::sqrt(max(x, 0.0));  }
 
 #if defined(__MACOSX__) && !defined(__INTEL_COMPILER)
 __forceinline void sincosf(float x, float *sin, float *cos) {

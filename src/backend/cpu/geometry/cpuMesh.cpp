@@ -89,7 +89,8 @@ SurfaceInteraction CPUMesh::ComputeSurfaceInteraction(const Ray& ray,
 	const Vec3f dp0 = p1 - p0;
 	const Vec3f dp1 = p2 - p0;
 
-	si.p = p0 * b0 + p1 * b1 + p2 * b2;
+	si.p = madd(b0, p0, madd(b1, p1, b2 * p2));
+
 	si.n = normalize(cross(dp0, dp1));
 
 	si.uv = Vec2f(b1, b2);

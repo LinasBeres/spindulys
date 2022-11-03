@@ -43,7 +43,12 @@ class Mesh : virtual public Geometry
 		MeshType _type = MeshType::QuadMesh;
 
 	protected:
-		Vec3i GetTriangleFaceIndex(int index) const { return Vec3i(_indices[index], _indices[index + 1], _indices[index + 2]); }
+		Vec3i GetTriangleFaceIndex(int index) const
+		{
+			index *= 3;
+			return Vec3i(_indices[index], _indices[index + 1], _indices[index + 2]);
+		}
+
 		Vec3f GetVertexPosition(int index) const { return _points[index];  }
 		Vec3f GetVertexNormal(int index)   const { return _normals[index]; }
 

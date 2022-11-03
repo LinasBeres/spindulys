@@ -50,9 +50,9 @@ struct Interaction
 	// Spawn a finite ray towards the given position
 	Ray SpawnRayTo(const Vec3f& t) const
 	{
-		Vec3f o = OffsetP(t - p);
+		const Vec3f o = OffsetP(t - p);
 		Vec3f d = t - o;
-		float dist = norm(d);
+		const float dist = length(d);
 		d /= dist;
 		return Ray(o, d, 0.f, dist * (1.f - ShadowEpsilon<float>), time);
 	}
@@ -262,13 +262,13 @@ MAYBE_UNUSED static std::ostream& operator<<(std::ostream& os, const SurfaceInte
 MAYBE_UNUSED static std::ostream& operator<<(std::ostream& os, const PreliminaryIntersection& pi)
 {
 	return os << "{ "
-	<< "t = " << pi.t << "," << std::endl
-	<< ", primUV = " << pi.primUV
-	<< ", primIndex = " << pi.primIndex
-	<< ", shapeIndex = " << pi.shapeIndex
-	// TODO: << ", shape = " << string::indent(pi.shape, 6) << "," << std::endl
-	// TODO: << ", instance = " << string::indent(pi.instance, 6) << "," << std::endl
-	<< "}";
+		<< "t = " << pi.t << "," << std::endl
+		<< ", primUV = " << pi.primUV
+		<< ", primIndex = " << pi.primIndex
+		<< ", shapeIndex = " << pi.shapeIndex
+		// TODO: << ", shape = " << string::indent(pi.shape, 6) << "," << std::endl
+		// TODO: << ", instance = " << string::indent(pi.instance, 6) << "," << std::endl
+		<< "}";
 }
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE

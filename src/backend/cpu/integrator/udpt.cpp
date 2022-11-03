@@ -15,7 +15,7 @@ void UDPTIntegrator::GetPixelColor(Ray& ray,
 	BACKEND_TRACE();
 	Col3f colorThroughput(1.0f);
 
-	for (int bounce = 0; bounce < 2; ++bounce)
+	for (int bounce = 0; bounce < 1; ++bounce)
 	{
 		RTCIntersectContext intersectContext;
 		rtcInitIntersectContext(&intersectContext);

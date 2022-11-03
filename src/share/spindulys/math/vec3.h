@@ -118,8 +118,6 @@ template<typename T> __forceinline T reduce_mul( const Vec3<T>& a ) { return a.x
 template<typename T> __forceinline T reduce_min( const Vec3<T>& a ) { return min(a.x, a.y, a.z); }
 template<typename T> __forceinline T reduce_max( const Vec3<T>& a ) { return max(a.x, a.y, a.z); }
 
-template<typename T> __forceinline T norm( const Vec3<T>& a ) { return reduce_add(sqrt(a)); }
-
 ////////////////////////////////////////////////////////////////////////////////
 /// Comparison Operators
 ////////////////////////////////////////////////////////////////////////////////
