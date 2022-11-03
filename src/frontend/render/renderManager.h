@@ -16,22 +16,26 @@
 #include "../camera/camera.h"
 #include "../scene/scene.h"
 
+#define DEFAULT_WIDTH 800
+#define DEFAULT_HEIGHT 800
+
 
 FRONTEND_NAMESPACE_OPEN_SCOPE
 
 class RenderManager
 {
 	public:
-
-		using StopRenderer    = std::function<bool(void)>;
+		using StopRenderer = std::function<bool(void)>;
 		using RegisterUpdates = std::function<bool(RenderManager*)>;
-		using DrawBuffer      = std::function<void(int, int, const Buffer3f&)>;
+		using DrawBuffer = std::function<void(int, int, const Buffer3f&)>;
 
-		enum class IntegratorIds {
+		enum class IntegratorIds
+		{
 			UDPT = 0,
 		};
 
-		enum class BufferIds {
+		enum class BufferIds
+		{
 			Beauty = 0,
 			Diffuse,
 			Position,
@@ -43,8 +47,8 @@ class RenderManager
 
 		struct RenderGlobals
 		{
-			int width = 800;                                   // The width of the image to render.
-			int height = 600;                                  // The height of the image to render.
+			int width = DEFAULT_WIDTH;                                   // The width of the image to render.
+			int height = DEFAULT_HEIGHT;                                  // The height of the image to render.
 			int maxIterations = 1;                             // The maximum number of times to refine.
 			int depth = 3;                                     // The maximum ray depth, or number of bounces, the renderer can make use of.
 			int samples = 1;                                   // Total number of samples per pixel to compute.

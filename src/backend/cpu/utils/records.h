@@ -123,7 +123,7 @@ struct DirectionSample : public PositionSample
 	 * \param ref
 	 *     Reference position
 	 */
-	DirectionSample(CPULight* light, const SurfaceInteraction& si, const Interaction& ref)
+	DirectionSample(const CPULight* light, const SurfaceInteraction& si, const Interaction& ref)
 		: PositionSample(si), light(light)
 	{
 		const Vec3f rel = si.p - ref.p;

@@ -8,7 +8,6 @@
 #include "../scene/usdTranslators/usdSceneLoader.h"
 #endif
 
-
 FRONTEND_NAMESPACE_OPEN_SCOPE
 
 RenderManager::RenderManager()
@@ -92,7 +91,7 @@ void RenderManager::Render()
 		if (renderGlobals.scaleResolution && frameSize < 1.f)
 		{
 			iterations = 0;
-			frameSize += 0.25f;
+			frameSize += GROW_SIZE;
 			currentResolution = Vec2i(frameSize * renderGlobals.width, frameSize * renderGlobals.height);
 
 			for (const auto& bufferID : renderGlobals.currentBufferIds)
@@ -104,10 +103,9 @@ void RenderManager::Render()
 		{
 			iterations++;
 			Trace(iterations);
+			if (drawBufferFunction)
+				drawBufferFunction(currentResolution.x, currentResolution.y, *(buffers[renderGlobals.bufferID]));
 		}
-
-		if (drawBufferFunction)
-			drawBufferFunction(currentResolution.x, currentResolution.y, *(buffers[renderGlobals.bufferID]));
 	}
 }
 

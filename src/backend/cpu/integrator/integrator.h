@@ -24,6 +24,8 @@ class Integrator
 				const RenderManager::RenderGlobals& renderGlobals);
 		virtual ShadingPoint SetupShadingPoint(const CPUScene* scene, const Ray& ray);
 
+	protected:
+
 	private:
 };
 

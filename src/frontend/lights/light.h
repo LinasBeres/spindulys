@@ -50,12 +50,17 @@ class Light
 {
 	public:
 		Light() = default;
-		Light(const AffineSpace3f& transform) : m_transform(transform) { }
+		Light(const AffineSpace3f& transform)
+			: m_transform(transform)
+		{ }
 
 		virtual ~Light() = default;
 
 		bool IsEnvironment() const
-		{ return (m_flags & (uint32_t) LightFlags::Infinite) != 0 && (m_flags & (uint32_t) LightFlags::Delta) == 0; }
+		{
+			return (m_flags & (uint32_t)LightFlags::Infinite) != 0 &&
+				   (m_flags & (uint32_t)LightFlags::Infinite) == 0;
+		}
 
 		// Get Methods
 		uint32_t             GetFlags()     const { return m_flags;     }
