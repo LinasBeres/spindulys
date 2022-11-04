@@ -11,6 +11,7 @@
 
 #include "../camera/camera.h"
 #include "../geometry/geometry.h"
+#include "../lights/light.h"
 
 FRONTEND_NAMESPACE_OPEN_SCOPE
 
@@ -23,10 +24,10 @@ class Scene
 		virtual void CommitScene() = 0;
 		virtual bool CreateGeomerty(Geometry* geom) = 0;
 
+		virtual bool CreateLights(Light* light) = 0;
+
 		void AddFilePath(const std::string& filepath) { _filepaths.emplace_back(filepath); }
 		const std::vector<std::string>& GetFilePaths() const { return _filepaths; }
-
-		const Geometry& GetGeometery(unsigned int geomInstanceID) const { return *(_sceneGeometry.at(geomInstanceID).get()); }
 
 		bool SetSceneCamera(size_t cameraIndex) { return cameraIndex != std::exchange(_mainCamera, cameraIndex); }
 		const Camera& GetSceneCamera() const { return *(_cameras[_mainCamera].get()); }
@@ -41,15 +42,11 @@ class Scene
 
 		virtual void ResetScene();
 
-		void PrintGeometry() const;
-
 	protected:
 		std::vector<std::string> _filepaths;
 
 		size_t _mainCamera = 0;
 		std::vector<std::unique_ptr<Camera>> _cameras;
-
-		std::unordered_map<unsigned int, std::unique_ptr<Geometry>> _sceneGeometry;
 
 		bool _update = false;
 

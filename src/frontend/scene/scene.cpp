@@ -39,14 +39,6 @@ void Scene::ResetScene()
 	_filepaths.clear();
 	_mainCamera = 0;
 	_cameras.clear();
-	_sceneGeometry.clear();
-}
-
-void Scene::PrintGeometry() const
-{
-	FRONTEND_TRACE();
-	for (const auto& geom: _sceneGeometry)
-		spdlog::info("Geom: {}", geom.second->GetName());
 }
 
 FRONTEND_NAMESPACE_CLOSE_SCOPE

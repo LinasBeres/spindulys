@@ -17,12 +17,6 @@
 #include "../utils/ray.h"
 
 #include "../integrator/integrator.h"
-#include "../integrator/udpt.h"
-// #include "../integrator/diffuse.h"
-// #include "../integrator/occlusion.h"
-// #include "../integrator/position.h"
-// #include "../integrator/normal.h"
-// #include "../integrator/debug.h"
 
 
 BACKEND_CPU_NAMESPACE_OPEN_SCOPE

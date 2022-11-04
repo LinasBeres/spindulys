@@ -167,7 +167,7 @@ template<typename T> __forceinline LinearSpace3<T> operator +( const LinearSpace
 template<typename T> __forceinline LinearSpace3<T> operator -( const LinearSpace3<T>& a, const LinearSpace3<T>& b ) { return LinearSpace3<T>(a.vx-b.vx,a.vy-b.vy,a.vz-b.vz); }
 
 template<typename T> __forceinline LinearSpace3<T> operator*(const typename T::Scalar & a, const LinearSpace3<T>& b) { return LinearSpace3<T>(a*b.vx, a*b.vy, a*b.vz); }
-template<typename T> __forceinline T               operator*(const LinearSpace3<T>& a, const T              & b) { return madd(T(b.x),a.vx,madd(T(b.y),a.vy,T(b.z)*a.vz)); }
+template<typename T> __forceinline T               operator*(const LinearSpace3<T>& a, const T              & b) { return madd(T(b.x), a.vx, madd(T(b.y), a.vy, T(b.z)*a.vz)); }
 template<typename T> __forceinline LinearSpace3<T> operator*(const LinearSpace3<T>& a, const LinearSpace3<T>& b) { return LinearSpace3<T>(a*b.vx, a*b.vy, a*b.vz); }
 
 template<typename T> __forceinline LinearSpace3<T> operator/(const LinearSpace3<T>& a, const typename T::Scalar & b) { return LinearSpace3<T>(a.vx/b, a.vy/b, a.vz/b); }
@@ -176,9 +176,12 @@ template<typename T> __forceinline LinearSpace3<T> operator/(const LinearSpace3<
 template<typename T> __forceinline LinearSpace3<T>& operator *=( LinearSpace3<T>& a, const LinearSpace3<T>& b ) { return a = a * b; }
 template<typename T> __forceinline LinearSpace3<T>& operator /=( LinearSpace3<T>& a, const LinearSpace3<T>& b ) { return a = a / b; }
 
-template<typename T> __forceinline T       xfmPoint (const LinearSpace3<T>& s, const T      & a) { return madd(T(a.x),s.vx,madd(T(a.y),s.vy,T(a.z)*s.vz)); }
-template<typename T> __forceinline T       xfmVector(const LinearSpace3<T>& s, const T      & a) { return madd(T(a.x),s.vx,madd(T(a.y),s.vy,T(a.z)*s.vz)); }
-template<typename T> __forceinline T       xfmNormal(const LinearSpace3<T>& s, const T      & a) { return xfmVector(s.inverse().transposed(),a); }
+template<typename T> __forceinline T xfmPoint (const LinearSpace3<T>& s, const T& a) { return madd(T(a.x),s.vx,madd(T(a.y),s.vy,T(a.z)*s.vz)); }
+template<typename T> __forceinline T xfmVector(const LinearSpace3<T>& s, const T& a) { return madd(T(a.x),s.vx,madd(T(a.y),s.vy,T(a.z)*s.vz)); }
+template<typename T> __forceinline T xfmNormal(const LinearSpace3<T>& s, const T& a) { return xfmVector(s.inverse().transposed(),a); }
+
+template<typename T> __forceinline T toWorld(const LinearSpace3<T>& s, const T& a) { return xfmVector(s, a); }
+template<typename T> __forceinline T toLocal(const LinearSpace3<T>& s, const T& a) { return T(dot(a, s.vx), dot(a, s.vy), dot(a, s.vz)); }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Comparison Operators
@@ -208,8 +211,8 @@ __forceinline LinearSpace3<T> lerp(const LinearSpace3<T>& l0, const LinearSpace3
 /// Output Operators
 ////////////////////////////////////////////////////////////////////////////////
 
-template<typename T> static std::ostream& operator<<(std::ostream& cout, const LinearSpace3<T>& m) {
-	return cout << "{ vx = " << m.vx << ", vy = " << m.vy << ", vz = " << m.vz << "}";
+template<typename T> static std::ostream& operator<<(std::ostream& out, const LinearSpace3<T>& m) {
+	return out << "{ vx = " << m.vx << ", vy = " << m.vy << ", vz = " << m.vz << "}";
 }
 
 /*! Shortcuts for common linear spaces. */

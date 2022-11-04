@@ -49,6 +49,15 @@ SPINDULYS_NAMESPACE_OPEN_SCOPE
   #define MAYBE_UNUSED
 #endif
 
+// Likely/unlikely macros (only on GCC/Clang)
+#if defined(__GNUG__) || defined(__clang__)
+#  define likely(x)   __builtin_expect(!!(x), 1)
+#  define unlikely(x) __builtin_expect(!!(x), 0)
+#else
+#  define likely(x)       (x)
+#  define unlikely(x)     (x)
+#endif
+
 SPINDULYS_NAMESPACE_CLOSE_SCOPE
 
 #endif // SPINDULYS_PLATFORM_H

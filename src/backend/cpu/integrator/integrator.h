@@ -14,17 +14,17 @@ BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 
 class Integrator
 {
-	public:
-		Integrator();
+public:
+	Integrator();
+	virtual ~Integrator() = default;
 
-		virtual void GetPixelColor(Ray& ray,
-				PixelSample& pixelSample,
-				CPUScene* scene,
-				RenderManager::Buffers buffers,
-				const RenderManager::RenderGlobals& renderGlobals) = 0;
-		virtual ShadingPoint SetupShadingPoint(const CPUScene* scene, const Ray& ray);
+	virtual std::pair<Col3f, float>
+	Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, Col3f* /* aovs */) const = 0;
 
-	private:
+protected:
+	bool m_hideLights = false;
+
+private:
 };
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE
