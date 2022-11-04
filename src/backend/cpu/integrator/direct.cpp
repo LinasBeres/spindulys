@@ -25,7 +25,7 @@ Direct::Direct(size_t lightSamples, size_t bsdfSamples)
 }
 
 std::pair<Col3f, float>
-Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, Col3f* /* aovs */)
+Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, Col3f* /* aovs */) const
 {
 	Col3f result(zero);
 
@@ -45,8 +45,6 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 	const BSDF* bsdf = si.shape->GetBSDF();
 
 	// ------------------------ BSDF sampling -------------------------
-
-
 	for (size_t i = 0; i < m_bsdfSamples; ++i)
 	{
 		auto [bs, bsdfValue] = bsdf->Sample(ctx, si, pixelSample.sampler.Uniform1D(), pixelSample.sampler.Uniform2D());

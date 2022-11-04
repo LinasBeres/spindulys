@@ -41,10 +41,6 @@ void CPURenderManager::Trace(int iterations)
 						for (const auto& bufferID : renderGlobals.currentBufferIds)
 							buffers[bufferID]->MultiplyPixel(pixelSample.pixelIdx, static_cast<float>(iterations - 1));
 
-						// buffers[BufferIds::Beauty]->MultiplyPixel(pixelSample.pixelIdx, static_cast<float>(iterations - 1));
-
-						// if (renderGlobals.integratorID == IntegratorIds::UDPT)
-							// UDPTIntegrator().GetPixelColor(primaryRay, pixelSample, dynamic_cast<CPUScene*>(scene), buffers, renderGlobals);
 						if (renderGlobals.integratorID == IntegratorIds::UDPT)
 						{
 							const auto [color, mask] = Direct().Sample(dynamic_cast<CPUScene*>(scene), pixelSample, primaryRay, nullptr);

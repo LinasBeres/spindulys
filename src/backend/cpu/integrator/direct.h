@@ -5,8 +5,6 @@
 
 #include "integrator.h"
 
-#include "../bsdf/lambert.h"
-
 BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 
 class Direct final : public Integrator
@@ -15,11 +13,8 @@ public:
 	Direct();
 	Direct(size_t emitterSamples, size_t bsdfSamples);
 
-	std::pair<Col3f, float>
-	Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, Col3f* /* aovs */);
-
-	// TODO: To remove once we have a proper material system.
-	Lambert diffuseMat;
+	virtual std::pair<Col3f, float>
+	Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, Col3f* /* aovs */) const override;
 
 private:
 	float MultipleImportantSampleWeight(float pdfA, float pdfB) const;
