@@ -66,7 +66,7 @@ struct Interaction
 		Vec3f OffsetP(const Vec3f& d) const
 		{
 			float mag = (1.f + reduce_max(abs(p))) * RayEpsilon<float>;
-			mag = dot(n, d) >= 0 ? mag : -mag;
+			mag *= sign(dot(n, d));
 			return madd(mag, n, p);
 		}
 };

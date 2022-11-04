@@ -10,8 +10,10 @@
 #include <geometry/geometry.h>
 
 #include "../spindulysBackendCPU.h"
-#include "../utils/ray.h"
 
+#include "../bsdf/bsdf.h"
+
+#include "../utils/ray.h"
 
 BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 
@@ -34,11 +36,16 @@ class CPUGeometry : virtual public Geometry
 
 		void ComputeInstanceSurfaceInteraction(SurfaceInteraction& si) const;
 
+		const BSDF* GetBSDF() const { return m_bsdf.get(); }
+
 	protected:
 		RTCScene _scene = nullptr;
 		RTCGeometry _geom = nullptr;
-		RTCGeometry _geomInstance = nullptr;
+
 	private:
+		RTCGeometry _geomInstance = nullptr;
+
+		std::unique_ptr<BSDF> m_bsdf;
 };
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE

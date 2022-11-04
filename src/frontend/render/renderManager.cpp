@@ -103,9 +103,10 @@ void RenderManager::Render()
 		{
 			iterations++;
 			Trace(iterations);
-			if (drawBufferFunction)
-				drawBufferFunction(currentResolution.x, currentResolution.y, *(buffers[renderGlobals.bufferID]));
 		}
+
+		if (drawBufferFunction)
+			drawBufferFunction(currentResolution.x, currentResolution.y, *(buffers[renderGlobals.bufferID]));
 	}
 }
 

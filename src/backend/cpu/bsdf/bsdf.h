@@ -200,28 +200,62 @@ struct BSDFSample3 {
 	 *      be a normalized direction vector that points \a away from
 	 *      the scattering event.
 	 */
-	BSDFSample3(const Vec3f& wo)
+	BSDFSample3(const Vec3f& wo = zero)
 		: wo(wo), pdf(0.f), eta(1.f), sampled_type(0),
 		sampled_component(uint32_t(-1)) { }
 };
 
+struct SurfaceInteraction;
+
 class BSDF
 {
 	public:
-		BSDF() = default;
+		virtual ~BSDF() = default;
 
-		virtual Vec3f Evaluate(PixelSample& pixelSample,
-				ShadingPoint& shadingPoint,
-				BSDFSample& bsdfSample) = 0;
-		virtual Vec3f Sample(PixelSample& pixelSample,
-				ShadingPoint& shadingPoint,
-				BSDFSample& bsdfSample) = 0;
-		virtual float Pdf(PixelSample& pixelSample,
-				ShadingPoint& shadingPoint,
-				BSDFSample& bsdfSample) = 0;
+		virtual std::pair<BSDFSample3, Col3f>
+		Sample(const BSDFContext& ctx,
+					const SurfaceInteraction& si,
+					float sample1,
+					const Vec2f& sample2,
+					uint32_t active = true) const = 0;
+
+		virtual Col3f Eval(const BSDFContext& ctx,
+				const SurfaceInteraction& si,
+				const Vec3f& wo,
+				uint32_t active = true) const = 0;
+
+		virtual float Pdf(const BSDFContext& ctx,
+				const SurfaceInteraction& si,
+				const Vec3f& wo,
+				uint32_t active = true) const = 0;
+
+		virtual std::pair<Col3f, float>
+		EvalPdf(const BSDFContext& ctx,
+					const SurfaceInteraction& si,
+					const Vec3f& wo,
+					uint32_t active = true) const;
+
+		virtual float EvalNullTransmission(const SurfaceInteraction& si,
+				uint32_t active = true) const;
+
+		// Get Methods
+		uint32_t           GetFlags()         const { return m_flags; }
+		uint32_t           GetFlags(size_t i) const { assert(i < m_components.size()); return m_components[i]; }
+		size_t             GetComponentSize() const { return m_components.size(); }
+		const std::string& GetID()            const { return m_id; }
 
 	protected:
-		std::string _name;
+		BSDF(const std::string& id);
+
+	protected:
+		/// Combined flags for all components of this BSDF.
+		uint32_t m_flags;
+
+		/// Flags for each component of this BSDF.
+		std::vector<uint32_t> m_components;
+
+		/// Identifier (if available)
+		std::string m_id;
 	private:
 };
 

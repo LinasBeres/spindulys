@@ -6,7 +6,6 @@
 #include "integrator.h"
 
 #include "../bsdf/lambert.h"
-#include "../bsdf/orennayar.h"
 
 
 BACKEND_CPU_NAMESPACE_OPEN_SCOPE

@@ -2,11 +2,17 @@
 
 #include "../utils/interaction.h"
 
+// TODO: We currently only have diffuse bsdfs,
+// but shapes should be able to choose what kind they are.
+#include "../bsdf/diffuse.h"
+
 
 BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 
 CPUGeometry::CPUGeometry()
 {
+	// TODO: This is only here for testing reasons
+	m_bsdf = std::make_unique<SmoothDiffuse>(Col3f(0.5f));
 }
 
 CPUGeometry::~CPUGeometry()

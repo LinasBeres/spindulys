@@ -12,6 +12,8 @@
 
 #include "../lights/cpuLight.h"
 
+#include "../bsdf/bsdf.h"
+
 #include "../utils/ray.h"
 #include "../utils/interaction.h"
 

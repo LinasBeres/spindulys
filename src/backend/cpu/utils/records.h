@@ -27,10 +27,10 @@ BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 struct PositionSample
 {
 	/// Sampled position
-	Vec3f p;
+	Vec3f p = zero;
 
 	/// Sampled surface normal (if applicable)
-	Vec3f n;
+	Vec3f n = zero;
 
 	/**
 	 * \brief Optional: 2D sample position associated with the record
@@ -40,16 +40,16 @@ struct PositionSample
 	 * mesh or a position on the aperture of a sensor. When applicable, such
 	 * positions are stored in the \c uv attribute.
 	 */
-	Vec2f uv;
+	Vec2f uv = zero;
 
 	/// Associated time value
 	float time;
 
 	/// Probability density at the sample
-	float pdf;
+	float pdf = zero;
 
 	/// Set if the sample was drawn from a degenerate (Dirac delta) distribution
-	uint32_t delta;
+	uint32_t delta = false;
 
 	/**
 	 * \brief Create a position sampling record from a surface intersection
@@ -89,10 +89,10 @@ struct PositionSample
 struct DirectionSample : public PositionSample
 {
 	/// Unit direction from the reference point to the target shape
-	Vec3f d;
+	Vec3f d = zero;
 
 	/// Distance from the reference point to the target shape
-	float dist;
+	float dist = zero;
 
 	/**
 	 * \brief Optional: pointer to an associated object
@@ -104,26 +104,7 @@ struct DirectionSample : public PositionSample
 	 */
 	const CPULight* light = nullptr;
 
-	/**
-	 * \brief Create a direct sampling record, which can be used to \a query
-	 * the density of a surface position with respect to a given reference
-	 * position.
-	 *
-	 * Direction `s` is set so that it points from the reference surface to
-	 * the intersected surface, as required when using e.g. the \ref Endpoint
-	 * interface to compute PDF values.
-	 *
-	 * \param scene
-	 *     Pointer to the scene, which is needed to extract information
-	 *     about the environment emitter (if applicable)
-	 *
-	 * \param it
-	 *     Surface interaction
-	 *
-	 * \param ref
-	 *     Reference position
-	 */
-	DirectionSample(const CPULight* light, const SurfaceInteraction& si, const Interaction& ref)
+	DirectionSample(const SurfaceInteraction& si, const Interaction& ref, const CPULight* light = nullptr)
 		: PositionSample(si), light(light)
 	{
 		const Vec3f rel = si.p - ref.p;
@@ -131,13 +112,13 @@ struct DirectionSample : public PositionSample
 		d = select(si.IsValid(), rel / dist, -si.wi);
 	}
 
-	/// Element-by-element constructor
+	// Element-by-element constructor
 	DirectionSample(const Vec3f& p, const Vec3f& n, const Vec2f& uv,
 			float time, float pdf, uint32_t delta,
 			const Vec3f& d, const float& dist, const CPULight* light)
 		: PositionSample(p, n, uv, time, pdf, delta), d(d), dist(dist), light(light) { }
 
-	/// Construct from a position sample
+	// Construct from a position sample
 	DirectionSample(const PositionSample &base) : PositionSample(base) { }
 
 };

@@ -5,7 +5,6 @@ BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 
 Lambert::Lambert()
 {
-	_name = "lambert";
 }
 
 Vec3f Lambert::Evaluate(PixelSample& pixelSample,

@@ -35,7 +35,7 @@ void CPURenderManager::Trace(int iterations)
 					{
 						Vec3f origin(zero);
 						Vec3f direction(zero);
-						scene->GetSceneCamera().GetCameraRay(pixelSample, origin, direction);
+						scene->GetSceneCamera().GetCameraRay(Vec2f(pixelX, pixelY), origin, direction);
 						Ray primaryRay(origin, direction);
 
 						for (const auto& bufferID : renderGlobals.currentBufferIds)

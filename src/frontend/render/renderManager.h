@@ -17,7 +17,8 @@
 #include "../scene/scene.h"
 
 #define DEFAULT_WIDTH 800
-#define DEFAULT_HEIGHT 800
+#define DEFAULT_HEIGHT 600
+#define GROW_SIZE 0.25f
 
 
 FRONTEND_NAMESPACE_OPEN_SCOPE
@@ -56,7 +57,7 @@ class RenderManager
 			BufferIds bufferID = BufferIds::Beauty;            // The current buffer being read.
 			std::unordered_set<BufferIds> currentBufferIds =   // Available buffers to read.
 			{ BufferIds::Beauty, BufferIds::Diffuse, BufferIds::Position, BufferIds::Normal, BufferIds::Debug };
-			bool scaleResolution = true;
+			bool scaleResolution = false;
 		};
 
 		RenderManager();

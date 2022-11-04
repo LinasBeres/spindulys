@@ -49,7 +49,7 @@ class Camera
 		void KeyboardCallback(CAMERA_MOVEMENTS direction, float deltaTime);
 		void MouseCallback(const Vec2f& mouseOffset);
 
-		virtual bool GetCameraRay(const PixelSample& pixelSample, Vec3f& origin, Vec3f& direction) const;
+		virtual bool GetCameraRay(const Vec2f& sample, Vec3f& origin, Vec3f& direction) const;
 
 		// Set Methods
 		bool SetName(const std::string& name) { return name != std::exchange(_name, name); }
