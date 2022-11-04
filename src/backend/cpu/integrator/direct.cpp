@@ -33,7 +33,7 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 
 	// ----------------------- Visible emitters -----------------------
 
-	if (/* TODO: not hide lights: */ true)
+	if (!m_hideLights)
 		if (const CPULight* visibleLight = scene->LightHit(si))
 			result += visibleLight->Eval(si, true);
 
@@ -47,7 +47,7 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 	// ------------------------ BSDF sampling -------------------------
 	for (size_t i = 0; i < m_bsdfSamples; ++i)
 	{
-		auto [bs, bsdfValue] = bsdf->Sample(ctx, si, pixelSample.sampler.Uniform1D(), pixelSample.sampler.Uniform2D());
+		const auto [bs, bsdfValue] = bsdf->Sample(ctx, si, pixelSample.sampler.Uniform1D(), pixelSample.sampler.Uniform2D());
 
 		// Trace the ray in the sampled direction and intersect against the scene
 		SurfaceInteraction si_bsdf = scene->RayIntersect(si.SpawnRay(si.shadingFrame * bs.wo));
@@ -75,7 +75,7 @@ float Direct::MultipleImportantSampleWeight(float pdfA, float pdfB) const
 {
 	pdfA *= pdfA;
 	pdfB *= pdfB;
-	float w = pdfA / (pdfA + pdfB);
+	const float w = pdfA / (pdfA + pdfB);
 	return select(isfinite(w), w, 0.f);
 }
 
