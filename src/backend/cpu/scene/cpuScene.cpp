@@ -130,7 +130,7 @@ SurfaceInteraction CPUScene::RayIntersect(const Ray& ray) const
 const CPULight* CPUScene::LightHit(const SurfaceInteraction& si, uint32_t active) const
 {
 	// TODO: Return shape light if hit that.
-	return GetEnvironment();
+	return si.IsValid() ? nullptr : GetEnvironment();
 }
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE

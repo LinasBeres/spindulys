@@ -52,40 +52,24 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 		auto [bs, bsdfValue] = bsdf->Sample(ctx, si, pixelSample.sampler.Uniform1D(), pixelSample.sampler.Uniform2D());
 
 		// Trace the ray in the sampled direction and intersect against the scene
-		SurfaceInteraction si_bsdf = scene->RayIntersect(si.SpawnRay(toWorld(si.shadingFrame, bs.wo)));
+		SurfaceInteraction si_bsdf = scene->RayIntersect(si.SpawnRay(si.shadingFrame * bs.wo));
 
-		// // Retain only rays that hit an emitter
-		const CPULight* light = scene->LightHit(si_bsdf);
-		if (!si.IsValid() && light)
+		// Retain only rays that hit an emitter
+		if (const CPULight* light = scene->LightHit(si_bsdf))
 		{
-			std::cerr << "HIT LIGHT...\n";
 			const Col3f lightVal = light->Eval(si_bsdf, true);
 
 			DirectionSample ds(si, si_bsdf, light);
 
 			const float lightPDF = light->PdfDirection(si, ds, true);
 
-			result += bsdfValue * lightVal / lightPDF;
+			result += bsdfValue * lightVal *
+				MultipleImportantSampleWeight(bs.pdf * m_fracBSDF, lightPDF * m_fracLum) *
+				m_weightBSDF;
 
 		}
 	}
 
-	// BSDFSample bsdfSample;
-	// bsdfSample.wi = diffuseMat.Sample2(pixelSample, si, bsdfSample);
-	// bsdfSample.reflectance = diffuseMat.Evaluate2(pixelSample, si, bsdfSample);
-	//
-	// float directionSign(sign(dot(bsdfSample.wi, si.shadingFrame.vz)));
-	// Vec3f origin = si.p + (directionSign * 32.0f * 1.19209e-07f * si.shadingFrame.vz);
-	// Vec3f direction = bsdfSample.wi;
-	//
-	// // Initializing the new ray.
-	// Ray rh = Ray(origin, direction, 32.0f * 1.19209e-07f);
-	// if (rh.time != 0) { ; }
-	// const Vec3f color = bsdfSample.reflectance / bsdfSample.pdf;
-	//
-	// result = result + Col3f(color.x, color.y, color.z);
-
-	// result = Col3f(si.n.x, si.n.y, si.n.z);
 	return { result, 0.f };
 }
 

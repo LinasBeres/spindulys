@@ -20,7 +20,7 @@ __forceinline Vec2f square_to_cosine_uniform_disk(const Vec2f& sample)
 {
 	float r = sqrt(sample.y);
 	float _sin, _cos;
-	sincosf(TwoPi<float> * sample.x, &_sin, &_cos);
+	__sincosf(TwoPi<float> * sample.x, &_sin, &_cos);
 
 	return { _cos * r, _sin * r};
 }
@@ -63,7 +63,7 @@ __forceinline Vec2f square_to_uniform_disk_concentric(const Vec2f& sample)
 		phi = 0.f;
 
 	float _sin, _cos;
-	sincosf(phi, &_sin, &_cos);
+	__sincosf(phi, &_sin, &_cos);
 	return { r * _cos, r * _sin };
 }
 
@@ -78,7 +78,7 @@ __forceinline Vec3f square_to_uniform_sphere(const Vec2f& sample)
 	float r = circ(z);
 
 	float _sin, _cos;
-	sincosf(2.f * Pi<float> * sample.x, &_sin, &_cos);
+	__sincosf(2.f * Pi<float> * sample.x, &_sin, &_cos);
 	return { r * _cos, r * _sin, z };
 }
 
