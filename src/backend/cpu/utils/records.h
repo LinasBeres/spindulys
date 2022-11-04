@@ -58,6 +58,8 @@ struct PositionSample
 	 * surface after hitting it using standard ray tracing. This happens for
 	 * instance in path tracing with multiple importance sampling.
 	 */
+	PositionSample() = default;
+
 	PositionSample(const SurfaceInteraction& si)
 		: p(si.p), n(si.shadingFrame.vz), uv(si.uv), time(si.time), pdf(0.f),
 		delta(false) { }
@@ -103,6 +105,8 @@ struct DirectionSample : public PositionSample
 	 * object.
 	 */
 	const CPULight* light = nullptr;
+
+	DirectionSample() = default;
 
 	DirectionSample(const SurfaceInteraction& si, const Interaction& ref, const CPULight* light = nullptr)
 		: PositionSample(si), light(light)

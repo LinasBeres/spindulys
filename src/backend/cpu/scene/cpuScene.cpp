@@ -86,11 +86,9 @@ void CPUScene::ResetScene()
 	Scene::ResetScene();
 }
 
-
-// TODO: This should return a surface interaction
-SurfaceInteraction CPUScene::RayIntersect(const Ray& ray) const
+bool CPUScene::RayTest(const Ray& ray) const
 {
-	const float ray_maxt = ray.tfar;
+	const float rayMaxT = ray.tfar;
 
 	RTCIntersectContext context;
 	rtcInitIntersectContext(&context);
@@ -99,7 +97,22 @@ SurfaceInteraction CPUScene::RayIntersect(const Ray& ray) const
 
 	rtcIntersect1(_scene, &context, RTCRayHit_(ray));
 
-	if (ray.tfar != ray_maxt && ray.instID != RTC_INVALID_GEOMETRY_ID)
+	return ray.tfar != rayMaxT;
+
+}
+
+SurfaceInteraction CPUScene::RayIntersect(const Ray& ray) const
+{
+	const float rayMaxT = ray.tfar;
+
+	RTCIntersectContext context;
+	rtcInitIntersectContext(&context);
+
+	PreliminaryIntersection pi;
+
+	rtcIntersect1(_scene, &context, RTCRayHit_(ray));
+
+	if (ray.tfar != rayMaxT)
 	{
 		uint32_t shapeIndex = ray.geomID;
 		uint32_t primIndex  = ray.primID;
@@ -131,6 +144,79 @@ const CPULight* CPUScene::LightHit(const SurfaceInteraction& si, uint32_t active
 {
 	// TODO: Return shape light if hit that.
 	return si.IsValid() ? nullptr : GetEnvironment();
+}
+
+
+std::pair<DirectionSample, Col3f>
+CPUScene::SampleLightDirection(const Interaction& ref, const Vec2f& sample_, bool testVisibility, uint32_t active) const
+{
+	Vec2f sample(sample_);
+	DirectionSample ds;
+	Col3f color(zero);
+
+	const size_t lightCount = m_lights.size();
+	if (lightCount > 1)
+	{
+		// Randomly pick an emitter
+		auto [index, lightWeight, resampledX] = SampleLight(sample.x, active);
+		sample.x = resampledX;
+
+		// Sample a direction towards the emitter
+		std::tie(ds, color) = m_lights[index]->SampleDirection(ref, sample, active);
+
+		// Account for the discrete probability of sampling this emitter
+		ds.pdf *= PdfLight();
+		color *= lightWeight;
+
+		active &= ds.pdf != 0.f;
+
+		// Mark occluded samles as invalid if requested by the user
+		if (testVisibility && active)
+		{
+			if (RayTest(ref.SpawnRayTo(ds.p)))
+			{
+				color = zero;
+				ds.pdf = 0.f;
+			}
+		}
+	}
+	else if (lightCount == 1)
+	{
+		std::tie(ds, color) = m_lights[0]->SampleDirection(ref, sample, active);
+		active &= ds.pdf != 0.f;
+
+		if (testVisibility && active)
+		{
+			if (RayTest(ref.SpawnRayTo(ds.p)))
+			{
+				color = zero;
+				ds.pdf = 0.f;
+			}
+		}
+	}
+
+	return { ds, color };
+}
+
+std::tuple<uint32_t, float, float>
+CPUScene::SampleLight(float indexSample, uint32_t active) const
+{
+	if (unlikely(m_lights.size() < 2))
+	{
+		if (m_lights.size() == 1)
+			return { size_t(0), 1.f, indexSample };
+		else
+			return { size_t(-1), 0.f, indexSample};
+	}
+
+	const uint32_t lightCount = (uint32_t) m_lights.size();
+	const float lightCountf = (float) lightCount;
+	const float indexSampleScaled = indexSample * lightCountf;
+
+	const uint32_t index = min(uint32_t(indexSampleScaled), lightCount - 1u);
+
+	return { index, lightCountf, indexSampleScaled - float(index) };
+
 }
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE

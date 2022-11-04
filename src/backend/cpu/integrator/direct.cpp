@@ -43,6 +43,36 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 	// ----------------------- Emitter sampling -----------------------
 	BSDFContext ctx;
 	const BSDF* bsdf = si.shape->GetBSDF();
+  uint32_t flags = bsdf->GetFlags();
+  uint32_t sampleLight = (flags & (uint32_t) BSDFFlags::Smooth) != 0;
+
+	if (sampleLight)
+	{
+		for (size_t i = 0; i < m_lightSamples; ++i)
+		{
+			uint32_t activeLight = sampleLight;
+			DirectionSample ds;
+			Col3f lightVal;
+
+			std::tie(ds, lightVal) = scene->SampleLightDirection(
+					si, pixelSample.sampler.Uniform2D(), true, activeLight);
+
+			activeLight &= ds.pdf != 0.f;
+			if (!activeLight)
+				continue;
+
+			// Query the BSDF for that emitter-sampled direction
+			const Vec3f wo = toLocal(si.shadingFrame, ds.d);
+
+			/* Determine BSDF value and probability of having sampled
+				 that same direction using BSDF sampling. */
+			const auto [bsdfVal, bsdfPdf] = bsdf->EvalPdf(ctx, si, wo, activeLight);
+			const float mis = select(ds.delta, 1.f, MultipleImportantSampleWeight(
+						ds.pdf * m_fracLum, bsdfPdf * m_fracBSDF) * m_weightLum);
+
+			result += mis * bsdfVal * lightVal;
+		}
+	}
 
 	// ------------------------ BSDF sampling -------------------------
 	for (size_t i = 0; i < m_bsdfSamples; ++i)
