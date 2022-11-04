@@ -203,17 +203,26 @@ __forceinline ssize_t max(ssize_t a, ssize_t b) { return a<b ? b:a; }
 __forceinline float  safe_sqrt ( const float x )  { return ::sqrtf(max(x, 0.f)); }
 __forceinline double safe_sqrt ( const double x ) { return ::sqrt(max(x, 0.0));  }
 
-#if defined(__MACOSX__) && !defined(__INTEL_COMPILER)
-__forceinline void sincosf(float x, float *sin, float *cos) {
-	__sincosf(x,sin,cos);
-}
-#endif
 
-#if defined(__WIN32__) || defined(__FreeBSD__)
-__forceinline void sincosf(float x, float *s, float *c) {
-	*s = sinf(x); *c = cosf(x);
+// Standard libc sin and cos may be fast enough
+// https://stackoverflow.com/questions/12485190/calling-fsincos-instruction-in-llvm-slower-than-calling-libc-sin-cos-functions
+// TODO: come back to this?
+__forceinline void sincosf(float x, float *s, float *c)
+{
+	*s = sin(x); *c = cos(x);
 }
-#endif
+
+// #if defined(__MACOSX__) && !defined(__INTEL_COMPILER)
+// __forceinline void sincosf(float x, float *sin, float *cos) {
+	// __sincosf(x,sin,cos);
+// }
+// #endif
+//
+// #if defined(__WIN32__) || defined(__FreeBSD__)
+// __forceinline void sincosf(float x, float *s, float *c) {
+	// *s = sinf(x); *c = cosf(x);
+// }
+// #endif
 
 template<typename T> __forceinline T clamp(const T& x, const T& lower = T(zero), const T& upper = T(one)) { return max(min(x,upper),lower); }
 template<typename T> __forceinline T clampz(const T& x, const T& upper) { return max(T(zero), min(x,upper)); }

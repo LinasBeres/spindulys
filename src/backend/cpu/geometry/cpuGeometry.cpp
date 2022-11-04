@@ -47,12 +47,15 @@ bool CPUGeometry::Create(const RTCDevice& device,
 	return true;
 }
 
-void CPUGeometry::ComputeInstanceSurfaceInteraction(SurfaceInteraction& si) const
+void CPUGeometry::ComputeInstanceSurfaceInteraction(SurfaceInteraction& si, const Ray& ray) const
 {
 	si.p = xfmPoint(GetTransform(), si.p);
-	si.n = normalize(xfmVector(GetTransform(), si.n));
 
-	si.shadingFrame.vz = normalize(xfmVector(GetTransform(), si.shadingFrame.vz));
+	si.n = xfmVector(GetTransform(), si.n);
+	si.n = normalize(si.n);
+
+	si.shadingFrame.vz = xfmVector(GetTransform(), si.shadingFrame.vz);
+	si.shadingFrame.vz = normalize(si.shadingFrame.vz);
 
 	si.instID = _geomInstanceID;
 

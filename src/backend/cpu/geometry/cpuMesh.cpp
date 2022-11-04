@@ -91,7 +91,8 @@ SurfaceInteraction CPUMesh::ComputeSurfaceInteraction(const Ray& ray,
 
 	si.p = madd(b0, p0, madd(b1, p1, b2 * p2));
 
-	si.n = normalize(cross(dp0, dp1));
+	si.n = cross(dp0, dp1);
+	si.n = normalize(si.n);
 
 	si.uv = Vec2f(b1, b2);
 
@@ -111,7 +112,12 @@ SurfaceInteraction CPUMesh::ComputeSurfaceInteraction(const Ray& ray,
 	{
 		si.shadingFrame.vz = si.n;
 	}
-	// TODO: Flip normals
+
+	if (/* flip normals */ false)
+	{
+		si.n = -si.n;
+		si.shadingFrame.vz = -si.shadingFrame.vz;
+	}
 
 	// TODO: Tex coord
 
@@ -120,8 +126,9 @@ SurfaceInteraction CPUMesh::ComputeSurfaceInteraction(const Ray& ray,
 
 	// TODO: Boundry test
 
-	// Currently everything is an instance so...
-	ComputeInstanceSurfaceInteraction(si);
+	// TODO: Currently everything is an instance so...
+	ComputeInstanceSurfaceInteraction(si, ray);
+
 
 	return si;
 }

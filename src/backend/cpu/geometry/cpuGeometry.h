@@ -34,7 +34,7 @@ class CPUGeometry : virtual public Geometry
 				uint32_t rayFlags = (uint32_t) RayFlags::All,
 				uint32_t recursionDepth = 0, bool active = true) const = 0;
 
-		void ComputeInstanceSurfaceInteraction(SurfaceInteraction& si) const;
+		void ComputeInstanceSurfaceInteraction(SurfaceInteraction& si, const Ray& ray) const;
 
 		const BSDF* GetBSDF() const { return m_bsdf.get(); }
 

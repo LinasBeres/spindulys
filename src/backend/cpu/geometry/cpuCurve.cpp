@@ -129,7 +129,7 @@ SurfaceInteraction CPUCurve::ComputeSurfaceInteraction(const Ray& ray,
 	si.uv = pi.primUV;
 
 	// Currently everything is an instance so...
-	ComputeInstanceSurfaceInteraction(si);
+	ComputeInstanceSurfaceInteraction(si, ray);
 
 	return si;
 }

@@ -47,6 +47,7 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 	// ------------------------ BSDF sampling -------------------------
 	for (size_t i = 0; i < m_bsdfSamples; ++i)
 	{
+		// break;
 		const auto [bs, bsdfValue] = bsdf->Sample(ctx, si, pixelSample.sampler.Uniform1D(), pixelSample.sampler.Uniform2D());
 
 		// Trace the ray in the sampled direction and intersect against the scene
@@ -67,6 +68,8 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 
 		}
 	}
+
+	// result = Col3f(si.n.x, si.n.y, si.n.z);
 
 	return { result, 0.f };
 }

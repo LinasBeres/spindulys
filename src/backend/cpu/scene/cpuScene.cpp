@@ -99,7 +99,7 @@ SurfaceInteraction CPUScene::RayIntersect(const Ray& ray) const
 
 	rtcIntersect1(_scene, &context, RTCRayHit_(ray));
 
-	if (ray.tfar != ray_maxt)
+	if (ray.tfar != ray_maxt && ray.instID != RTC_INVALID_GEOMETRY_ID)
 	{
 		uint32_t shapeIndex = ray.geomID;
 		uint32_t primIndex  = ray.primID;
