@@ -1,5 +1,6 @@
 file(GLOB BASE_HEADERS
 	spindulysBase.h
+	bsdf/*.h
 	camera/*.h
 	geometry/*.h
 	lights/*.h
@@ -10,6 +11,7 @@ file(GLOB BASE_HEADERS
 )
 
 file(GLOB BASE_SOURCES
+	bsdf/*.cpp
 	camera/*.cpp
 	geometry/*.cpp
 	render/*.cpp
