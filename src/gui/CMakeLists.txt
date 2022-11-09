@@ -30,7 +30,7 @@ target_link_libraries(
 	imgui
 	tinyexr
 	spindulysShare
-	spindulysCPUBackend
+	spindulysCPU
 	cxxopts
 	nfd
 )
