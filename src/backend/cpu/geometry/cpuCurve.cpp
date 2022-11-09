@@ -2,6 +2,7 @@
 
 #include <spindulys/math/vec4.h>
 
+#include "../utils/interaction.h"
 
 BACKEND_CPU_NAMESPACE_OPEN_SCOPE
 
@@ -104,5 +105,32 @@ bool CPUCurve::CreatePrototype(const RTCDevice& device)
 	return true;
 }
 
+SurfaceInteraction CPUCurve::ComputeSurfaceInteraction(const Ray& ray,
+		const PreliminaryIntersection& pi,
+		uint32_t rayFlags,
+		uint32_t recursionDepth, bool active) const
+{
+	SurfaceInteraction si;
+
+	si.primID = si.primID;
+	si.shapeID = _geomID;
+
+	si.t = pi.t;
+	si.p = ray.origin + ray.tfar * ray.direction;
+
+	// TODO: Use the normals primvar if available (for smooth normals).
+	si.n = normalize(ray.Ng);
+	si.shadingFrame.vz = si.n;
+
+	si.shape = this;
+	si.instance = nullptr;
+
+	si.uv = pi.primUV;
+
+	// Currently everything is an instance so...
+	ComputeInstanceSurfaceInteraction(si, ray);
+
+	return si;
+}
 
 BACKEND_CPU_NAMESPACE_CLOSE_SCOPE

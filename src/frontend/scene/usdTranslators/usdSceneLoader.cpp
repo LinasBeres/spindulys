@@ -12,22 +12,28 @@ FRONTEND_NAMESPACE_OPEN_SCOPE
 
 bool UsdSceneLoader::LoadScene(const std::string& filepath)
 {
+	FRONTEND_TRACE();
 	// We assume that the incoming scene is a valid usd scene.
 
+	FRONTEND_BEGIN("LOAD USD STAGE");
 	const pxr::UsdStageRefPtr stage = pxr::UsdStage::Open(filepath);
 	if (!stage)
 		return false;
+	FRONTEND_END("LOAD USD STAGE");
 
 	LoadPrims(stage, pxr::SdfPath("/"));
 
 	scene->AddFilePath(filepath);
+	FRONTEND_BEGIN("COMMIT SCENE");
 	scene->CommitScene();
+	FRONTEND_END("COMMIT SCENE");
 
 	return true;
 }
 
 bool UsdSceneLoader::LoadPrims(const pxr::UsdStagePtr& stage, const pxr::SdfPath& primPath)
 {
+	FRONTEND_TRACE();
 	const pxr::UsdPrim basePrim = stage->GetPrimAtPath(primPath);
 
 	for(const pxr::UsdPrim& prim: basePrim.GetChildren())

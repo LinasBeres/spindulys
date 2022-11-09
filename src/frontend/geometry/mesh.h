@@ -33,12 +33,26 @@ class Mesh : virtual public Geometry
 		bool SetIndices(const std::vector<int> indices)   { return indices != std::exchange(_indices, indices); }
 		bool SetMeshType(MeshType meshType)               { return meshType != std::exchange(_type, meshType);  }
 
+		bool HasVertexNormals() const { return _normals.size() != 0; }
+
 	protected:
 		std::vector<Vec3f> _points;
 		std::vector<Vec3f> _normals;
 		std::vector<int> _indices;
 
 		MeshType _type = MeshType::QuadMesh;
+
+	protected:
+		Vec3i GetTriangleFaceIndex(int index) const
+		{
+			index *= 3;
+			return Vec3i(_indices[index], _indices[index + 1], _indices[index + 2]);
+		}
+
+		Vec3f GetVertexPosition(int index) const { return _points[index];  }
+		Vec3f GetVertexNormal(int index)   const { return _normals[index]; }
+
+	private:
 };
 
 FRONTEND_NAMESPACE_CLOSE_SCOPE

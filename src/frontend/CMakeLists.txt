@@ -2,6 +2,7 @@ file(GLOB FRONTEND_HEADERS
 	spindulysFrontend.h
 	camera/*.h
 	geometry/*.h
+	lights/*.h
 	render/*.h
 	scene/*.h
 	scene/objTranslators/*.h

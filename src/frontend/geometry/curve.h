@@ -37,12 +37,18 @@ class Curve : virtual public Geometry
 		bool SetWidths(const std::vector<float> widths)   { return widths != std::exchange(_widths, widths);          }
 		bool SetCurveType(CurveTypes curveType)           { return curveType != std::exchange(_curveType, curveType); }
 
+		bool HasVertexNormals() const { return _normals.size() != 0; }
+
 	protected:
 		std::vector<Vec3f> _points;
 		std::vector<Vec3f> _normals;
 		std::vector<float> _widths;
 
 		CurveTypes _curveType = CurveTypes::FlatLinear;
+
+	protected:
+		Vec3f GetVertexPosition(int index) const { return _points[index];  }
+		Vec3f GetVertexNormal(int index)   const { return _normals[index]; }
 
 	private:
 

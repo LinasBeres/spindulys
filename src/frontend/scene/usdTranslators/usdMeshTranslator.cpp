@@ -155,6 +155,7 @@ inline pxr::VtVec3iArray TriangulateMeshIndices(pxr::VtArray<int>& meshVertexCou
 
 void* UsdMeshTranslator::GetObjectFromPrim(const pxr::UsdPrim& prim)
 {
+	FRONTEND_TRACE();
 	Mesh* mesh = new Mesh(Geometry::GeometryTypes::Mesh, prim.GetName());
 
 	pxr::UsdGeomMesh usdGeom(prim);
@@ -208,13 +209,13 @@ void* UsdMeshTranslator::GetObjectFromPrim(const pxr::UsdPrim& prim)
 	}
 
 	// Triangulation
-	bool isTriangleMesh((static_cast<float>(pxrIndices.size()) /
-				static_cast<float>(indicesCounts.size()) == 3.0f) ? true : false);
-	bool isQuadMesh((static_cast<float>(pxrIndices.size()) /
-				static_cast<float>(indicesCounts.size()) == 4.0f) ? true : false);
-	bool needTriangulate((!isTriangleMesh && !isQuadMesh) ? true : false);
+	// bool isTriangleMesh((static_cast<float>(pxrIndices.size()) /
+				// static_cast<float>(indicesCounts.size()) == 3.0f) ? true : false);
+	// bool isQuadMesh((static_cast<float>(pxrIndices.size()) /
+				// static_cast<float>(indicesCounts.size()) == 4.0f) ? true : false);
+	// bool needTriangulate((!isTriangleMesh && !isQuadMesh) ? true : false);
 
-	if (needTriangulate)
+	if (true)
 	{
 		const pxr::VtVec3iArray triangulated = TriangulateMeshIndices(indicesCounts, pxrIndices, holeCount, orientation);
 

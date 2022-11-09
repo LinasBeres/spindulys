@@ -7,6 +7,8 @@
 #include <spindulys/math/col3.h>
 #include <spindulys/math/affinespace.h>
 
+#include "../lights/light.h"
+
 #include "../spindulysFrontend.h"
 
 
@@ -33,12 +35,16 @@ class Geometry
 		unsigned int        GetGeomID()         const { return _geomID;         }
 		unsigned int        GetGeomInstanceID() const { return _geomInstanceID; }
 		GeometryTypes       GetGeometryType()   const { return _geomType;       }
+		const Light*        GetLight()          const { return m_light.get();   }
 
 		// Set Methods
 		bool SetName(const std::string& name)           { return name         != std::exchange(_name, name);                 }
 		bool SetTransfrom(const AffineSpace3f& affine)  { return affine       != std::exchange(_transform, affine);          }
 		bool SetDisplayColor(const Col3f& displayColor) { return displayColor != std::exchange(_displayColor, displayColor); }
 		bool SetGeometryType(GeometryTypes type)        { return type         != std::exchange(_geomType, type);             }
+
+		bool IsLight() const { return (bool) m_light; }
+
 
 	protected:
 		unsigned int _geomID         = SPINDULYS_INVALID_GEOMETRY_ID;
@@ -48,6 +54,8 @@ class Geometry
 		AffineSpace3f _transform = AffineSpace3f(one, zero);
 		Col3f _displayColor = Col3f(0.5);
 		GeometryTypes _geomType;
+
+		std::unique_ptr<Light> m_light = nullptr;
 	private:
 };
 
