@@ -40,7 +40,7 @@ target_include_directories(
 
 target_link_libraries(
 	spindulysCPUBackend
-	spindulysFrontend
+	spindulysBase
 	embree_common
 	${EMBREE_LIBRARY}
 	${TBB_LIBRARIES}

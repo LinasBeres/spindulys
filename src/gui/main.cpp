@@ -59,7 +59,7 @@ int main(int argc, char** argv)
 			scenePath = std::filesystem::current_path() / scenePath;
 	}
 
-	spindulys::spindulysFrontend::spindulysBackendCPU::spindulysGUI::Window mainWindow;
+	spindulys::spindulysBase::spindulysBackendCPU::spindulysGUI::Window mainWindow;
 	mainWindow.RenderWindow(scenePath);
 
 	// Tracing Ending.
