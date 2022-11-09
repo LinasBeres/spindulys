@@ -10,8 +10,6 @@
 
 #include "../spindulysCPU.h"
 
-
-
 CPU_NAMESPACE_OPEN_SCOPE
 
 /**
