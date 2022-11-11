@@ -129,7 +129,7 @@ class Camera
 		// Controls
 		float _yaw = 90.f;
 		float _pitch = 0.f;
-		float _speed = 50.f;
+		float _speed = 5.f;
 		float _sensitivity = 0.1f;
 };
 

@@ -12,7 +12,7 @@
 
 #include "../lights/cpuLight.h"
 
-#include "../bsdf/bsdf.h"
+#include "../bsdf/cpuBSDF.h"
 
 #include "../utils/ray.h"
 #include "../utils/interaction.h"

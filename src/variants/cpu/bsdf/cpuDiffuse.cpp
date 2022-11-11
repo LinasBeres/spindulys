@@ -1,4 +1,4 @@
-#include "diffuse.h"
+#include "cpuDiffuse.h"
 
 #include <spindulys/math/warp.h>
 
@@ -6,16 +6,13 @@
 
 CPU_NAMESPACE_OPEN_SCOPE
 
-SmoothDiffuse::SmoothDiffuse(const Col3f& reflectance, const std::string& id)
-	: BSDF(id)
-	, m_reflectance(reflectance)
+CPUSmoothDiffuse::CPUSmoothDiffuse(const Col3f& reflectance, const std::string& id)
+	: SmoothDiffuse(reflectance, id)
 {
-	m_flags = (uint32_t) BSDFFlags::DiffuseReflection | (uint32_t) BSDFFlags::FrontSide;
-	m_components.push_back(m_flags);
 }
 
 std::pair<BSDFSample3, Col3f>
-SmoothDiffuse::Sample(const BSDFContext& ctx,
+CPUSmoothDiffuse::Sample(const BSDFContext& ctx,
 		const SurfaceInteraction& si,
 		float sample1,
 		const Vec2f& sample2,
@@ -38,7 +35,7 @@ SmoothDiffuse::Sample(const BSDFContext& ctx,
 
 }
 
-Col3f SmoothDiffuse::Eval(const BSDFContext& ctx,
+Col3f CPUSmoothDiffuse::Eval(const BSDFContext& ctx,
 		const SurfaceInteraction& si,
 		const Vec3f& wo,
 		uint32_t active) const
@@ -56,7 +53,7 @@ Col3f SmoothDiffuse::Eval(const BSDFContext& ctx,
 	return value;
 }
 
-float SmoothDiffuse::Pdf(const BSDFContext& ctx,
+float CPUSmoothDiffuse::Pdf(const BSDFContext& ctx,
 		const SurfaceInteraction& si,
 		const Vec3f& wo,
 		uint32_t active) const

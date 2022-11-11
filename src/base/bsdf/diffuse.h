@@ -16,7 +16,7 @@ class SmoothDiffuse : virtual public BSDF
 		// Get Methods
 		const Col3f& GetReflectance() const { return m_reflectance; }
 
-	private:
+	protected:
 		Col3f m_reflectance = Col3f(0.5f);
 };
 

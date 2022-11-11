@@ -210,9 +210,6 @@ class BSDF
 	public:
 		virtual ~BSDF() = default;
 
-		virtual float EvalNullTransmission(const SurfaceInteraction& si,
-				uint32_t active = true) const;
-
 		// Get Methods
 		uint32_t           GetFlags()         const { return m_flags; }
 		uint32_t           GetFlags(size_t i) const { assert(i < m_components.size()); return m_components[i]; }
@@ -221,6 +218,7 @@ class BSDF
 
 	protected:
 		BSDF(const std::string& id);
+		BSDF() = default;
 
 	protected:
 		/// Combined flags for all components of this BSDF.

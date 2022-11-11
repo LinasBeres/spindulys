@@ -1,6 +1,6 @@
 #include "direct.h"
 
-#include "../bsdf/bsdf.h"
+#include "../bsdf/cpuBSDF.h"
 
 #include "../utils/records.h"
 
@@ -42,7 +42,7 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 
 	// ----------------------- Emitter sampling -----------------------
 	BSDFContext ctx;
-	const BSDF* bsdf = si.shape->GetBSDF();
+	const CPUBSDF* bsdf = si.shape->GetBSDF();
   uint32_t flags = bsdf->GetFlags();
   uint32_t sampleLight = (flags & (uint32_t) BSDFFlags::Smooth) != 0;
 
