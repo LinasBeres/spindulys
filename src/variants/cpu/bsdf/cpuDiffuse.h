@@ -1,7 +1,7 @@
 #ifndef CPU_DIFFUSE_H
 #define CPU_DIFFUSE_H
 
-#include <bsdf/diffuse.h>
+#include <bsdf/smooth/diffuse.h>
 
 #include "cpuBSDF.h"
 

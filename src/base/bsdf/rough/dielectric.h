@@ -1,5 +1,5 @@
-#ifndef DIFFUSE_H
-#define DIFFUSE_H
+#ifndef DIELECTRIC_H
+#define DIELECTRIC_H
 
 #include "bsdf.h"
 
@@ -7,11 +7,11 @@
 
 BASE_NAMESPACE_OPEN_SCOPE
 
-class SmoothDiffuse : virtual public BSDF
+class SmoothDielectric : virtual public BSDF
 {
 	public:
-		SmoothDiffuse(const Col3f& reflectance, const std::string& id = "defaultSmoothDiffuse");
-		~SmoothDiffuse() = default;
+		SmoothDielectric(const Col3f& reflectance, const std::string& id = "defaultSmoothDiffuse");
+		~SmoothDielectric() = default;
 
 		// Get Methods
 		const Col3f& GetReflectance() const { return m_reflectance; }
@@ -22,4 +22,4 @@ class SmoothDiffuse : virtual public BSDF
 
 BASE_NAMESPACE_CLOSE_SCOPE
 
-#endif // CPU_DIFFUSE_H
+#endif // DIELECTRIC_H

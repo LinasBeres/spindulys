@@ -217,7 +217,7 @@ class BSDF
 		const std::string& GetID()            const { return m_id; }
 
 	protected:
-		BSDF(const std::string& id);
+		BSDF(const std::string& id) : m_flags((uint32_t)BSDFFlags::Empty) , m_id(id) { }
 		BSDF() = default;
 
 	protected:

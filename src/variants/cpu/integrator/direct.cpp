@@ -77,8 +77,9 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 	// ------------------------ BSDF sampling -------------------------
 	for (size_t i = 0; i < m_bsdfSamples; ++i)
 	{
-		// break;
-		const auto [bs, bsdfValue] = bsdf->Sample(ctx, si, pixelSample.sampler.Uniform1D(), pixelSample.sampler.Uniform2D());
+		BSDFSample3 bs;
+		Col3f bsdfValue;
+		std::tie(bs, bsdfValue) = bsdf->Sample(ctx, si, pixelSample.sampler.Uniform1D(), pixelSample.sampler.Uniform2D());
 
 		// Trace the ray in the sampled direction and intersect against the scene
 		SurfaceInteraction si_bsdf = scene->RayIntersect(si.SpawnRay(si.shadingFrame * bs.wo));
