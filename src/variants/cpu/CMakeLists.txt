@@ -1,5 +1,7 @@
 file(GLOB CPU_HEADERS
 	bsdf/*.h
+	bsdf/smooth/*.h
+	bsdf/rough/*.h
 	camera/*.h
 	geometry/*.h
 	integrator/direct.h
@@ -14,6 +16,8 @@ file(GLOB CPU_HEADERS
 
 file(GLOB CPU_SOURCES
 	bsdf/*.cpp
+	bsdf/smooth/*.cpp
+	bsdf/rough/*.cpp
 	camera/*.cpp
 	geometry/*.cpp
 	integrator/direct.cpp

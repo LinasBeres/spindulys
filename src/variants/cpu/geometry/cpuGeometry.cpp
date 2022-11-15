@@ -4,7 +4,7 @@
 
 // TODO: We currently only have diffuse bsdfs,
 // but shapes should be able to choose what kind they are.
-#include "../bsdf/cpuDiffuse.h"
+#include "../bsdf/smooth/cpuDiffuse.h"
 
 
 CPU_NAMESPACE_OPEN_SCOPE

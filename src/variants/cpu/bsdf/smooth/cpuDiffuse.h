@@ -3,9 +3,9 @@
 
 #include <bsdf/smooth/diffuse.h>
 
-#include "cpuBSDF.h"
+#include "../cpuBSDF.h"
 
-#include "../spindulysCPU.h"
+#include "../../spindulysCPU.h"
 
 CPU_NAMESPACE_OPEN_SCOPE
 

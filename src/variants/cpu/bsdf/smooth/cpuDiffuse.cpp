@@ -2,7 +2,7 @@
 
 #include <spindulys/math/warp.h>
 
-#include "../utils/interaction.h"
+#include "../../utils/interaction.h"
 
 CPU_NAMESPACE_OPEN_SCOPE
 
