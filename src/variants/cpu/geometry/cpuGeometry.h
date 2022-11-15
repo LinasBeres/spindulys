@@ -11,7 +11,7 @@
 
 #include "../spindulysCPU.h"
 
-#include "../bsdf/bsdf.h"
+#include "../bsdf/cpuBSDF.h"
 
 #include "../utils/ray.h"
 
@@ -36,7 +36,7 @@ class CPUGeometry : virtual public Geometry
 
 		void ComputeInstanceSurfaceInteraction(SurfaceInteraction& si, const Ray& ray) const;
 
-		const BSDF* GetBSDF() const { return m_bsdf.get(); }
+		const CPUBSDF* GetBSDF() const { return m_bsdf.get(); }
 
 	protected:
 		RTCScene _scene = nullptr;
@@ -45,7 +45,7 @@ class CPUGeometry : virtual public Geometry
 	private:
 		RTCGeometry _geomInstance = nullptr;
 
-		std::unique_ptr<BSDF> m_bsdf;
+		std::unique_ptr<CPUBSDF> m_bsdf;
 };
 
 CPU_NAMESPACE_CLOSE_SCOPE

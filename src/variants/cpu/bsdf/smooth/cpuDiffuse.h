@@ -1,17 +1,19 @@
 #ifndef CPU_DIFFUSE_H
 #define CPU_DIFFUSE_H
 
-#include "bsdf.h"
+#include <bsdf/smooth/diffuse.h>
 
-#include "../spindulysCPU.h"
+#include "../cpuBSDF.h"
+
+#include "../../spindulysCPU.h"
 
 CPU_NAMESPACE_OPEN_SCOPE
 
-class SmoothDiffuse final : public BSDF
+class CPUSmoothDiffuse final : public CPUBSDF, public SmoothDiffuse
 {
 	public:
-		SmoothDiffuse(const Col3f& reflectance, const std::string& id = "defaultSmoothDiffuse");
-		~SmoothDiffuse() = default;
+		CPUSmoothDiffuse(const Col3f& reflectance, const std::string& id = "defaultSmoothDiffuse");
+		~CPUSmoothDiffuse() = default;
 
 		virtual std::pair<BSDFSample3, Col3f>
 		Sample(const BSDFContext& ctx,
@@ -31,7 +33,6 @@ class SmoothDiffuse final : public BSDF
 				uint32_t active = true) const override;
 
 	private:
-		Col3f m_reflectance = Col3f(0.5f);
 };
 
 CPU_NAMESPACE_CLOSE_SCOPE

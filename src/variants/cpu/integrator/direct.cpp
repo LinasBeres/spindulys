@@ -1,6 +1,6 @@
 #include "direct.h"
 
-#include "../bsdf/bsdf.h"
+#include "../bsdf/cpuBSDF.h"
 
 #include "../utils/records.h"
 
@@ -42,7 +42,7 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 
 	// ----------------------- Emitter sampling -----------------------
 	BSDFContext ctx;
-	const BSDF* bsdf = si.shape->GetBSDF();
+	const CPUBSDF* bsdf = si.shape->GetBSDF();
   uint32_t flags = bsdf->GetFlags();
   uint32_t sampleLight = (flags & (uint32_t) BSDFFlags::Smooth) != 0;
 
@@ -77,8 +77,9 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 	// ------------------------ BSDF sampling -------------------------
 	for (size_t i = 0; i < m_bsdfSamples; ++i)
 	{
-		// break;
-		const auto [bs, bsdfValue] = bsdf->Sample(ctx, si, pixelSample.sampler.Uniform1D(), pixelSample.sampler.Uniform2D());
+		BSDFSample3 bs;
+		Col3f bsdfValue;
+		std::tie(bs, bsdfValue) = bsdf->Sample(ctx, si, pixelSample.sampler.Uniform1D(), pixelSample.sampler.Uniform2D());
 
 		// Trace the ray in the sampled direction and intersect against the scene
 		SurfaceInteraction si_bsdf = scene->RayIntersect(si.SpawnRay(si.shadingFrame * bs.wo));

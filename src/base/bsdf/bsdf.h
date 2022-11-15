@@ -1,5 +1,5 @@
-#ifndef CPU_BSDF_H
-#define CPU_BSDF_H
+#ifndef BSDF_H
+#define BSDF_H
 
 #include <string>
 
@@ -8,11 +8,9 @@
 
 #include <utils/helperStructs.h>
 
-#include "../spindulysCPU.h"
+#include "../spindulysBase.h"
 
-
-
-CPU_NAMESPACE_OPEN_SCOPE
+BASE_NAMESPACE_OPEN_SCOPE
 
 /**
  * \brief Specifies the transport mode when sampling or
@@ -212,32 +210,6 @@ class BSDF
 	public:
 		virtual ~BSDF() = default;
 
-		virtual std::pair<BSDFSample3, Col3f>
-		Sample(const BSDFContext& ctx,
-					const SurfaceInteraction& si,
-					float sample1,
-					const Vec2f& sample2,
-					uint32_t active = true) const = 0;
-
-		virtual Col3f Eval(const BSDFContext& ctx,
-				const SurfaceInteraction& si,
-				const Vec3f& wo,
-				uint32_t active = true) const = 0;
-
-		virtual float Pdf(const BSDFContext& ctx,
-				const SurfaceInteraction& si,
-				const Vec3f& wo,
-				uint32_t active = true) const = 0;
-
-		virtual std::pair<Col3f, float>
-		EvalPdf(const BSDFContext& ctx,
-					const SurfaceInteraction& si,
-					const Vec3f& wo,
-					uint32_t active = true) const;
-
-		virtual float EvalNullTransmission(const SurfaceInteraction& si,
-				uint32_t active = true) const;
-
 		// Get Methods
 		uint32_t           GetFlags()         const { return m_flags; }
 		uint32_t           GetFlags(size_t i) const { assert(i < m_components.size()); return m_components[i]; }
@@ -245,7 +217,8 @@ class BSDF
 		const std::string& GetID()            const { return m_id; }
 
 	protected:
-		BSDF(const std::string& id);
+		BSDF(const std::string& id) : m_flags((uint32_t)BSDFFlags::Empty) , m_id(id) { }
+		BSDF() = default;
 
 	protected:
 		/// Combined flags for all components of this BSDF.
@@ -259,6 +232,6 @@ class BSDF
 	private:
 };
 
-CPU_NAMESPACE_CLOSE_SCOPE
+BASE_NAMESPACE_CLOSE_SCOPE
 
-#endif // CPU_BSDF_H
+#endif // BSDF_H

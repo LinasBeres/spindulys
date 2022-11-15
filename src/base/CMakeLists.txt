@@ -1,5 +1,9 @@
 file(GLOB BASE_HEADERS
 	spindulysBase.h
+	bsdf/*.h
+	bsdf/disney/*.h
+	bsdf/rough/*.h
+	bsdf/smooth/*.h
 	camera/*.h
 	geometry/*.h
 	lights/*.h
@@ -15,6 +19,7 @@ file(GLOB BASE_SOURCES
 	render/*.cpp
 	scene/*.cpp
 	scene/objTranslators/*.cpp
+	utils/*.cpp
 )
 
 if(USD_FOUND)
