@@ -100,8 +100,6 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 		}
 	}
 
-	// result = Col3f(si.n.x, si.n.y, si.n.z);
-
 	return { result, 0.f };
 }
 
