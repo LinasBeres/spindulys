@@ -20,7 +20,7 @@ private:
 	float MultipleImportantSampleWeight(float pdfA, float pdfB) const;
 
 private:
-	size_t m_lightSamples = 0;
+	size_t m_lightSamples = 1;
 	size_t m_bsdfSamples = 1;
 
 	float m_fracBSDF;

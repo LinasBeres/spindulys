@@ -4,6 +4,7 @@
 #include "../geometry/cpuCurve.h"
 
 #include "../lights/cpuConstant.h"
+#include "../lights/cpuPoint.h"
 
 #include <spindulys/math/linearspace3.h>
 
@@ -16,7 +17,10 @@ CPUScene::CPUScene()
 	_scene = rtcNewScene(_device);
   rtcSetSceneFlags(_scene, RTC_SCENE_FLAG_DYNAMIC);
 
-	m_environment = std::make_unique<CPUConstantLight>(10.f, Vec3f(zero), 1.f, Col3f(0.7, 0.8, 0.9));
+	m_environment = std::make_unique<CPUConstantLight>(10.f, Vec3f(zero), 1.f, Col3f(0.1, 0.1, 0.1));
+
+	CPUPointLight* l = new CPUPointLight(AffineSpace3f(one, Vec3f(-4.3f, -1.f, 4.67f)), Col3f(10.f, 14.f, 10.f));
+	m_lights.emplace_back(l);
 }
 
 CPUScene::~CPUScene()
@@ -79,8 +83,12 @@ void CPUScene::ResetScene()
 
 	m_sceneGeometry.clear();
 	m_lights.clear();
+
+	// TODO: Remove once scenes have lights and automatically create an environment light if no lights
+	CPUPointLight* l = new CPUPointLight(AffineSpace3f(one, Vec3f(-4.3f, -1.f, 4.67f)), Col3f(10.f, 14.f, 10.f));
+	m_lights.emplace_back(l);
 	m_environment.reset(nullptr);
-	m_environment = std::make_unique<CPUConstantLight>(10.f, Vec3f(zero), 1.f, Col3f(0.7, 0.8, 0.9));
+	m_environment = std::make_unique<CPUConstantLight>(10.f, Vec3f(zero), 1.f, Col3f(0.1, 0.1, 0.1));
 
 	// Reset Parent scene stuff
 	Scene::ResetScene();
@@ -97,8 +105,8 @@ bool CPUScene::RayTest(const Ray& ray) const
 
 	rtcIntersect1(_scene, &context, RTCRayHit_(ray));
 
+	// Return true if we hit something
 	return ray.tfar != rayMaxT;
-
 }
 
 SurfaceInteraction CPUScene::RayIntersect(const Ray& ray) const

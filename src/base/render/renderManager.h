@@ -57,7 +57,7 @@ class RenderManager
 			BufferIds bufferID = BufferIds::Beauty;            // The current buffer being read.
 			std::unordered_set<BufferIds> currentBufferIds =   // Available buffers to read.
 			{ BufferIds::Beauty, BufferIds::Diffuse, BufferIds::Position, BufferIds::Normal, BufferIds::Debug };
-			bool scaleResolution = true;
+			bool scaleResolution = false;
 		};
 
 		RenderManager();

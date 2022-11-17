@@ -10,7 +10,7 @@ SPINDULYS_NAMESPACE_OPEN_SCOPE
 
 __forceinline
 std::tuple<float, float, float, float>
-frensel(float cos_theta_i, float eta)
+fresnel(float cos_theta_i, float eta)
 {
 	bool outside_mask = cos_theta_i >= 0.f;
 
@@ -43,7 +43,7 @@ frensel(float cos_theta_i, float eta)
 	return { r, cos_theta_t, eta_it, eta_ti};
 }
 
-__forceinline float frensel_conductor(float cos_theta_i, float eta_r, float eta_i)
+__forceinline float fresnel_conductor(float cos_theta_i, float eta_r, float eta_i)
 {
 	// Modified from "Optics" by K.D. Moeller, University Science Books, 1988
 	float cos_theta_i_2 = cos_theta_i * cos_theta_i;
