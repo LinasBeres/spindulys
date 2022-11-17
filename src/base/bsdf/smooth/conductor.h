@@ -25,7 +25,7 @@ class SmoothConductor : virtual public BSDF
 		float GetETA() const { return m_eta; }
 		float GetK()   const { return m_k;   }
 
-		const Col3f& GetSpecularReflection() const { return m_specularReflectance; }
+		const Col3f& GetSpecularReflectance() const { return m_specularReflectance; }
 
 	protected:
 		// Componets of the material's index of refraction.

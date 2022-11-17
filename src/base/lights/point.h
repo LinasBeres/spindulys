@@ -16,8 +16,11 @@ class PointLight : virtual public Light
 {
 	public:
 		PointLight(const AffineSpace3f& transform = AffineSpace3f(one, zero), const Col3f& intensity = one)
-			: Light(transform), m_intensity(intensity)
-		{ m_flags = (uint32_t) LightFlags::DeltaPosition; }
+			: m_intensity(intensity)
+		{
+			m_transform = transform;
+			m_flags = (uint32_t) LightFlags::DeltaPosition;
+		}
 
 		virtual ~PointLight() = default;
 

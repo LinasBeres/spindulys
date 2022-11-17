@@ -49,8 +49,7 @@ enum class LightFlags : uint32_t {
 class Light
 {
 	public:
-		Light() = default;
-		Light(const AffineSpace3f& transform)
+		Light(const AffineSpace3f& transform = AffineSpace3f(one, zero))
 			: m_transform(transform)
 		{ }
 

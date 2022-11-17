@@ -18,12 +18,12 @@ CPUSmoothDiffuse::Sample(const BSDFContext& ctx,
 		const Vec2f& sample2,
 		uint32_t active) const
 {
-	// float cos_theta_i = si.wi.z;
+	float cos_theta_i = si.wi.z;
 	BSDFSample3 bs;
 
-	// active &= cos_theta_i > 0.f;
-	// if (!active || !ctx.IsEnabled(BSDFFlags::DiffuseReflection))
-		// return { bs, zero };
+	active &= cos_theta_i > 0.f;
+	if (!active || !ctx.IsEnabled(BSDFFlags::DiffuseReflection))
+		return { bs, zero };
 
 	bs.wo = square_to_cosine_hemisphere(sample2);
 	bs.pdf = square_to_cosine_hemisphere_pdf(bs.wo);

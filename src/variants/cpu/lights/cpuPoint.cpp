@@ -11,7 +11,7 @@ Col3f CPUPointLight::Eval(const SurfaceInteraction&, uint32_t) const
 }
 
 std::pair<DirectionSample, Col3f>
-CPUPointLight::SampleDirection(const Interaction& it, const Vec2f&, uint32_t active) const
+CPUPointLight::SampleDirection(const Interaction& it, const Vec2f& /* sample */, uint32_t active) const
 {
 	const Vec3f direction = GetPosition() - it.p;
 	const float dist2 = dot(direction, direction);

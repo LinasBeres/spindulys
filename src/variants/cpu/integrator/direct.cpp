@@ -66,8 +66,8 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 
 			/* Determine BSDF value and probability of having sampled
 				 that same direction using BSDF sampling. */
-			const auto [bsdfVal, bsdfPdf] = bsdf->EvalPdf(ctx, si, wo, activeLight);
-			const float mis = select(ds.delta, 1.f, MultipleImportantSampleWeight(
+			auto [bsdfVal, bsdfPdf] = bsdf->EvalPdf(ctx, si, wo, activeLight);
+			float mis = select(ds.delta, 1.f, MultipleImportantSampleWeight(
 						ds.pdf * m_fracLum, bsdfPdf * m_fracBSDF) * m_weightLum);
 
 			result += mis * bsdfVal * lightVal;

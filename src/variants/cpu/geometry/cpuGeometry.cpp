@@ -1,10 +1,14 @@
 #include "cpuGeometry.h"
 
+#include <utils/ior.h>
+
 #include "../utils/interaction.h"
 
 // TODO: We currently only have diffuse bsdfs,
 // but shapes should be able to choose what kind they are.
 #include "../bsdf/smooth/cpuDiffuse.h"
+#include "../bsdf/smooth/cpuConductor.h"
+#include "../bsdf/smooth/cpuDielectric.h"
 
 
 CPU_NAMESPACE_OPEN_SCOPE
@@ -12,7 +16,9 @@ CPU_NAMESPACE_OPEN_SCOPE
 CPUGeometry::CPUGeometry()
 {
 	// TODO: This is only here for testing reasons
-	m_bsdf = std::make_unique<CPUSmoothDiffuse>(Col3f(0.5f));
+	m_bsdf = std::make_unique<CPUSmoothDielectric>(LookupIOR("amber"), LookupIOR("air"), Col3f(0.9f, 0.6f, 0.7f), Col3f(0.9f, 0.9f, 0.9f));
+	m_bsdf.reset(nullptr);
+	m_bsdf = std::make_unique<CPUSmoothDiffuse>(Col3f(1.f, 1.f, 1.f));
 }
 
 CPUGeometry::~CPUGeometry()
