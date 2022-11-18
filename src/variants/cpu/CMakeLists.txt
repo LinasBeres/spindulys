@@ -4,9 +4,7 @@ file(GLOB CPU_HEADERS
 	bsdf/rough/*.h
 	camera/*.h
 	geometry/*.h
-	integrator/direct.h
-	integrator/integrator.h
-	integrator/udpt.h
+	integrator/*.h
 	lights/*.h
 	render/*.h
 	scene/*.h
@@ -20,9 +18,7 @@ file(GLOB CPU_SOURCES
 	bsdf/rough/*.cpp
 	camera/*.cpp
 	geometry/*.cpp
-	integrator/direct.cpp
-	integrator/integrator.cpp
-	integrator/udpt.cpp
+	integrator/*.cpp
 	lights/*.cpp
 	render/*.cpp
 	scene/*.cpp

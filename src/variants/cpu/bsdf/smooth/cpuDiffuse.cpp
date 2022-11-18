@@ -11,7 +11,7 @@ CPUSmoothDiffuse::CPUSmoothDiffuse(const Col3f& reflectance, const std::string& 
 {
 }
 
-std::pair<BSDFSample3, Col3f>
+std::pair<BSDFSample, Col3f>
 CPUSmoothDiffuse::Sample(const BSDFContext& ctx,
 		const SurfaceInteraction& si,
 		float sample1,
@@ -19,7 +19,7 @@ CPUSmoothDiffuse::Sample(const BSDFContext& ctx,
 		uint32_t active) const
 {
 	float cos_theta_i = si.wi.z;
-	BSDFSample3 bs;
+	BSDFSample bs;
 
 	active &= cos_theta_i > 0.f;
 	if (!active || !ctx.IsEnabled(BSDFFlags::DiffuseReflection))
@@ -28,8 +28,8 @@ CPUSmoothDiffuse::Sample(const BSDFContext& ctx,
 	bs.wo = square_to_cosine_hemisphere(sample2);
 	bs.pdf = square_to_cosine_hemisphere_pdf(bs.wo);
 	bs.eta = 1.f;
-	bs.sampled_type = (uint32_t) BSDFFlags::DiffuseReflection;
-	bs.sampled_component = 0;
+	bs.sampledType = (uint32_t) BSDFFlags::DiffuseReflection;
+	bs.sampledComponent = 0;
 
 	return { bs, (active && bs.pdf > 0.f) ? m_reflectance : zero };
 

@@ -75,6 +75,20 @@ template<typename T> __forceinline Col3<T> operator <<( const Col3<T>& a, const 
 template<typename T> __forceinline Col3<T> pow(const Col3<T>& a, const T& b) { return Col3<T>(pow(a.r, b), pow(a.g, b), pow(a.b, b)); }
 
 ////////////////////////////////////////////////////////////////////////////////
+/// Ternary Operators
+////////////////////////////////////////////////////////////////////////////////
+
+template<typename T> __forceinline Col3<T> madd  ( const Col3<T>& a, const Col3<T>& b, const Col3<T>& c) { return Col3<T>( madd(a.r,b.r,c.r), madd(a.g,b.g,c.g), madd(a.b,b.b,c.b)); }
+template<typename T> __forceinline Col3<T> msub  ( const Col3<T>& a, const Col3<T>& b, const Col3<T>& c) { return Col3<T>( msub(a.r,b.r,c.r), msub(a.g,b.g,c.g), msub(a.b,b.b,c.b)); }
+template<typename T> __forceinline Col3<T> nmadd ( const Col3<T>& a, const Col3<T>& b, const Col3<T>& c) { return Col3<T>(nmadd(a.r,b.r,c.r),nmadd(a.g,b.g,c.g),nmadd(a.b,b.b,c.b));}
+template<typename T> __forceinline Col3<T> nmsub ( const Col3<T>& a, const Col3<T>& b, const Col3<T>& c) { return Col3<T>(nmsub(a.r,b.r,c.r),nmsub(a.g,b.g,c.g),nmsub(a.b,b.b,c.b)); }
+
+template<typename T> __forceinline Col3<T> madd  ( const T& a, const Col3<T>& b, const Col3<T>& c) { return Col3<T>( madd(a,b.r,c.r), madd(a,b.g,c.g), madd(a,b.b,c.b)); }
+template<typename T> __forceinline Col3<T> msub  ( const T& a, const Col3<T>& b, const Col3<T>& c) { return Col3<T>( msub(a,b.r,c.r), msub(a,b.g,c.g), msub(a,b.b,c.b)); }
+template<typename T> __forceinline Col3<T> nmadd ( const T& a, const Col3<T>& b, const Col3<T>& c) { return Col3<T>(nmadd(a,b.r,c.r),nmadd(a,b.g,c.g),nmadd(a,b.b,c.b));}
+template<typename T> __forceinline Col3<T> nmsub ( const T& a, const Col3<T>& b, const Col3<T>& c) { return Col3<T>(nmsub(a,b.r,c.r),nmsub(a,b.g,c.g),nmsub(a,b.b,c.b)); }
+
+////////////////////////////////////////////////////////////////////////////////
 /// Assignment Operators
 ////////////////////////////////////////////////////////////////////////////////
 
@@ -83,6 +97,15 @@ template<typename T> __forceinline Col3<T>& operator +=( Col3<T>& a, const Col3<
 template<typename T> __forceinline Col3<T>& operator -=( Col3<T>& a, const Col3<T>& b ) { a.r -= b.r; a.g -= b.g; a.b -= b.b; return a; }
 template<typename T> __forceinline Col3<T>& operator *=( Col3<T>& a, const       T& b ) { a.r *= b  ; a.g *= b  ; a.b *= b  ; return a; }
 template<typename T> __forceinline Col3<T>& operator /=( Col3<T>& a, const       T& b ) { a.r /= b  ; a.g /= b  ; a.b /= b  ; return a; }
+
+////////////////////////////////////////////////////////////////////////////////
+/// Reduction Operators
+////////////////////////////////////////////////////////////////////////////////
+
+template<typename T> __forceinline T reduce_add( const Col3<T>& a ) { return a.r + a.g + a.b; }
+template<typename T> __forceinline T reduce_mul( const Col3<T>& a ) { return a.r * a.g * a.b; }
+template<typename T> __forceinline T reduce_min( const Col3<T>& a ) { return min(a.r, a.g, a.b); }
+template<typename T> __forceinline T reduce_max( const Col3<T>& a ) { return max(a.r, a.g, a.b); }
 
 ////////////////////////////////////////////////////////////////////////////////
 /// Comparison Operators

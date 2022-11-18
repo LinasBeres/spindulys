@@ -11,7 +11,7 @@ CPUSmoothConductor::CPUSmoothConductor(float eta, float k, const Col3f& specular
 {
 }
 
-std::pair<BSDFSample3, Col3f>
+std::pair<BSDFSample, Col3f>
 CPUSmoothConductor::Sample(const BSDFContext& ctx,
 		const SurfaceInteraction& si,
 		float sample1,
@@ -21,14 +21,14 @@ CPUSmoothConductor::Sample(const BSDFContext& ctx,
 	float cosThetaI = si.wi.z;
 	active &= cosThetaI > 0.f;
 
-	BSDFSample3 bs;
+	BSDFSample bs;
 	Col3f value(zero);
 
 	if (!active || !ctx.IsEnabled(BSDFFlags::DeltaReflection))
 		return { bs, value };
 
-	bs.sampled_component = 0;
-	bs.sampled_type = (uint32_t) BSDFFlags::DeltaReflection;
+	bs.sampledComponent = 0;
+	bs.sampledType = (uint32_t) BSDFFlags::DeltaReflection;
 	bs.wo  = reflect(si.wi);
 	bs.eta = 1.f;
 	bs.pdf = 1.f;

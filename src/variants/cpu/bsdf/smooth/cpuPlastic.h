@@ -17,7 +17,7 @@ class CPUSmoothPlastic final : public CPUBSDF, public SmoothPlastic
 				bool nonLinear, const std::string& id = "defaultSmoothDielectric");
 		~CPUSmoothPlastic() = default;
 
-		virtual std::pair<BSDFSample3, Col3f>
+		virtual std::pair<BSDFSample, Col3f>
 		Sample(const BSDFContext& ctx,
 					const SurfaceInteraction& si,
 					float sample1,

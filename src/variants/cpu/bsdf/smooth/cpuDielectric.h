@@ -17,7 +17,7 @@ class CPUSmoothDielectric final : public CPUBSDF, public SmoothDielectric
 				const std::string& id = "defaultSmoothDielectric");
 		~CPUSmoothDielectric() = default;
 
-		virtual std::pair<BSDFSample3, Col3f>
+		virtual std::pair<BSDFSample, Col3f>
 		Sample(const BSDFContext& ctx,
 					const SurfaceInteraction& si,
 					float sample1,

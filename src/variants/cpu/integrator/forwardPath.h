@@ -15,10 +15,9 @@ class ForwardPath: public Integrator
 {
 public:
 	ForwardPath(uint32_t maxDepth = 3, uint32_t russianRouletteDepth = 5);
-	virtual ~ForwardPath() = default;
 
 	virtual std::pair<Col3f, float>
-	Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, Col3f* /* aovs */) const = 0;
+	Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, Col3f* /* aovs */) const override;
 
 protected:
 
@@ -26,7 +25,7 @@ private:
 	float MultipleImportantSampleWeight(float pdfA, float pdfB) const;
 
 private:
-	uint32_t m_maxDepth = 3;
+	uint32_t m_maxDepth = 1;
 
 	// Depth to begin using russian roulette
 	uint32_t m_russianRouletteDepth = 5;

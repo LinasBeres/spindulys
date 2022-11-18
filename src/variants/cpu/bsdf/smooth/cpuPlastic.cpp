@@ -13,14 +13,14 @@ CPUSmoothPlastic::CPUSmoothPlastic(float interiorIOR, float exteriorIOR,
 {
 }
 
-std::pair<BSDFSample3, Col3f>
+std::pair<BSDFSample, Col3f>
 CPUSmoothPlastic::Sample(const BSDFContext& ctx,
 		const SurfaceInteraction& si,
 		float sample1,
 		const Vec2f& sample2,
 		uint32_t active) const
 {
-	BSDFSample3 bs;
+	BSDFSample bs;
 
 	return { bs, zero };
 }

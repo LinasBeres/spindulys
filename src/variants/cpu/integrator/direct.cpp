@@ -77,7 +77,7 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 	// ------------------------ BSDF sampling -------------------------
 	for (size_t i = 0; i < m_bsdfSamples; ++i)
 	{
-		BSDFSample3 bs;
+		BSDFSample bs;
 		Col3f bsdfValue;
 		std::tie(bs, bsdfValue) = bsdf->Sample(ctx, si, pixelSample.sampler.Uniform1D(), pixelSample.sampler.Uniform2D());
 

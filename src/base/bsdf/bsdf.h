@@ -16,7 +16,8 @@ BASE_NAMESPACE_OPEN_SCOPE
  * \brief Specifies the transport mode when sampling or
  * evaluating a scattering function
  */
-enum class TransportMode : uint32_t {
+enum class TransportMode : uint32_t
+{
 	/// Radiance transport
 	Radiance,
 
@@ -34,7 +35,8 @@ enum class TransportMode : uint32_t {
  * They are also useful for picking out individual components, e.g., by setting
  * combinations in \ref BSDFContext::type_mask.
  */
-enum class BSDFFlags : uint32_t {
+enum class BSDFFlags : uint32_t
+{
 	// =============================================================
 	//                      BSDF lobe types
 	// =============================================================
@@ -122,7 +124,8 @@ enum class BSDFFlags : uint32_t {
 	All          = Diffuse | Glossy | Delta | Delta1D
 };
 
-struct BSDFContext {
+struct BSDFContext
+{
 	// =============================================================
 	//! @{ \name Fields
 	// =============================================================
@@ -169,7 +172,8 @@ struct BSDFContext {
 };
 
 // Data structure holding the result of BSDF sampling operations.
-struct BSDFSample3 {
+struct BSDFSample
+{
 	/// Normalized outgoing direction in local coordinates
 	Vec3f wo;
 
@@ -180,10 +184,10 @@ struct BSDFSample3 {
 	float eta;
 
 	/// Stores the component type that was sampled by \ref BSDF::sample()
-	uint32_t sampled_type;
+	uint32_t sampledType;
 
 	/// Stores the component index that was sampled by \ref BSDF::sample()
-	uint32_t sampled_component;
+	uint32_t sampledComponent;
 
 	/**
 	 * \brief Given a surface interaction and an incident/exitant direction
@@ -198,9 +202,9 @@ struct BSDFSample3 {
 	 *      be a normalized direction vector that points \a away from
 	 *      the scattering event.
 	 */
-	BSDFSample3(const Vec3f& wo = zero)
-		: wo(wo), pdf(0.f), eta(1.f), sampled_type(0),
-		sampled_component(uint32_t(-1)) { }
+	BSDFSample(const Vec3f& wo = zero)
+		: wo(wo), pdf(0.f), eta(1.f), sampledType(0),
+		sampledComponent(uint32_t(-1)) { }
 };
 
 struct SurfaceInteraction;

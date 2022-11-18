@@ -6,6 +6,7 @@
 #include <tbb/parallel_for_each.h>
 
 #include "../integrator/direct.h"
+#include "../integrator/forwardPath.h"
 
 CPU_NAMESPACE_OPEN_SCOPE
 
@@ -41,9 +42,16 @@ void CPURenderManager::Trace(int iterations)
 						for (const auto& bufferID : renderGlobals.currentBufferIds)
 							buffers[bufferID]->MultiplyPixel(pixelSample.pixelIdx, static_cast<float>(iterations - 1));
 
+						// if (renderGlobals.integratorID == IntegratorIds::UDPT)
+						// {
+							// const auto [color, mask] = Direct().Sample(dynamic_cast<CPUScene*>(scene), pixelSample, primaryRay, nullptr);
+							// if (mask) { ; }
+							// buffers[RenderManager::BufferIds::Beauty]->AddPixel(pixelSample.pixelIdx, color);
+						// }
+
 						if (renderGlobals.integratorID == IntegratorIds::UDPT)
 						{
-							const auto [color, mask] = Direct().Sample(dynamic_cast<CPUScene*>(scene), pixelSample, primaryRay, nullptr);
+							const auto [color, mask] = ForwardPath().Sample(dynamic_cast<CPUScene*>(scene), pixelSample, primaryRay, nullptr);
 							if (mask) { ; }
 							buffers[RenderManager::BufferIds::Beauty]->AddPixel(pixelSample.pixelIdx, color);
 						}
