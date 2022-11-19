@@ -12,7 +12,7 @@ CPUSmoothDielectric::CPUSmoothDielectric(float interiorIOR, float exteriorIOR,
 {
 }
 
-std::pair<BSDFSample3, Col3f>
+std::pair<BSDFSample, Col3f>
 CPUSmoothDielectric::Sample(const BSDFContext& ctx,
 		const SurfaceInteraction& si,
 		float sample1,
@@ -29,7 +29,7 @@ CPUSmoothDielectric::Sample(const BSDFContext& ctx,
 
 	active &= cosThetaI > 0.f;
 
-	BSDFSample3 bs;
+	BSDFSample bs;
 	bool selectedR;
 	if (likely(hasReflection && hasTransmission))
 	{
@@ -51,8 +51,8 @@ CPUSmoothDielectric::Sample(const BSDFContext& ctx,
 
 	bool selectedT = !selectedR && active;
 
-	bs.sampled_component = selectedR ? uint32_t(0) : uint32_t(1);
-	bs.sampled_type      = selectedR ? (uint32_t) BSDFFlags::DeltaReflection : (uint32_t) BSDFFlags::DeltaTransmission;
+	bs.sampledComponent = selectedR ? uint32_t(0) : uint32_t(1);
+	bs.sampledType      = selectedR ? (uint32_t) BSDFFlags::DeltaReflection : (uint32_t) BSDFFlags::DeltaTransmission;
 
 	bs.wo = select(selectedR, reflect(si.wi), refract(si.wi, cosThetaT, etaTi));
 

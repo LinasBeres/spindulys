@@ -22,6 +22,8 @@ public:
 	Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, Col3f* /* aovs */) const = 0;
 
 protected:
+	bool m_stop = false;
+
 	bool m_hideLights = false;
 
 private:

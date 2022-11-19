@@ -85,7 +85,7 @@ void CPUScene::ResetScene()
 	m_lights.clear();
 
 	// TODO: Remove once scenes have lights and automatically create an environment light if no lights
-	CPUPointLight* l = new CPUPointLight(AffineSpace3f(one, Vec3f(-4.3f, -1.f, 4.67f)), Col3f(10.f, 14.f, 10.f));
+	CPUPointLight* l = new CPUPointLight(AffineSpace3f(one, Vec3f(-1.5f, 1.9f, -11.f)), Col3f(10.f, 14.f, 10.f));
 	m_lights.emplace_back(l);
 	m_environment.reset(nullptr);
 	m_environment = std::make_unique<CPUConstantLight>(10.f, Vec3f(zero), 1.f, Col3f(0.1, 0.1, 0.1));
