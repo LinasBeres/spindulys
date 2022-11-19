@@ -19,16 +19,8 @@ class SmoothDielectric : virtual public BSDF
 		{
 			m_id = id;
 
-			m_components.push_back(
-					(uint32_t) BSDFFlags::DeltaReflection |
-					(uint32_t) BSDFFlags::FrontSide |
-					(uint32_t) BSDFFlags::BackSide
-					);
-			m_components.push_back(
-					(uint32_t) BSDFFlags::DeltaTransmission |
-					(uint32_t) BSDFFlags::FrontSide |
-					(uint32_t) BSDFFlags::BackSide |
-					(uint32_t) BSDFFlags::NonSymmetric);
+			m_components.push_back(BSDFFlags::DeltaReflection | BSDFFlags::FrontSide | BSDFFlags::BackSide);
+			m_components.push_back(BSDFFlags::DeltaTransmission | BSDFFlags::FrontSide | BSDFFlags::BackSide | BSDFFlags::NonSymmetric);
 
 			m_flags = m_components[0] | m_components[1];
 		}

@@ -178,6 +178,7 @@ bool Camera::SetResolution(const Vec2f& resolution)
 	_deviceAspectRatio = _resolution.x >= _resolution.y ?
 		_resolution.x / _resolution.y : _resolution.y / _resolution.x;
 
+	UpdateAxis();
 	return true;
 }
 

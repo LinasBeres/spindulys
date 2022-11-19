@@ -11,7 +11,7 @@ class Direct final : public Integrator
 {
 public:
 	Direct();
-	Direct(size_t emitterSamples, size_t bsdfSamples);
+	Direct(size_t lightSamples, size_t bsdfSamples, bool hideLights = false);
 
 	virtual std::pair<Col3f, float>
 	Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, Col3f* /* aovs */) const override;

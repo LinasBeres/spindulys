@@ -28,7 +28,7 @@ CPUSmoothConductor::Sample(const BSDFContext& ctx,
 		return { bs, value };
 
 	bs.sampledComponent = 0;
-	bs.sampledType = (uint32_t) BSDFFlags::DeltaReflection;
+	bs.sampledType = +BSDFFlags::DeltaReflection;
 	bs.wo  = reflect(si.wi);
 	bs.eta = 1.f;
 	bs.pdf = 1.f;

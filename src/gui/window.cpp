@@ -105,7 +105,7 @@ bool Window::PreRenderCallback(RenderManager* renderManager)
 	if (prevMousePos.x != mousePos.x || prevMousePos.y != mousePos.y)
 		MouseCallback(guiIO, mousePos, renderManager);
 
-	if(renderManager->SetSamples(renderGlobals.samples))
+	if(renderManager->SetSamples(renderGlobals.maxSamplesPerPixel))
 		renderManager->SetRenderDirty();
 	if(renderManager->SetIntegrator(renderGlobals.integratorID))
 		renderManager->SetRenderDirty();
@@ -293,11 +293,11 @@ void Window::RenderConfigWindow(bool& guiOpen)
 	GUI_TRACE();
 	ImGui::Begin("Render Config", &guiOpen);
 
-	ImGui::InputInt("Width", &renderGlobals.width);
-	ImGui::InputInt("Height", &renderGlobals.height);
-	ImGui::InputInt("Max Iterations", &renderGlobals.maxIterations);
-	ImGui::InputInt("Samples", &renderGlobals.samples);
-	ImGui::InputInt("Depth", &renderGlobals.depth);
+	ImGui::InputInt("Width", reinterpret_cast<int*>(&renderGlobals.width));
+	ImGui::InputInt("Height", reinterpret_cast<int*>(&renderGlobals.height));
+	ImGui::InputInt("Max Iterations", reinterpret_cast<int*>(&renderGlobals.maxIterations));
+	ImGui::InputInt("Samples", reinterpret_cast<int*>(&renderGlobals.maxSamplesPerPixel));
+	ImGui::InputInt("Depth", reinterpret_cast<int*>(&renderGlobals.maxDepth));
 
 	ImGui::Separator();
 

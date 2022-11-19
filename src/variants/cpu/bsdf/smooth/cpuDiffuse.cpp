@@ -28,7 +28,7 @@ CPUSmoothDiffuse::Sample(const BSDFContext& ctx,
 	bs.wo = square_to_cosine_hemisphere(sample2);
 	bs.pdf = square_to_cosine_hemisphere_pdf(bs.wo);
 	bs.eta = 1.f;
-	bs.sampledType = (uint32_t) BSDFFlags::DiffuseReflection;
+	bs.sampledType = +BSDFFlags::DiffuseReflection;
 	bs.sampledComponent = 0;
 
 	return { bs, (active && bs.pdf > 0.f) ? m_reflectance : zero };

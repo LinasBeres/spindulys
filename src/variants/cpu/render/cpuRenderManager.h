@@ -29,7 +29,13 @@ class CPURenderManager final : public RenderManager
 
 		virtual void Trace(int iterations) override;
 
+		virtual bool SetIntegrator(IntegratorIds integratorID) override;
+
 	private:
+		void InitialiseIntegrator(IntegratorIds integratorID);
+
+	private:
+		std::unique_ptr<Integrator> integrator;
 };
 
 CPU_NAMESPACE_CLOSE_SCOPE

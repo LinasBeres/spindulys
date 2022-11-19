@@ -58,7 +58,7 @@ class Window
 
 		GLFWwindow* window;
 		int sceneCamera = 0;
-		RenderManager::RenderGlobals renderGlobals;
+		RenderGlobals renderGlobals;
 
 		Vec2f prevMousePos = Vec2f(renderGlobals.width / 2.0f, renderGlobals.height / 2.0f);
 

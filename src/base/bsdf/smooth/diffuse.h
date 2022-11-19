@@ -14,7 +14,7 @@ class SmoothDiffuse : virtual public BSDF
 			: m_reflectance(reflectance)
 		{
 			m_id = id;
-			m_flags = (uint32_t) BSDFFlags::DiffuseReflection | (uint32_t) BSDFFlags::FrontSide;
+			m_flags = BSDFFlags::DiffuseReflection | BSDFFlags::FrontSide;
 			m_components.push_back(m_flags);
 		}
 		~SmoothDiffuse() = default;

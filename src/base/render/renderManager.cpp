@@ -91,7 +91,7 @@ void RenderManager::Render()
 		if (renderGlobals.scaleResolution && frameSize < 1.f)
 		{
 			iterations = 0;
-			frameSize += GROW_SIZE;
+			frameSize += renderGlobals.growSize;
 			currentResolution = Vec2i(frameSize * renderGlobals.width, frameSize * renderGlobals.height);
 
 			for (const auto& bufferID : renderGlobals.currentBufferIds)
@@ -100,10 +100,7 @@ void RenderManager::Render()
 		}
 
 		if (iterations < renderGlobals.maxIterations)
-		{
-			iterations++;
-			Trace(iterations);
-		}
+			Trace(++iterations);
 
 		if (drawBufferFunction)
 			drawBufferFunction(currentResolution.x, currentResolution.y, *(buffers[renderGlobals.bufferID]));
@@ -142,7 +139,7 @@ bool RenderManager::RemoveBuffer(BufferIds bufferID)
 {
 	BASE_TRACE();
 	// Beauty cannot be removed
-	if (bufferID == BufferIds::Beauty)
+	if (bufferID == BufferIds::kBeauty)
 		return false;
 
 	// Current buffer already exists so do nothing and signify that no update needs to happen.

@@ -1,5 +1,7 @@
 #include "direct.h"
 
+#include <spindulys/fwd.h>
+
 #include "../bsdf/cpuBSDF.h"
 
 #include "../utils/records.h"
@@ -17,10 +19,11 @@ Direct::Direct()
 	m_fracLum  = m_lightSamples / (float) sum;
 }
 
-Direct::Direct(size_t lightSamples, size_t bsdfSamples)
+Direct::Direct(size_t lightSamples, size_t bsdfSamples, bool hideLights)
 	: m_lightSamples(lightSamples)
 	, m_bsdfSamples(bsdfSamples)
 {
+	m_hideLights = hideLights;
 	Direct();
 }
 
@@ -30,6 +33,7 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 	Col3f result(zero);
 
 	SurfaceInteraction si = scene->RayIntersect(ray);
+	bool validRay = si.IsValid();
 
 	// ----------------------- Visible emitters -----------------------
 
@@ -38,13 +42,13 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 			result += visibleLight->Eval(si, true);
 
 	if (!si.IsValid())
-		return { result, 0.f };
+		return { result, validRay };
 
 	// ----------------------- Emitter sampling -----------------------
 	BSDFContext ctx;
 	const CPUBSDF* bsdf = si.shape->GetBSDF();
   uint32_t flags = bsdf->GetFlags();
-  uint32_t sampleLight = (flags & (uint32_t) BSDFFlags::Smooth) != 0;
+  uint32_t sampleLight = has_flag(flags, BSDFFlags::Smooth);
 
 	if (sampleLight)
 	{
@@ -100,7 +104,7 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 		}
 	}
 
-	return { result, 0.f };
+	return { result, validRay };
 }
 
 float Direct::MultipleImportantSampleWeight(float pdfA, float pdfB) const

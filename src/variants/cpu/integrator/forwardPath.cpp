@@ -1,5 +1,7 @@
 #include "forwardPath.h"
 
+#include <spindulys/fwd.h>
+
 #include "../bsdf/cpuBSDF.h"
 
 #include "../utils/records.h"
@@ -7,9 +9,10 @@
 
 CPU_NAMESPACE_OPEN_SCOPE
 
-ForwardPath::ForwardPath(uint32_t maxDepth, uint32_t russianRouletteDepth)
+ForwardPath::ForwardPath(uint32_t maxDepth, uint32_t russianRouletteDepth, bool hideLights)
 	: m_maxDepth(maxDepth), m_russianRouletteDepth(russianRouletteDepth)
 {
+	m_hideLights = hideLights;
 }
 
 
@@ -65,7 +68,7 @@ ForwardPath::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& 
 		// ---------------------- Emitter sampling ----------------------
 		const CPUBSDF* bsdf = si.shape->GetBSDF();
 		uint32_t flags = bsdf->GetFlags();
-		uint32_t activeLight = activeNext && (flags & (uint32_t) BSDFFlags::Smooth) != 0;
+		uint32_t activeLight = has_flag(flags, BSDFFlags::Smooth);
 
 		if (activeLight)
 		{
@@ -103,12 +106,12 @@ ForwardPath::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& 
 		// ------ Update loop variables based on current interaction ------
 		throughput = throughput * bsdfValue;
 		eta *= bs.eta;
-		validRay |= active && si.IsValid() && (bs.sampledType & (uint32_t) BSDFFlags::Null) == 0;
+		validRay |= active && si.IsValid() && !has_flag(bs.sampledType, BSDFFlags::Null);
 
 		// Information about the current vertex needed by the next iteration
 		prevSi = si;
 		prevBSDFPdf = bs.pdf;
-		prevBSDFDelta = (bs.sampledType & (uint32_t) BSDFFlags::Delta) != 0;
+		prevBSDFDelta = has_flag(bs.sampledType, BSDFFlags::Delta);
 
 		// -------------------- Stopping criterion ---------------------
 
