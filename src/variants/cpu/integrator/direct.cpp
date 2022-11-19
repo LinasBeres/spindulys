@@ -9,22 +9,18 @@
 
 CPU_NAMESPACE_OPEN_SCOPE
 
-Direct::Direct()
+Direct::Direct(uint32_t lightSamples, uint32_t bsdfSamples, bool hideLights)
+	: m_lightSamples(lightSamples)
+	, m_bsdfSamples(bsdfSamples)
 {
+	m_hideLights = hideLights;
+
 	m_weightBSDF = 1.f / (float) m_bsdfSamples;
 	m_weightLum  = 1.f / (float) m_lightSamples;
 
 	const size_t sum = m_lightSamples + m_bsdfSamples;
 	m_fracBSDF = m_bsdfSamples  / (float) sum;
 	m_fracLum  = m_lightSamples / (float) sum;
-}
-
-Direct::Direct(size_t lightSamples, size_t bsdfSamples, bool hideLights)
-	: m_lightSamples(lightSamples)
-	, m_bsdfSamples(bsdfSamples)
-{
-	m_hideLights = hideLights;
-	Direct();
 }
 
 std::pair<Col3f, float>
@@ -96,10 +92,9 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 			DirectionSample ds(si, si_bsdf, light);
 
 			const float lightPDF = light->PdfDirection(si, ds, true);
+			float mis = MultipleImportantSampleWeight(bs.pdf * m_fracBSDF, lightPDF * m_fracLum);
 
-			result += bsdfValue * lightVal *
-				MultipleImportantSampleWeight(bs.pdf * m_fracBSDF, lightPDF * m_fracLum) *
-				m_weightBSDF;
+			result += bsdfValue * lightVal * mis * m_weightBSDF;
 
 		}
 	}

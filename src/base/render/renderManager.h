@@ -50,14 +50,18 @@ class RenderManager
 		virtual void Trace(int iterations) = 0;
 
 		// Set Methods - return true if the class parameter was changed.
-		bool SetMaxIterations(uint32_t maxIterations)  { return maxIterations != std::exchange(renderGlobals.maxIterations, maxIterations);       }
-		bool SetDepth(uint32_t depth)                  { return depth         != std::exchange(renderGlobals.maxDepth, depth);                    }
-		bool SetSamples(uint32_t samples)              { return samples       != std::exchange(renderGlobals.maxSamplesPerPixel, samples);        }
-		bool SetCurrentBuffer(BufferIds bufferID)      { return bufferID      != std::exchange(renderGlobals.bufferID, bufferID);                 } // Note that the render does NOT need to be reset after this.
-		bool SetScaleResolution(bool scaleResolution)  { return scaleResolution != std::exchange(renderGlobals.scaleResolution, scaleResolution); }
+		bool SetMaxIterations(uint32_t maxIterations)  { return renderGlobals.SetMaxIterations(maxIterations); }
 
-		// Variant render manager will also set the correct integrator
-		virtual bool SetIntegrator(IntegratorIds integratorID) { return integratorID  != std::exchange(renderGlobals.integratorID, integratorID); }
+		bool SetMaxDepth(uint32_t maxDepth)            { return renderGlobals.SetMaxDepth(maxDepth);           }
+		bool SetMaxSamples(uint32_t maxSamples)        { return renderGlobals.SetMaxSamples(maxSamples);       }
+
+		// Note that the render does NOT need to be reset after this.
+		bool SetCurrentBuffer(BufferIds bufferID)      { return renderGlobals.SetCurrentBuffer(bufferID);      }
+
+		bool SetScaleResolution(bool scaleResolution)  { return renderGlobals.SetScaleResolution(scaleResolution); }
+
+		// Variant render manager will also set the correct integrator pointer.
+		virtual bool SetIntegrator(IntegratorIds integratorID) { return renderGlobals.SetIntegrator(integratorID); }
 
 		bool SetCurrentCamera(size_t cameraId)         { return scene->SetSceneCamera(cameraId); }
 
@@ -67,12 +71,12 @@ class RenderManager
 
 		// Get Methods
 		int             GetIterations()      const { return iterations;                                  }
-		int             GetMaxIterations()   const { return renderGlobals.maxIterations;                 }
-		int             GetDepth()           const { return renderGlobals.maxDepth;                      }
-		int             GetSamples()         const { return renderGlobals.maxSamplesPerPixel;            }
-		IntegratorIds   GetIntegrator()      const { return renderGlobals.integratorID;                  }
-		bool            GetScaleResolution() const { return renderGlobals.scaleResolution;               }
-		const Buffer3f& GetBuffer()          const { return *(buffers.at(renderGlobals.bufferID));       }
+		int             GetMaxIterations()   const { return renderGlobals.GetMaxIterations();            }
+		int             GetDepth()           const { return renderGlobals.GetMaxDepth();                 }
+		int             GetSamples()         const { return renderGlobals.GetMaxSamples();               }
+		IntegratorIds   GetIntegrator()      const { return renderGlobals.GetIntegrator();               }
+		bool            GetScaleResolution() const { return renderGlobals.GetScaleResolution();          }
+		const Buffer3f& GetBuffer()          const { return *(buffers.at(renderGlobals.GetBufferID()));  }
 		const Buffers&  GetBuffers()         const { return buffers;                                     }
 		const Scene*    GetScene()           const { return scene;                                       }
 
@@ -87,7 +91,7 @@ class RenderManager
 		float frameSize = 0.f;
 		RenderGlobals renderGlobals;
 
-		Vec2i currentResolution = Vec2i(renderGlobals.width, renderGlobals.height);
+		Vec2i currentResolution = Vec2i(renderGlobals.GetWidth(), renderGlobals.GetHeight());
 
 		Buffers buffers;
 

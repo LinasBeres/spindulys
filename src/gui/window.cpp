@@ -34,7 +34,7 @@ int Window::RenderWindow(const std::string& scenePath)
 	glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);
 	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-	window = glfwCreateWindow(renderGlobals.width, renderGlobals.height, "Spindulys", nullptr, nullptr);
+	window = glfwCreateWindow(renderGlobals.GetWidth(), renderGlobals.GetHeight(), "Spindulys", nullptr, nullptr);
 	if (!window)
 	{
 		glfwGetError(&description);
@@ -64,7 +64,7 @@ int Window::RenderWindow(const std::string& scenePath)
 	CPURenderManager renderManager;
 
 	renderManager.LoadScene(scenePath);
-	renderManager.GetCamera().SetResolution(Vec2f(renderGlobals.width, renderGlobals.height));
+	renderManager.GetCamera().SetResolution(Vec2f(renderGlobals.GetWidth(), renderGlobals.GetHeight()));
 
 	RenderManager::StopRenderer stopRenderingFunction = std::bind(&Window::CloseWindow, this);
 	renderManager.SetStopRendererCallback(stopRenderingFunction);
@@ -77,7 +77,7 @@ int Window::RenderWindow(const std::string& scenePath)
 		std::bind(&Window::RenderToScreenTexture, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
 	renderManager.SetBufferCallback(drawBufferFunction);
 
-	SetupScreenQuad(renderGlobals.width, renderGlobals.height);
+	SetupScreenQuad(renderGlobals.GetWidth(), renderGlobals.GetHeight());
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
 	renderManager.Render();
@@ -105,15 +105,15 @@ bool Window::PreRenderCallback(RenderManager* renderManager)
 	if (prevMousePos.x != mousePos.x || prevMousePos.y != mousePos.y)
 		MouseCallback(guiIO, mousePos, renderManager);
 
-	if(renderManager->SetSamples(renderGlobals.maxSamplesPerPixel))
+	if(renderManager->SetMaxSamples(renderGlobals.GetMaxSamples()))
 		renderManager->SetRenderDirty();
-	if(renderManager->SetIntegrator(renderGlobals.integratorID))
+	if(renderManager->SetIntegrator(renderGlobals.GetIntegrator()))
 		renderManager->SetRenderDirty();
 	if (renderManager->SetCurrentCamera(sceneCamera))
 		renderManager->SetRenderDirty();
 
-	renderManager->SetCurrentBuffer(renderGlobals.bufferID);
-	renderManager->SetMaxIterations(renderGlobals.maxIterations);
+	renderManager->SetCurrentBuffer(renderGlobals.GetBufferID());
+	renderManager->SetMaxIterations(renderGlobals.GetMaxIterations());
 
 	return true;
 }
@@ -142,8 +142,8 @@ void Window::SetupGUI(RenderManager* renderManager)
 				{
 					renderManager->Trace(1);
 
-					toPPM(renderGlobals.width,
-							renderGlobals.height,
+					toPPM(renderGlobals.GetWidth(),
+							renderGlobals.GetHeight(),
 							renderManager->GetBuffer());
 				}
 
@@ -151,8 +151,8 @@ void Window::SetupGUI(RenderManager* renderManager)
 				{
 					renderManager->Trace(1);
 
-					toEXR(renderGlobals.width,
-							renderGlobals.height,
+					toEXR(renderGlobals.GetWidth(),
+							renderGlobals.GetHeight(),
 							renderManager->GetBuffer());
 				}
 
@@ -163,15 +163,15 @@ void Window::SetupGUI(RenderManager* renderManager)
 			{
 				if (ImGui::MenuItem("PPM"))
 				{
-					toPPM(renderGlobals.width,
-							renderGlobals.height,
+					toPPM(renderGlobals.GetWidth(),
+							renderGlobals.GetHeight(),
 							renderManager->GetBuffer());
 				}
 
 				if (ImGui::MenuItem("EXR"))
 				{
-					toEXR(renderGlobals.width,
-							renderGlobals.height,
+					toEXR(renderGlobals.GetWidth(),
+							renderGlobals.GetHeight(),
 							renderManager->GetBuffer());
 				}
 
@@ -185,18 +185,15 @@ void Window::SetupGUI(RenderManager* renderManager)
 		{
 			if (ImGui::BeginMenu("Integrator"))
 			{
-				ImGui::RadioButton("UDPT", reinterpret_cast<int *>(&renderGlobals.integratorID), 0);
+				ImGui::RadioButton("Direct", reinterpret_cast<int *>(&renderGlobals.m_integratorID), 0);
+				ImGui::RadioButton("ForwardPath", reinterpret_cast<int *>(&renderGlobals.m_integratorID), 1);
 
 				ImGui::EndMenu();
 			}
 
 			if (ImGui::BeginMenu("Buffer"))
 			{
-				ImGui::RadioButton("Beauty", reinterpret_cast<int *>(&renderGlobals.bufferID), 0);
-				ImGui::RadioButton("Diffuse", reinterpret_cast<int *>(&renderGlobals.bufferID), 1);
-				ImGui::RadioButton("Position", reinterpret_cast<int *>(&renderGlobals.bufferID), 2);
-				ImGui::RadioButton("Normal", reinterpret_cast<int *>(&renderGlobals.bufferID), 3);
-				ImGui::RadioButton("Debug", reinterpret_cast<int *>(&renderGlobals.bufferID), 4);
+				ImGui::RadioButton("Beauty", reinterpret_cast<int *>(&renderGlobals.m_bufferID), 0);
 
 				ImGui::EndMenu();
 			}
@@ -293,11 +290,11 @@ void Window::RenderConfigWindow(bool& guiOpen)
 	GUI_TRACE();
 	ImGui::Begin("Render Config", &guiOpen);
 
-	ImGui::InputInt("Width", reinterpret_cast<int*>(&renderGlobals.width));
-	ImGui::InputInt("Height", reinterpret_cast<int*>(&renderGlobals.height));
-	ImGui::InputInt("Max Iterations", reinterpret_cast<int*>(&renderGlobals.maxIterations));
-	ImGui::InputInt("Samples", reinterpret_cast<int*>(&renderGlobals.maxSamplesPerPixel));
-	ImGui::InputInt("Depth", reinterpret_cast<int*>(&renderGlobals.maxDepth));
+	ImGui::InputInt("Width", reinterpret_cast<int*>(&renderGlobals.m_width));
+	ImGui::InputInt("Height", reinterpret_cast<int*>(&renderGlobals.m_height));
+	ImGui::InputInt("Max Iterations", reinterpret_cast<int*>(&renderGlobals.m_maxIterations));
+	ImGui::InputInt("Samples", reinterpret_cast<int*>(&renderGlobals.m_maxSamplesPerPixel));
+	ImGui::InputInt("Depth", reinterpret_cast<int*>(&renderGlobals.m_maxDepth));
 
 	ImGui::Separator();
 

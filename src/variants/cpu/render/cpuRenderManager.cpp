@@ -14,7 +14,7 @@ CPURenderManager::CPURenderManager()
 {
 	scene = new CPUScene();
 
-	InitialiseIntegrator(renderGlobals.integratorID);
+	InitialiseIntegrator(renderGlobals.GetIntegrator());
 }
 
 void CPURenderManager::Trace(int iterations)
@@ -29,7 +29,7 @@ void CPURenderManager::Trace(int iterations)
 				for (int pixelX = 0; pixelX < currentResolution.x; ++pixelX)
 				{
 					// We setup all the necessary data describing the current sample.
-					PixelSample pixelSample(sampler, pixelX, pixelY, pixelX + pixelY * currentResolution.x, renderGlobals.maxSamplesPerPixel, 0);
+					PixelSample pixelSample(sampler, pixelX, pixelY, pixelX + pixelY * currentResolution.x, renderGlobals.GetMaxSamples(), 0);
 
 					// The final pixel color of the sample we are computed that will be added and averaged to the buffer.
 					Col3f pixelColor(zero);
@@ -64,13 +64,13 @@ bool CPURenderManager::SetIntegrator(IntegratorIds integratorID)
 
 void CPURenderManager::InitialiseIntegrator(IntegratorIds integratorID)
 {
-	switch (renderGlobals.integratorID)
+	switch (renderGlobals.GetIntegrator())
 	{
 		case (IntegratorIds::kDirect):
-			integrator = std::make_unique<Direct>(renderGlobals.maxLightSamples, renderGlobals.maxBSDFSamples, renderGlobals.hideLights);
+			integrator = std::make_unique<Direct>(renderGlobals.GetMaxLightsSamples(), renderGlobals.GetMaxBSDFSamples(), renderGlobals.GetHideLights());
 			break;
 		case (IntegratorIds::kForwardPath):
-			integrator = std::make_unique<ForwardPath>(renderGlobals.maxDepth, renderGlobals.russianRouletteDepth, renderGlobals.hideLights);
+			integrator = std::make_unique<ForwardPath>(renderGlobals.GetMaxDepth(), renderGlobals.GetRussianRouletteDepth(), renderGlobals.GetHideLights());
 			break;
 	}
 }

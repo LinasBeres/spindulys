@@ -10,8 +10,7 @@ CPU_NAMESPACE_OPEN_SCOPE
 class Direct final : public Integrator
 {
 public:
-	Direct();
-	Direct(size_t lightSamples, size_t bsdfSamples, bool hideLights = false);
+	Direct(uint32_t lightSamples = 1, uint32_t bsdfSamples = 1, bool hideLights = false);
 
 	virtual std::pair<Col3f, float>
 	Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, Col3f* /* aovs */) const override;
@@ -20,8 +19,8 @@ private:
 	float MultipleImportantSampleWeight(float pdfA, float pdfB) const;
 
 private:
-	size_t m_lightSamples = 1;
-	size_t m_bsdfSamples = 1;
+	uint32_t m_lightSamples = 1;
+	uint32_t m_bsdfSamples = 1;
 
 	float m_fracBSDF;
 	float m_fracLum;

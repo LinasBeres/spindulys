@@ -17,7 +17,7 @@ static constexpr bool kHideLights = false;
 static constexpr size_t kMaxLightSamples = 1;
 static constexpr size_t kMaxBSDFSamples = 1;
 
-static constexpr uint32_t kDefaultMaxDepth = 2;
+static constexpr uint32_t kDefaultMaxDepth = 3;
 static constexpr uint32_t kDefaultRussianRouletteDepth = 5;
 
 static constexpr bool kDefaultScaleResolution = false;
