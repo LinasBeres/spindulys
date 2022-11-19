@@ -25,7 +25,7 @@ private:
 	float MultipleImportantSampleWeight(float pdfA, float pdfB) const;
 
 private:
-	uint32_t m_maxDepth = 1;
+	uint32_t m_maxDepth = 2;
 
 	// Depth to begin using russian roulette
 	uint32_t m_russianRouletteDepth = 5;
