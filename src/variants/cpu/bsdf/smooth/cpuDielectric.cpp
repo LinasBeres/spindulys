@@ -51,8 +51,8 @@ CPUSmoothDielectric::Sample(const BSDFContext& ctx,
 
 	bool selectedT = !selectedR && active;
 
-	bs.sampledComponent = selectedR ? uint32_t(0) : uint32_t(1);
-	bs.sampledType      = selectedR ? (uint32_t) BSDFFlags::DeltaReflection : (uint32_t) BSDFFlags::DeltaTransmission;
+	bs.sampledComponent = selectedR ? 0u : 1u;
+	bs.sampledType      = selectedR ? +BSDFFlags::DeltaReflection : +BSDFFlags::DeltaTransmission;
 
 	bs.wo = select(selectedR, reflect(si.wi), refract(si.wi, cosThetaT, etaTi));
 

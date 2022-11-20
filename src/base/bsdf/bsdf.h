@@ -5,6 +5,7 @@
 
 #include <spindulys/math/vec3.h>
 #include <spindulys/sampler.h>
+#include <spindulys/fwd.h>
 
 #include <utils/helperStructs.h>
 
@@ -221,7 +222,7 @@ class BSDF
 		const std::string& GetID()            const { return m_id; }
 
 	protected:
-		BSDF(const std::string& id) : m_flags((uint32_t)BSDFFlags::Empty) , m_id(id) { }
+		BSDF(const std::string& id) : m_flags(+BSDFFlags::Empty) , m_id(id) { }
 		BSDF() = default;
 
 	protected:

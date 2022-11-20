@@ -10,16 +10,14 @@
 
 #include <spindulys/sampler.h>
 #include <spindulys/buffer.h>
+#include <spindulys/defaults.h>
 
 #include "../spindulysBase.h"
 
+#include "renderGlobals.h"
+
 #include "../camera/camera.h"
 #include "../scene/scene.h"
-
-#define DEFAULT_WIDTH 800
-#define DEFAULT_HEIGHT 600
-#define GROW_SIZE 0.25f
-
 
 BASE_NAMESPACE_OPEN_SCOPE
 
@@ -30,35 +28,7 @@ class RenderManager
 		using RegisterUpdates = std::function<bool(RenderManager*)>;
 		using DrawBuffer = std::function<void(int, int, const Buffer3f&)>;
 
-		enum class IntegratorIds
-		{
-			UDPT = 0,
-		};
-
-		enum class BufferIds
-		{
-			Beauty = 0,
-			Diffuse,
-			Position,
-			Normal,
-			Debug,
-		};
-
 		using Buffers = std::unordered_map<BufferIds, Buffer3f*>;
-
-		struct RenderGlobals
-		{
-			int width = DEFAULT_WIDTH;                                   // The width of the image to render.
-			int height = DEFAULT_HEIGHT;                                  // The height of the image to render.
-			int maxIterations = 32;                             // The maximum number of times to refine.
-			int depth = 3;                                     // The maximum ray depth, or number of bounces, the renderer can make use of.
-			int samples = 1;                                   // Total number of samples per pixel to compute.
-			IntegratorIds integratorID = IntegratorIds::UDPT;  // The ID of the integrator currently being used by the renderer.
-			BufferIds bufferID = BufferIds::Beauty;            // The current buffer being read.
-			std::unordered_set<BufferIds> currentBufferIds =   // Available buffers to read.
-			{ BufferIds::Beauty, BufferIds::Diffuse, BufferIds::Position, BufferIds::Normal, BufferIds::Debug };
-			bool scaleResolution = false;
-		};
 
 		RenderManager();
 		virtual ~RenderManager();
@@ -80,12 +50,19 @@ class RenderManager
 		virtual void Trace(int iterations) = 0;
 
 		// Set Methods - return true if the class parameter was changed.
-		bool SetMaxIterations(int maxIterations)       { return maxIterations != std::exchange(renderGlobals.maxIterations, maxIterations);       }
-		bool SetDepth(int depth)                       { return depth         != std::exchange(renderGlobals.depth, depth);                       }
-		bool SetSamples(int samples)                   { return samples       != std::exchange(renderGlobals.samples, samples);                   }
-		bool SetIntegrator(IntegratorIds integratorID) { return integratorID  != std::exchange(renderGlobals.integratorID, integratorID);         }
-		bool SetCurrentBuffer(BufferIds bufferID)      { return bufferID      != std::exchange(renderGlobals.bufferID, bufferID);                 } // Note that the render does NOT need to be reset after this.
-		bool SetScaleResolution(bool scaleResolution)  { return scaleResolution != std::exchange(renderGlobals.scaleResolution, scaleResolution); }
+		bool SetMaxIterations(uint32_t maxIterations)  { return renderGlobals.SetMaxIterations(maxIterations);     }
+		bool SetMaxSamples(uint32_t maxSamples)        { return renderGlobals.SetMaxSamples(maxSamples);           }
+		bool SetCurrentBuffer(BufferIds bufferID)      { return renderGlobals.SetCurrentBuffer(bufferID);          }
+		bool SetScaleResolution(bool scaleResolution)  { return renderGlobals.SetScaleResolution(scaleResolution); }
+		bool SetGrowSize(float growSize)               { return renderGlobals.SetGrowSize(growSize);               }
+
+		// Variant render manager will set the correct integrator parts.
+		virtual bool SetIntegrator(IntegratorIds integratorID) { return renderGlobals.SetIntegrator(integratorID);    }
+		virtual bool SetHideLights(bool hideLights)            { return renderGlobals.SetHideLights(hideLights);      }
+		virtual bool SetMaxLightSamples(uint32_t samples)      { return renderGlobals.SetMaxLightSamples(samples);    }
+		virtual bool SetMaxBSDFSamples(uint32_t samples)       { return renderGlobals.SetMaxBSDFSamples(samples);     }
+		virtual bool SetMaxDepth(uint32_t maxDepth)            { return renderGlobals.SetMaxDepth(maxDepth);          }
+		virtual bool SetRussianRouletteDepth(uint32_t depth)   { return renderGlobals.SetRussianRouletteDepth(depth); }
 
 		bool SetCurrentCamera(size_t cameraId)         { return scene->SetSceneCamera(cameraId); }
 
@@ -95,12 +72,12 @@ class RenderManager
 
 		// Get Methods
 		int             GetIterations()      const { return iterations;                                  }
-		int             GetMaxIterations()   const { return renderGlobals.maxIterations;                 }
-		int             GetDepth()           const { return renderGlobals.depth;                         }
-		int             GetSamples()         const { return renderGlobals.samples;                       }
-		IntegratorIds   GetIntegrator()      const { return renderGlobals.integratorID;                  }
-		bool            GetScaleResolution() const { return renderGlobals.scaleResolution;               }
-		const Buffer3f& GetBuffer()          const { return *(buffers.at(renderGlobals.bufferID));       }
+		int             GetMaxIterations()   const { return renderGlobals.GetMaxIterations();            }
+		int             GetMaxDepth()        const { return renderGlobals.GetMaxDepth();                 }
+		int             GetSamples()         const { return renderGlobals.GetMaxSamples();               }
+		IntegratorIds   GetIntegrator()      const { return renderGlobals.GetIntegrator();               }
+		bool            GetScaleResolution() const { return renderGlobals.GetScaleResolution();          }
+		const Buffer3f& GetBuffer()          const { return *(buffers.at(renderGlobals.GetBufferID()));  }
 		const Buffers&  GetBuffers()         const { return buffers;                                     }
 		const Scene*    GetScene()           const { return scene;                                       }
 
@@ -109,13 +86,13 @@ class RenderManager
 
 	protected:
 		// Render Info
-		int iterations = 0;
+		uint32_t iterations = 0;
 		// TODO: Find better heuristics
 		// We start at 25% frame size and then go up from there to 100 in 25% incremements
 		float frameSize = 0.f;
 		RenderGlobals renderGlobals;
 
-		Vec2i currentResolution = Vec2i(renderGlobals.width, renderGlobals.height);
+		Vec2i currentResolution = Vec2i(renderGlobals.GetWidth(), renderGlobals.GetHeight());
 
 		Buffers buffers;
 

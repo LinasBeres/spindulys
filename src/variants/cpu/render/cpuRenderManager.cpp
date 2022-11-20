@@ -13,60 +13,102 @@ CPU_NAMESPACE_OPEN_SCOPE
 CPURenderManager::CPURenderManager()
 {
 	scene = new CPUScene();
+
+	InitialiseIntegrator(renderGlobals.GetIntegrator());
 }
 
 void CPURenderManager::Trace(int iterations)
 {
 	CPU_TRACE();
-	// tbb::parallel_for(tbb::blocked_range<int>(0, currentResolution.y), [&](tbb::blocked_range<int> height_range)
-		// {
-			for (int pixelY = 0; pixelY < currentResolution.y; ++pixelY)
+	tbb::parallel_for(tbb::blocked_range<int>(0, currentResolution.y), [&](tbb::blocked_range<int> height_range)
+		{
+			for (int pixelY = height_range.begin(); pixelY < height_range.end(); ++pixelY)
 			{
 				Sampler sampler;
 
 				for (int pixelX = 0; pixelX < currentResolution.x; ++pixelX)
 				{
 					// We setup all the necessary data describing the current sample.
-					PixelSample pixelSample(sampler, pixelX, pixelY, pixelX + pixelY * currentResolution.x, renderGlobals.samples, 0);
+					PixelSample pixelSample(sampler, pixelX, pixelY, pixelX + pixelY * currentResolution.x, renderGlobals.GetMaxSamples(), 0);
 
 					// The final pixel color of the sample we are computed that will be added and averaged to the buffer.
 					Col3f pixelColor(zero);
 
-					for (int sample = 0; sample < renderGlobals.samples; ++sample)
-					{
-						Vec3f origin(zero);
-						Vec3f direction(zero);
-						scene->GetSceneCamera().GetCameraRay(Vec2f(pixelX, pixelY), origin, direction);
-						Ray primaryRay(origin, direction);
+					Vec3f origin(zero);
+					Vec3f direction(zero);
+					scene->GetSceneCamera().GetCameraRay(Vec2f(pixelX, pixelY), origin, direction);
+					Ray primaryRay(origin, direction);
 
-						for (const auto& bufferID : renderGlobals.currentBufferIds)
-							buffers[bufferID]->MultiplyPixel(pixelSample.pixelIdx, static_cast<float>(iterations - 1));
+					buffers[BufferIds::kBeauty]->MultiplyPixel(pixelSample.pixelIdx, static_cast<float>(iterations - 1));
 
-						// if (renderGlobals.integratorID == IntegratorIds::UDPT)
-						// {
-							// const auto [color, mask] = Direct().Sample(dynamic_cast<CPUScene*>(scene), pixelSample, primaryRay, nullptr);
-							// if (mask) { ; }
-							// buffers[RenderManager::BufferIds::Beauty]->AddPixel(pixelSample.pixelIdx, color);
-						// }
+					const auto [color, _] = integrator->Sample(dynamic_cast<CPUScene*>(scene), pixelSample, primaryRay, nullptr);
 
-						if (renderGlobals.integratorID == IntegratorIds::UDPT)
-						{
-							const auto [color, mask] = ForwardPath().Sample(dynamic_cast<CPUScene*>(scene), pixelSample, primaryRay, nullptr);
-							if (mask) { ; }
-							buffers[RenderManager::BufferIds::Beauty]->AddPixel(pixelSample.pixelIdx, color);
-						}
+					buffers[BufferIds::kBeauty]->AddPixel(pixelSample.pixelIdx, color);
 
-						for (const auto& bufferID : renderGlobals.currentBufferIds)
-							buffers[bufferID]->MultiplyPixel(pixelSample.pixelIdx, 1.f / renderGlobals.samples);
+					++pixelSample.sampleIdx;
 
-						++pixelSample.sampleIdx;
-					}
-
-					for (const auto& bufferID : renderGlobals.currentBufferIds)
-						buffers[bufferID]->MultiplyPixel(pixelSample.pixelIdx, 1.f / static_cast<float>(iterations));
+					buffers[BufferIds::kBeauty]->MultiplyPixel(pixelSample.pixelIdx, 1.f / static_cast<float>(iterations));
 				}
 			}
-		// });
+			});
+}
+
+bool CPURenderManager::SetIntegrator(IntegratorIds integratorID)
+{
+	if (!RenderManager::SetIntegrator(integratorID))
+		return false;
+
+	InitialiseIntegrator(integratorID);
+	return true;
+}
+
+bool CPURenderManager::SetMaxLightSamples(uint32_t samples)
+{
+	if (RenderManager::SetMaxLightSamples(samples))
+		if (Direct* directIntegrator = dynamic_cast<Direct*>(integrator.get()))
+			return directIntegrator->SetLightSamples(samples);
+
+	return false;
+}
+
+bool CPURenderManager::SetMaxBSDFSamples(uint32_t samples)
+{
+	if (RenderManager::SetMaxBSDFSamples(samples))
+		if (Direct* directIntegrator = dynamic_cast<Direct*>(integrator.get()))
+			return directIntegrator->SetBSDFSamples(samples);
+
+	return false;
+}
+
+bool CPURenderManager::SetMaxDepth(uint32_t depth)
+{
+	if (RenderManager::SetMaxDepth(depth))
+		if (ForwardPath* forwardIntegrator = dynamic_cast<ForwardPath*>(integrator.get()))
+			return forwardIntegrator->SetMaxDepth(depth);
+
+	return false;
+}
+
+bool CPURenderManager::SetRussianRouletteDepth(uint32_t depth)
+{
+	if (RenderManager::SetRussianRouletteDepth(depth))
+		if (ForwardPath* forwardIntegrator = dynamic_cast<ForwardPath*>(integrator.get()))
+			return forwardIntegrator->SetRussianRouletteDepth(depth);
+
+	return false;
+}
+
+void CPURenderManager::InitialiseIntegrator(IntegratorIds integratorID)
+{
+	switch (renderGlobals.GetIntegrator())
+	{
+		case (IntegratorIds::kDirect):
+			integrator = std::make_unique<Direct>(renderGlobals.GetMaxLightsSamples(), renderGlobals.GetMaxBSDFSamples(), renderGlobals.GetHideLights());
+			break;
+		case (IntegratorIds::kForwardPath):
+			integrator = std::make_unique<ForwardPath>(renderGlobals.GetMaxDepth(), renderGlobals.GetRussianRouletteDepth(), renderGlobals.GetHideLights());
+			break;
+	}
 }
 
 CPU_NAMESPACE_CLOSE_SCOPE

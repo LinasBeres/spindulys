@@ -16,7 +16,7 @@ class SmoothConductor : virtual public BSDF
 			, m_specularReflectance(specularReflectance)
 		{
 			m_id = id;
-			m_flags = (uint32_t) BSDFFlags::DeltaReflection | (uint32_t) BSDFFlags::FrontSide;
+			m_flags = BSDFFlags::DeltaReflection | BSDFFlags::FrontSide;
 			m_components.push_back(m_flags);
 		}
 		~SmoothConductor() = default;

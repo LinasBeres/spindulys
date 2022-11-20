@@ -14,10 +14,13 @@ CPU_NAMESPACE_OPEN_SCOPE
 class ForwardPath: public Integrator
 {
 public:
-	ForwardPath(uint32_t maxDepth = 3, uint32_t russianRouletteDepth = 5);
+	ForwardPath(uint32_t maxDepth = 3, uint32_t russianRouletteDepth = 5, bool hideLights = false);
 
 	virtual std::pair<Col3f, float>
 	Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, Col3f* /* aovs */) const override;
+
+	bool SetMaxDepth(uint32_t depth)             { return depth != std::exchange(m_maxDepth, depth);             }
+	bool SetRussianRouletteDepth(uint32_t depth) { return depth != std::exchange(m_russianRouletteDepth, depth); }
 
 protected:
 

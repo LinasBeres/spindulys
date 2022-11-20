@@ -13,8 +13,8 @@ BASE_NAMESPACE_OPEN_SCOPE
 RenderManager::RenderManager()
 {
 	BASE_TRACE();
-	for (const auto& bufferID : renderGlobals.currentBufferIds)
-		buffers[bufferID] = new Buffer3f(renderGlobals.width, renderGlobals.height);
+	for (const auto& bufferID : renderGlobals.GetCurrentBufferIds())
+		buffers[bufferID] = new Buffer3f(renderGlobals.GetWidth(), renderGlobals.GetHeight());
 }
 
 RenderManager::~RenderManager()
@@ -22,7 +22,7 @@ RenderManager::~RenderManager()
 	BASE_TRACE();
 	delete scene;
 
-	for (const auto& bufferID : renderGlobals.currentBufferIds)
+	for (const auto& bufferID : renderGlobals.GetCurrentBufferIds())
 		delete buffers[bufferID];
 }
 
@@ -88,25 +88,22 @@ void RenderManager::Render()
 		if (update)
 			ResetRender();
 
-		if (renderGlobals.scaleResolution && frameSize < 1.f)
+		if (renderGlobals.GetScaleResolution() && frameSize < 1.f)
 		{
 			iterations = 0;
-			frameSize += GROW_SIZE;
-			currentResolution = Vec2i(frameSize * renderGlobals.width, frameSize * renderGlobals.height);
+			frameSize += renderGlobals.GetGrowSize();
+			currentResolution = Vec2i(frameSize * renderGlobals.GetWidth(), frameSize * renderGlobals.GetHeight());
 
-			for (const auto& bufferID : renderGlobals.currentBufferIds)
+			for (const auto& bufferID : renderGlobals.GetCurrentBufferIds())
 				buffers[bufferID]->Clean(currentResolution.x, currentResolution.y);
 			GetCamera().SetResolution(Vec2f(currentResolution.x, currentResolution.y));
 		}
 
-		if (iterations < renderGlobals.maxIterations)
-		{
-			iterations++;
-			Trace(iterations);
-		}
+		if (iterations < renderGlobals.GetMaxIterations())
+			Trace(++iterations);
 
 		if (drawBufferFunction)
-			drawBufferFunction(currentResolution.x, currentResolution.y, *(buffers[renderGlobals.bufferID]));
+			drawBufferFunction(currentResolution.x, currentResolution.y, *(buffers[renderGlobals.GetBufferID()]));
 	}
 }
 
@@ -116,9 +113,9 @@ void RenderManager::ResetRender()
 	iterations = 0;
 	frameSize = 0.f;
 
-	currentResolution = Vec2i(renderGlobals.width, renderGlobals.height);
+	currentResolution = Vec2i(renderGlobals.GetWidth(), renderGlobals.GetHeight());
 
-	for (const auto& bufferID : renderGlobals.currentBufferIds)
+	for (const auto& bufferID : renderGlobals.GetCurrentBufferIds())
 		buffers[bufferID]->Clean(currentResolution.x, currentResolution.y);
 	GetCamera().SetResolution(Vec2f(currentResolution.x, currentResolution.y));
 
@@ -128,12 +125,10 @@ void RenderManager::ResetRender()
 bool RenderManager::AddBuffer(BufferIds bufferID)
 {
 	BASE_TRACE();
-	// Current buffer already exists so do nothing and signify that no update needs to happen.
-	if (renderGlobals.currentBufferIds.find(bufferID) != renderGlobals.currentBufferIds.end())
+	if (!renderGlobals.AddBuffer(bufferID))
 		return false;
 
-	renderGlobals.currentBufferIds.emplace(bufferID);
-	buffers[bufferID] = new Buffer3f(renderGlobals.width, renderGlobals.height);
+	buffers[bufferID] = new Buffer3f(renderGlobals.GetWidth(), renderGlobals.GetHeight());
 
 	return true;
 }
@@ -141,15 +136,9 @@ bool RenderManager::AddBuffer(BufferIds bufferID)
 bool RenderManager::RemoveBuffer(BufferIds bufferID)
 {
 	BASE_TRACE();
-	// Beauty cannot be removed
-	if (bufferID == BufferIds::Beauty)
+	if (!renderGlobals.RemoveBuffer(bufferID))
 		return false;
 
-	// Current buffer already exists so do nothing and signify that no update needs to happen.
-	if (renderGlobals.currentBufferIds.find(bufferID) != renderGlobals.currentBufferIds.end())
-		return false;
-
-	renderGlobals.currentBufferIds.erase(bufferID);
 	delete buffers[bufferID];
 
 	return true;

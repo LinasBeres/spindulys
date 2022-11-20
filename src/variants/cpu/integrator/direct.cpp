@@ -1,5 +1,7 @@
 #include "direct.h"
 
+#include <spindulys/fwd.h>
+
 #include "../bsdf/cpuBSDF.h"
 
 #include "../utils/records.h"
@@ -7,7 +9,15 @@
 
 CPU_NAMESPACE_OPEN_SCOPE
 
-Direct::Direct()
+Direct::Direct(uint32_t lightSamples, uint32_t bsdfSamples, bool hideLights)
+	: m_lightSamples(lightSamples)
+	, m_bsdfSamples(bsdfSamples)
+{
+	m_hideLights = hideLights;
+	ComputeWeights();
+}
+
+void Direct::ComputeWeights()
 {
 	m_weightBSDF = 1.f / (float) m_bsdfSamples;
 	m_weightLum  = 1.f / (float) m_lightSamples;
@@ -17,11 +27,22 @@ Direct::Direct()
 	m_fracLum  = m_lightSamples / (float) sum;
 }
 
-Direct::Direct(size_t lightSamples, size_t bsdfSamples)
-	: m_lightSamples(lightSamples)
-	, m_bsdfSamples(bsdfSamples)
+bool Direct::SetLightSamples(uint32_t samples)
 {
-	Direct();
+	if (samples == std::exchange(m_lightSamples, samples))
+		return false;
+
+	ComputeWeights();
+	return true;
+}
+
+bool Direct::SetBSDFSamples(uint32_t samples)
+{
+	if (samples == std::exchange(m_bsdfSamples, samples))
+		return false;
+
+	ComputeWeights();
+	return true;
 }
 
 std::pair<Col3f, float>
@@ -30,6 +51,7 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 	Col3f result(zero);
 
 	SurfaceInteraction si = scene->RayIntersect(ray);
+	bool validRay = si.IsValid();
 
 	// ----------------------- Visible emitters -----------------------
 
@@ -38,13 +60,13 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 			result += visibleLight->Eval(si, true);
 
 	if (!si.IsValid())
-		return { result, 0.f };
+		return { result, validRay };
 
 	// ----------------------- Emitter sampling -----------------------
 	BSDFContext ctx;
 	const CPUBSDF* bsdf = si.shape->GetBSDF();
   uint32_t flags = bsdf->GetFlags();
-  uint32_t sampleLight = (flags & (uint32_t) BSDFFlags::Smooth) != 0;
+  uint32_t sampleLight = has_flag(flags, BSDFFlags::Smooth);
 
 	if (sampleLight)
 	{
@@ -92,15 +114,14 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 			DirectionSample ds(si, si_bsdf, light);
 
 			const float lightPDF = light->PdfDirection(si, ds, true);
+			float mis = MultipleImportantSampleWeight(bs.pdf * m_fracBSDF, lightPDF * m_fracLum);
 
-			result += bsdfValue * lightVal *
-				MultipleImportantSampleWeight(bs.pdf * m_fracBSDF, lightPDF * m_fracLum) *
-				m_weightBSDF;
+			result += bsdfValue * lightVal * mis * m_weightBSDF;
 
 		}
 	}
 
-	return { result, 0.f };
+	return { result, validRay };
 }
 
 float Direct::MultipleImportantSampleWeight(float pdfA, float pdfB) const
