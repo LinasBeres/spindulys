@@ -74,6 +74,6 @@ This was orignally forked from https://github.com/JoshuaSenouf/tracer into https
 | USDCapsule            | []   |                                                                                                            |
 | USDInstance           | []   |                                                                                                            |
 | XML Loader            | []   |                                                                                                            |
-| Remove USD Dependency | []   |                                                                                                            |
-| Support Mac           | []   |                                                                                                            |
+| Remove USD Dependency | [X]  |                                                                                                            |
+| Support Mac           | [X]  |                                                                                                            |
 | Support Windows       | []   |                                                                                                            |
