@@ -62,6 +62,42 @@ bool CPURenderManager::SetIntegrator(IntegratorIds integratorID)
 	return true;
 }
 
+bool CPURenderManager::SetMaxLightSamples(uint32_t samples)
+{
+	if (RenderManager::SetMaxLightSamples(samples))
+		if (Direct* directIntegrator = dynamic_cast<Direct*>(integrator.get()))
+			return directIntegrator->SetLightSamples(samples);
+
+	return false;
+}
+
+bool CPURenderManager::SetMaxBSDFSamples(uint32_t samples)
+{
+	if (RenderManager::SetMaxBSDFSamples(samples))
+		if (Direct* directIntegrator = dynamic_cast<Direct*>(integrator.get()))
+			return directIntegrator->SetBSDFSamples(samples);
+
+	return false;
+}
+
+bool CPURenderManager::SetMaxDepth(uint32_t depth)
+{
+	if (RenderManager::SetMaxDepth(depth))
+		if (ForwardPath* forwardIntegrator = dynamic_cast<ForwardPath*>(integrator.get()))
+			return forwardIntegrator->SetMaxDepth(depth);
+
+	return false;
+}
+
+bool CPURenderManager::SetRussianRouletteDepth(uint32_t depth)
+{
+	if (RenderManager::SetRussianRouletteDepth(depth))
+		if (ForwardPath* forwardIntegrator = dynamic_cast<ForwardPath*>(integrator.get()))
+			return forwardIntegrator->SetRussianRouletteDepth(depth);
+
+	return false;
+}
+
 void CPURenderManager::InitialiseIntegrator(IntegratorIds integratorID)
 {
 	switch (renderGlobals.GetIntegrator())

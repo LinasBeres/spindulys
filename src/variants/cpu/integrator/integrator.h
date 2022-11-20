@@ -21,6 +21,8 @@ public:
 	virtual std::pair<Col3f, float>
 	Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, Col3f* /* aovs */) const = 0;
 
+	bool SetHideLights(bool hideLights) { return hideLights != std::exchange(m_hideLights, hideLights); }
+
 protected:
 	bool m_stop = false;
 

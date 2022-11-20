@@ -50,18 +50,19 @@ class RenderManager
 		virtual void Trace(int iterations) = 0;
 
 		// Set Methods - return true if the class parameter was changed.
-		bool SetMaxIterations(uint32_t maxIterations)  { return renderGlobals.SetMaxIterations(maxIterations); }
-
-		bool SetMaxDepth(uint32_t maxDepth)            { return renderGlobals.SetMaxDepth(maxDepth);           }
-		bool SetMaxSamples(uint32_t maxSamples)        { return renderGlobals.SetMaxSamples(maxSamples);       }
-
-		// Note that the render does NOT need to be reset after this.
-		bool SetCurrentBuffer(BufferIds bufferID)      { return renderGlobals.SetCurrentBuffer(bufferID);      }
-
+		bool SetMaxIterations(uint32_t maxIterations)  { return renderGlobals.SetMaxIterations(maxIterations);     }
+		bool SetMaxSamples(uint32_t maxSamples)        { return renderGlobals.SetMaxSamples(maxSamples);           }
+		bool SetCurrentBuffer(BufferIds bufferID)      { return renderGlobals.SetCurrentBuffer(bufferID);          }
 		bool SetScaleResolution(bool scaleResolution)  { return renderGlobals.SetScaleResolution(scaleResolution); }
+		bool SetGrowSize(float growSize)               { return renderGlobals.SetGrowSize(growSize);               }
 
-		// Variant render manager will also set the correct integrator pointer.
-		virtual bool SetIntegrator(IntegratorIds integratorID) { return renderGlobals.SetIntegrator(integratorID); }
+		// Variant render manager will set the correct integrator parts.
+		virtual bool SetIntegrator(IntegratorIds integratorID) { return renderGlobals.SetIntegrator(integratorID);    }
+		virtual bool SetHideLights(bool hideLights)            { return renderGlobals.SetHideLights(hideLights);      }
+		virtual bool SetMaxLightSamples(uint32_t samples)      { return renderGlobals.SetMaxLightSamples(samples);    }
+		virtual bool SetMaxBSDFSamples(uint32_t samples)       { return renderGlobals.SetMaxBSDFSamples(samples);     }
+		virtual bool SetMaxDepth(uint32_t maxDepth)            { return renderGlobals.SetMaxDepth(maxDepth);          }
+		virtual bool SetRussianRouletteDepth(uint32_t depth)   { return renderGlobals.SetRussianRouletteDepth(depth); }
 
 		bool SetCurrentCamera(size_t cameraId)         { return scene->SetSceneCamera(cameraId); }
 
@@ -72,7 +73,7 @@ class RenderManager
 		// Get Methods
 		int             GetIterations()      const { return iterations;                                  }
 		int             GetMaxIterations()   const { return renderGlobals.GetMaxIterations();            }
-		int             GetDepth()           const { return renderGlobals.GetMaxDepth();                 }
+		int             GetMaxDepth()        const { return renderGlobals.GetMaxDepth();                 }
 		int             GetSamples()         const { return renderGlobals.GetMaxSamples();               }
 		IntegratorIds   GetIntegrator()      const { return renderGlobals.GetIntegrator();               }
 		bool            GetScaleResolution() const { return renderGlobals.GetScaleResolution();          }

@@ -105,10 +105,21 @@ bool Window::PreRenderCallback(RenderManager* renderManager)
 	if (prevMousePos.x != mousePos.x || prevMousePos.y != mousePos.y)
 		MouseCallback(guiIO, mousePos, renderManager);
 
-	if(renderManager->SetMaxSamples(renderGlobals.GetMaxSamples()))
+	if (renderManager->SetMaxSamples(renderGlobals.GetMaxSamples()))
 		renderManager->SetRenderDirty();
-	if(renderManager->SetIntegrator(renderGlobals.GetIntegrator()))
+	if (renderManager->SetIntegrator(renderGlobals.GetIntegrator()))
 		renderManager->SetRenderDirty();
+	if (renderManager->SetHideLights(renderGlobals.GetHideLights()))
+		renderManager->SetRenderDirty();
+	if (renderManager->SetMaxLightSamples(renderGlobals.GetMaxLightsSamples()))
+		renderManager->SetRenderDirty();
+	if (renderManager->SetMaxBSDFSamples(renderGlobals.GetMaxBSDFSamples()))
+		renderManager->SetRenderDirty();
+	if (renderManager->SetMaxDepth(renderGlobals.GetMaxDepth()))
+		renderManager->SetRenderDirty();
+	if (renderManager->SetRussianRouletteDepth(renderGlobals.GetRussianRouletteDepth()))
+		renderManager->SetRenderDirty();
+
 	if (renderManager->SetCurrentCamera(sceneCamera))
 		renderManager->SetRenderDirty();
 
@@ -292,9 +303,23 @@ void Window::RenderConfigWindow(bool& guiOpen)
 
 	ImGui::InputInt("Width", reinterpret_cast<int*>(&renderGlobals.m_width));
 	ImGui::InputInt("Height", reinterpret_cast<int*>(&renderGlobals.m_height));
+
+	ImGui::Separator();
+
 	ImGui::InputInt("Max Iterations", reinterpret_cast<int*>(&renderGlobals.m_maxIterations));
 	ImGui::InputInt("Samples", reinterpret_cast<int*>(&renderGlobals.m_maxSamplesPerPixel));
-	ImGui::InputInt("Depth", reinterpret_cast<int*>(&renderGlobals.m_maxDepth));
+
+	ImGui::Checkbox("Hide Lights", &renderGlobals.m_hideLights);
+
+	ImGui::Separator();
+
+	ImGui::InputInt("Max Ligh Samples", reinterpret_cast<int*>(&renderGlobals.m_maxLightSamples));
+	ImGui::InputInt("Max BSDF Samples", reinterpret_cast<int*>(&renderGlobals.m_maxBSDFSamples));
+
+	ImGui::Separator();
+
+	ImGui::InputInt("Max Depth", reinterpret_cast<int*>(&renderGlobals.m_maxDepth));
+	ImGui::InputInt("Russian Roulette Depth", reinterpret_cast<int*>(&renderGlobals.m_russianRouletteDepth));
 
 	ImGui::Separator();
 

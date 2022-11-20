@@ -19,6 +19,9 @@ public:
 	virtual std::pair<Col3f, float>
 	Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, Col3f* /* aovs */) const override;
 
+	bool SetMaxDepth(uint32_t depth)             { return depth != std::exchange(m_maxDepth, depth);             }
+	bool SetRussianRouletteDepth(uint32_t depth) { return depth != std::exchange(m_russianRouletteDepth, depth); }
+
 protected:
 
 private:

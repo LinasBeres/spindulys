@@ -30,6 +30,11 @@ class CPURenderManager final : public RenderManager
 		virtual void Trace(int iterations) override;
 
 		virtual bool SetIntegrator(IntegratorIds integratorID) override;
+		virtual bool SetHideLights(bool hideLights) override { return RenderManager::SetHideLights(hideLights) && integrator->SetHideLights(hideLights); }
+		virtual bool SetMaxLightSamples(uint32_t samples) override;
+		virtual bool SetMaxBSDFSamples(uint32_t samples) override;
+		virtual bool SetMaxDepth(uint32_t depth) override;
+		virtual bool SetRussianRouletteDepth(uint32_t depth) override;
 
 	private:
 		void InitialiseIntegrator(IntegratorIds integratorID);

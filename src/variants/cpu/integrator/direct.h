@@ -15,8 +15,13 @@ public:
 	virtual std::pair<Col3f, float>
 	Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, Col3f* /* aovs */) const override;
 
+	bool SetLightSamples(uint32_t samples);
+	bool SetBSDFSamples(uint32_t samples);
+
 private:
 	float MultipleImportantSampleWeight(float pdfA, float pdfB) const;
+
+	void ComputeWeights();
 
 private:
 	uint32_t m_lightSamples = 1;

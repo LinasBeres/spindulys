@@ -6,8 +6,8 @@
 SPINDULYS_NAMESPACE_OPEN_SCOPE
 
 // Render Globals
-static constexpr uint32_t kDefaultWidth = 600;
-static constexpr uint32_t kDefaultHeight = 300;
+static constexpr uint32_t kDefaultWidth = 800;
+static constexpr uint32_t kDefaultHeight = 800;
 
 static constexpr uint32_t kDefaultMaxIterations = 32;
 static constexpr uint32_t kDefaultMaxSamplesPerPixel = 1;

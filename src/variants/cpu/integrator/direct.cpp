@@ -14,13 +14,35 @@ Direct::Direct(uint32_t lightSamples, uint32_t bsdfSamples, bool hideLights)
 	, m_bsdfSamples(bsdfSamples)
 {
 	m_hideLights = hideLights;
+	ComputeWeights();
+}
 
+void Direct::ComputeWeights()
+{
 	m_weightBSDF = 1.f / (float) m_bsdfSamples;
 	m_weightLum  = 1.f / (float) m_lightSamples;
 
 	const size_t sum = m_lightSamples + m_bsdfSamples;
 	m_fracBSDF = m_bsdfSamples  / (float) sum;
 	m_fracLum  = m_lightSamples / (float) sum;
+}
+
+bool Direct::SetLightSamples(uint32_t samples)
+{
+	if (samples == std::exchange(m_lightSamples, samples))
+		return false;
+
+	ComputeWeights();
+	return true;
+}
+
+bool Direct::SetBSDFSamples(uint32_t samples)
+{
+	if (samples == std::exchange(m_bsdfSamples, samples))
+		return false;
+
+	ComputeWeights();
+	return true;
 }
 
 std::pair<Col3f, float>
