@@ -1,7 +1,9 @@
 #ifndef SPINDULYS_SAMPLER_H
 #define SPINDULYS_SAMPLER_H
 
-#include "../math/vec3.h"
+#include "../math/vec2.h"
+
+#include "../random.h"
 
 #include "../../spindulys.h"
 
@@ -19,7 +21,7 @@ class Sampler
 		 *
 		 * May throw an exception if not supported.
 		 */
-		virtual Sampler* fork() = 0;
+		virtual Sampler* Fork() = 0;
 
 		/**
 		 * \brief Create a clone of this sampler.
@@ -31,25 +33,69 @@ class Sampler
 		 *
 		 * May throw an exception if not supported.
 		 */
-		virtual Sampler* clone() = 0;
+		virtual Sampler* Clone() = 0;
 
 		/**
-		 * \brief Deterministically seed the underlying RNG, if applicable.
+		 * Deterministically seed the underlying RNG, if applicable.
 		 *
-		 * In the context of wavefront ray tracing & dynamic arrays, this function
-		 * must be called with \c wavefront_size matching the size of the wavefront.
 		 */
-		virtual void seed(uint32_t seed,
-				uint32_t wavefront_size = (uint32_t) -1);
+		virtual void Seed(uint32_t /* seed */)
+		{
+			m_dimensionIndex = 0;
+			m_sampleIndex = 0;
+			m_seeded = true;
+		}
+
+		/**
+		 * \brief Advance to the next sample.
+		 *
+		 * A subsequent call to \c next_1d or \c next_2d will access the first
+		 * 1D or 2D components of this sample.
+		 */
+		virtual void Advance()
+		{
+			m_dimensionIndex = 0;
+			++m_sampleIndex;
+		}
+
+		// Retrieve the next component value from the current sample
+		virtual float Next1d(bool active = true) = 0;
+
+		// Retrieve the next two component values from the current sample
+		virtual Vec2f Next2d(bool active = true) = 0;
+
+		// Get Methods
+		uint32_t GetSampleCount() const { return m_sampleCount; }
+
+		// Set the number of samples per pixel
+		virtual bool SetSampleCount(uint32_t spp) { return spp != std::exchange(m_sampleCount, spp); }
+
+		// Return whether the sampler was seeded
+		bool Seeded() const { return m_seeded; }
 
 	protected:
-		Sampler(const Sampler&);
-		virtual ~Sampler();
+		Sampler(uint32_t sampleCount = 4, uint32_t baseSeed = 0, uint32_t dimensionIndex = 0, uint32_t sampleIndex = 0)
+		{
+			m_sampleCount    = sampleCount;
+			m_baseSeed       = baseSeed;
+			m_dimensionIndex = dimensionIndex;
+			m_sampleIndex    = sampleIndex;
+		}
+		Sampler(const Sampler& sampler)
+		{
+			m_sampleCount          = sampler.m_sampleCount;
+			m_baseSeed             = sampler.m_baseSeed;
+			m_dimensionIndex       = sampler.m_dimensionIndex;
+			m_sampleIndex          = sampler.m_sampleIndex;
+		}
+
+		virtual ~Sampler() {}
 
 		// Generates a array of seeds where the seed values are unique per sequence
-		uint32_t ComputePerSequenceSeed(uint32_t seed) const;
+		uint32_t ComputePerSequenceSeed(uint32_t seed) const { return SampleTea32(m_baseSeed, seed).first; }
+
 		// Return the index of the current sample
-		uint32_t CurrentSampleIndex() const;
+		uint32_t GetCurrentSampleIndex() const { return m_sampleIndex; }
 
 	protected:
 		// Base seed value
@@ -58,17 +104,34 @@ class Sampler
 		// Number of samples per pixel
 		uint32_t m_sampleCount = 4;
 
-		// Number of samples per pass in wavefront modes (default is 1)
-		uint32_t m_samplesPerWavefront = 1;
-
-		// Size of the wavefront (or 0, if not seeded)
-		uint32_t m_wavefrontSize = 0;
-
 		// Index of the current dimension in the sample
 		uint32_t m_dimensionIndex = 0;
 
 		// Index of the current sample in the sequence
 		uint32_t m_sampleIndex = 0;
+
+		// Seeded check
+		bool m_seeded = false;
+};
+
+class PCG32Sampler : public Sampler
+{
+	public:
+		virtual void Seed(uint32_t seed) override;
+
+	protected:
+		PCG32Sampler(uint32_t sampleCount = 4, uint32_t baseSeed = 0, uint32_t dimensionIndex = 0, uint32_t sampleIndex = 0)
+			: Sampler(sampleCount, baseSeed, dimensionIndex, sampleIndex)
+		{ }
+
+		PCG32Sampler(const PCG32Sampler& sampler)
+			: Sampler(sampler)
+		{
+			m_rng = sampler.m_rng;
+		}
+
+	protected:
+		uint32_t m_rng;
 };
 
 SPINDULYS_NAMESPACE_CLOSE_SCOPE
