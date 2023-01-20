@@ -37,7 +37,7 @@ struct PCG32
 			const uint64_t& initstate = PCG32_DEFAULT_STATE,
 			const uint64_t& initseq   = PCG32_DEFAULT_STREAM)
 	{
-		Seed(size, initstate, initseq);
+		Seed(initstate, initseq);
 	}
 
 	/**
@@ -46,226 +46,134 @@ struct PCG32
 	 * Specified in two parts: a state initializer and a sequence selection
 	 * constant (a.k.a. stream id)
 	 */
-	void Seed(size_t size = 1,
-			const uint64_t& initstate = PCG32_DEFAULT_STATE,
-			const uint64_t& initseq   = PCG32_DEFAULT_STREAM)
+	void Seed( const uint64_t& initstate = PCG32_DEFAULT_STATE, const uint64_t& initseq = PCG32_DEFAULT_STREAM)
 	{
-
+		state = 0;
+		inc = (initseq << 1) | 1u;
+		NextUInt32();
+		state += initstate;
+		NextUInt32();
 	}
 
 	// Generate a uniformly distributed unsigned 32-bit random number
 	uint32_t NextUInt32()
 	{
-		UInt64 oldstate = state;
+		uint64_t oldstate = state;
 
-		state = fmadd(oldstate, uint64_t(PCG32_MULT), inc);
+		state = madd(oldstate, PCG32_MULT, inc);
 
-		UInt32 xorshifted = UInt32(sr<27>(sr<18>(oldstate) ^ oldstate)),
-					 rot = UInt32(sr<59>(oldstate));
+		uint32_t xorshifted = static_cast<uint32_t>(((oldstate >> 18) ^ oldstate) >> 27);
+		uint32_t rot = static_cast<uint32_t>((oldstate >> 59));
 
-		return (xorshifted >> rot) | (xorshifted << ((-Int32(rot)) & 31));
+		return (xorshifted >> rot) | (xorshifted << ((-static_cast<uint32_t>(rot)) & 31));
 
 	}
 
-	// Masked version of \ref next_uint32
-	DRJIT_INLINE UInt32 next_uint32(const Mask &mask) {
-		UInt64 oldstate = state;
-
-		masked(state, mask) = fmadd(oldstate, uint64_t(PCG32_MULT), inc);
-
-		UInt32 xorshifted = UInt32(sr<27>(sr<18>(oldstate) ^ oldstate)),
-					 rot = UInt32(sr<59>(oldstate));
-
-		return (xorshifted >> rot) | (xorshifted << ((-Int32(rot)) & 31));
-	}
-
-	/// Generate a uniformly distributed unsigned 64-bit random number
-	DRJIT_INLINE UInt64 next_uint64() {
+	// Generate a uniformly distributed unsigned 64-bit random number
+	uint64_t NextUInt64()
+	{
 		/* v0, v1 computed as separate statements to ensure a consistent
 			 evaluation order across compilers */
-		UInt32 v0 = next_uint32();
-		UInt32 v1 = next_uint32();
+		uint32_t v0 = NextUInt32();
+		uint32_t v1 = NextUInt32();
 
-		return UInt64(v0) | sl<32>(UInt64(v1));
+		return static_cast<uint64_t>(v0) | (static_cast<uint64_t>(v1) << 32);
 	}
 
-	/// Masked version of \ref next_uint64
-	DRJIT_INLINE UInt64 next_uint64(const Mask &mask) {
-		UInt32 v0 = next_uint32(mask);
-		UInt32 v1 = next_uint32(mask);
-
-		return UInt64(v0) | sl<32>(UInt64(v1));
+	// Forward \ref next_uint call to the correct method based given type size
+	template <typename Value, std::enable_if_t<std::is_same_v<Value, uint32_t> || std::is_same_v<Value, uint64_t>, int> = 0>
+	Value NextUInt()
+	{
+		if constexpr (std::is_same_v<Value, uint64_t>)
+			return NextUInt64();
+		else
+			return NextUInt32();
 	}
 
-	/// Forward \ref next_uint call to the correct method based given type size
-	template <typename Value,
-					 enable_if_t<std::is_same_v<scalar_t<Value>, uint32_t> ||
-						 std::is_same_v<scalar_t<Value>, uint64_t>> = 0>
-						 DRJIT_INLINE Value next_uint() {
-							 if constexpr (std::is_same_v<scalar_t<Value>, uint64_t>)
-								 return next_uint64();
-							 else
-								 return next_uint32();
-						 }
-
-	/// Forward \ref next_uint call to the correct method based given type size (masked version)
-	template <typename Value,
-					 enable_if_t<std::is_same_v<scalar_t<Value>, uint32_t> ||
-						 std::is_same_v<scalar_t<Value>, uint64_t>> = 0>
-						 DRJIT_INLINE Value next_uint(const Mask &mask) {
-							 if constexpr (std::is_same_v<scalar_t<Value>, uint64_t>)
-								 return next_uint64(mask);
-							 else
-								 return next_uint32(mask);
-						 }
-
-	/// Generate a single precision floating point value on the interval [0, 1)
-	DRJIT_INLINE Float32 next_float32() {
-		return reinterpret_array<Float32>(sr<9>(next_uint32()) | 0x3f800000u) - 1.f;
-	}
-
-	/// Masked version of \ref next_float32
-	DRJIT_INLINE Float32 next_float32(const Mask &mask) {
-		return reinterpret_array<Float32>(sr<9>(next_uint32(mask)) | 0x3f800000u) - 1.f;
+	// Generate a single precision floating point value on the interval [0, 1)
+	float NextFloat32()
+	{
+		return static_cast<float>((NextUInt32() << 9) | 0x3f800000u) - 1.f;
 	}
 
 	/**
 	 * \brief Generate a double precision floating point value on the interval [0, 1)
 	 *
-	 * \remark Since the underlying random number generator produces 32 bit output,
+	 * Since the underlying random number generator produces 32 bit output,
 	 * only the first 32 mantissa bits will be filled (however, the resolution is still
-	 * finer than in \ref next_float(), which only uses 23 mantissa bits)
+	 * finer than in NextFloat(), which only uses 23 mantissa bits)
 	 */
-	DRJIT_INLINE Float64 next_float64() {
+	double NextFloat64()
+	{
 		/* Trick from MTGP: generate an uniformly distributed
 			 double precision number in [1,2) and subtract 1. */
-		return reinterpret_array<Float64>(sl<20>(UInt64(next_uint32())) |
-				0x3ff0000000000000ull) - 1.0;
-	}
-
-	/// Masked version of next_float64
-	DRJIT_INLINE Float64 next_float64(const Mask &mask) {
-		return reinterpret_array<Float64>(sl<20>(UInt64(next_uint32(mask))) |
+		return static_cast<double>((static_cast<uint64_t>(NextUInt32()) << 20) |
 				0x3ff0000000000000ull) - 1.0;
 	}
 
 	/// Forward \ref next_float call to the correct method based given type size
-	template <typename Value,
-					 enable_if_t<std::is_same_v<scalar_t<Value>, float> ||
-						 std::is_same_v<scalar_t<Value>, double>> = 0>
-						 DRJIT_INLINE Value next_float() {
-							 if constexpr (std::is_same_v<scalar_t<Value>, double>)
-								 return next_float64();
-							 else
-								 return next_float32();
-						 }
+	template <typename Value, std::enable_if_t<std::is_same_v<Value, float> || std::is_same_v<Value, double>> = 0>
+	Value next_float() {
+		 if constexpr (std::is_same_v<Value, double>)
+			 return NextFloat64();
+		 else
+			 return NextFloat32();
+	 }
 
-	/// Forward \ref next_float call to the correct method based given type size (masked version)
-	template <typename Value,
-					 enable_if_t<std::is_same_v<scalar_t<Value>, float> ||
-						 std::is_same_v<scalar_t<Value>, double>> = 0>
-						 DRJIT_INLINE Value next_float(const Mask &mask) {
-							 if constexpr (std::is_same_v<scalar_t<Value>, double>)
-								 return next_float64(mask);
-							 else
-								 return next_float32(mask);
-						 }
+	// Generate a uniformly distributed integer r, where 0 <= r < bound
+	uint32_t NextUInt32Bounded(uint32_t bound)
+	{
+		/* To avoid bias, we need to make the range of the RNG a multiple of
+			 bound, which we do by dropping output less than a threshold.
+			 A naive scheme to calculate the threshold would be to do
 
-	/// Generate a uniformly distributed integer r, where 0 <= r < bound
-	UInt32 next_uint32_bounded(uint32_t bound, Mask mask = true) {
-		if constexpr (std::is_scalar_v<UInt64>) {
-			DRJIT_MARK_USED(mask);
+			 uint32_t threshold = 0x1'0000'0000ull % bound;
 
-			/* To avoid bias, we need to make the range of the RNG a multiple of
-				 bound, which we do by dropping output less than a threshold.
-				 A naive scheme to calculate the threshold would be to do
+			 but 64-bit div/mod is slower than 32-bit div/mod (especially on
+			 32-bit platforms).  In essence, we do
 
-				 uint32_t threshold = 0x1'0000'0000ull % bound;
+			 uint32_t threshold = (0x1'0000'0000ull-bound) % bound;
 
-				 but 64-bit div/mod is slower than 32-bit div/mod (especially on
-				 32-bit platforms).  In essence, we do
+			 because this version will calculate the same modulus, but the LHS
+			 value is less than 2^32.
+			 */
 
-				 uint32_t threshold = (0x1'0000'0000ull-bound) % bound;
+		uint32_t threshold = (~bound + 1u) % bound;
 
-				 because this version will calculate the same modulus, but the LHS
-				 value is less than 2^32.
-				 */
+		/* Uniformity guarantees that this loop will terminate.  In practice, it
+			 should usually terminate quickly; on average (assuming all bounds are
+			 equally likely), 82.25% of the time, we can expect it to require just
+			 one iteration.  In the worst case, someone passes a bound of 2^31 + 1
+			 (i.e., 2147483649), which invalidates almost 50% of the range.  In
+			 practice, bounds are typically small and only a tiny amount of the range
+			 is eliminated.
+			 */
 
-			uint32_t threshold = (~bound + 1u) % bound;
-
-			/* Uniformity guarantees that this loop will terminate.  In practice, it
-				 should usually terminate quickly; on average (assuming all bounds are
-				 equally likely), 82.25% of the time, we can expect it to require just
-				 one iteration.  In the worst case, someone passes a bound of 2^31 + 1
-				 (i.e., 2147483649), which invalidates almost 50% of the range.  In
-				 practice, bounds are typically small and only a tiny amount of the range
-				 is eliminated.
-				 */
-
-			while (true) {
-				UInt32 result = next_uint32();
-
-				if (all(result >= threshold))
-					return result % bound;
-			}
-		} else {
-			divisor<uint32_t> div(bound);
-			UInt32 threshold = imod(~bound + 1u, div);
-
-			UInt32 result = zeros<UInt32>();
-			do {
-				result[mask] = next_uint32(mask);
-
-				/* Keep track of which SIMD lanes have already
-					 finished and stops advancing the associated PRNGs */
-				mask &= result < threshold;
-			} while (any(mask));
-
-			return imod(result, div);
-		}
+		while (true)
+			if (const uint32_t result = NextUInt32(); result >= threshold)
+				return result % bound;
 	}
 
-	/// Generate a uniformly distributed integer r, where 0 <= r < bound
-	UInt64 next_uint64_bounded(uint64_t bound, Mask mask = true) {
-		if constexpr (std::is_scalar_v<UInt64>) {
-			DRJIT_MARK_USED(mask);
+	// Generate a uniformly distributed integer r, where 0 <= r < bound
+	uint64_t NextUInt64Bounded(uint64_t bound)
+	{
+		uint64_t threshold = (~bound + (uint64_t) 1) % bound;
 
-			uint64_t threshold = (~bound + (uint64_t) 1) % bound;
-
-			while (true) {
-				uint64_t result = next_uint64();
-
-				if (all(result >= threshold))
-					return result % bound;
-			}
-		} else {
-			divisor<uint64_t> div(bound);
-			UInt64 threshold = imod(~bound + (uint64_t) 1, div);
-
-			UInt64 result = zeros<UInt64>();
-			do {
-				result[mask] = next_uint64(mask);
-
-				/* Keep track of which SIMD lanes have already
-					 finished and stops advancing the associated PRNGs */
-				mask &= result < threshold;
-			} while (any(mask));
-
-			return imod(result, div);
-		}
+		while (true)
+			if (uint64_t result = NextUInt64(); result >= threshold)
+				return result % bound;
 	}
 
 	/// Forward \ref next_uint_bounded call to the correct method based given type size
-	template <typename Value,
-					 enable_if_t<std::is_same_v<scalar_t<Value>, uint32_t> ||
-						 std::is_same_v<scalar_t<Value>, uint64_t>> = 0>
-						 DRJIT_INLINE Value next_uint_bounded(scalar_t<Value> bound,
-								 const mask_t<Value> &mask = true) {
-							 if constexpr (std::is_same_v<scalar_t<Value>, uint64_t>)
-								 return next_uint64_bounded(bound, mask);
-							 else
-								 return next_uint32_bounded(bound, mask);
-						 }
+	// Forward \ref next_uint call to the correct method based given type size
+	template <typename Value, std::enable_if_t<std::is_same_v<Value, uint32_t> || std::is_same_v<Value, uint64_t>, int> = 0>
+	Value NextUIntBounded(Value bound)
+	{
+		if constexpr (std::is_same_v<Value, uint64_t>)
+			return NextUInt64Bounded(bound);
+		else
+			return NextUInt32Bounded(bound);
+	}
 
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -279,65 +187,70 @@ struct PCG32
 	 * Arbitrary Stride", Transactions of the American Nuclear Society (Nov.
 	 * 1994). The algorithm is very similar to fast exponentiation.
 	 */
-	PCG32 operator+(const Int64 &delta_) const {
-		UInt64 cur_plus = inc,
-		acc_mult = 1,
-		acc_plus = 0,
-		cur_mult = PCG32_MULT;
+	PCG32 operator+(const int64_t& delta_) const
+	{
+		uint64_t cur_plus = inc;
+		uint64_t acc_mult = 1;
+		uint64_t acc_plus = 0;
+		uint64_t cur_mult = PCG32_MULT;
 
 		/* Even though delta is an unsigned integer, we can pass a signed
 			 integer to go backwards, it just goes "the long way round". */
-		UInt64 delta(delta_);
+		uint64_t delta(delta_);
 
-		int it = 0; DRJIT_MARK_USED(it);
-		while (is_jit_v<T> || delta != zeros<UInt64>()) {
-			Mask mask = neq(delta & 1, zeros<UInt64>());
-			masked(acc_mult, mask) = acc_mult * cur_mult;
-			masked(acc_plus, mask) = acc_plus * cur_mult + cur_plus;
+		int it = 0;
+		while (delta != 0)
+		{
+			if ((delta & 1) != 0)
+			{
+				acc_mult = acc_mult * cur_mult;
+				acc_plus = acc_plus * cur_mult + cur_plus;
+			}
 			cur_plus = (cur_mult + 1) * cur_plus;
 			cur_mult *= cur_mult;
-			delta = sr<1>(delta);
+			delta = delta >> 1;
 
-			if constexpr (is_jit_v<T>) {
-				if (++it == 64)
-					break;
-			}
+			if (++it == 64)
+				break;
 		}
 
 		return PCG32(initialize_state(), acc_mult * state + acc_plus, inc);
 	}
 
-	PCG32 operator-(const Int64 &delta) const {
+	PCG32 operator-(const int64_t& delta) const
+	{
 		return operator+(-delta);
 	}
 
-	PCG32 &operator+=(const Int64 &delta) { *this = operator+(delta); return *this; }
-	PCG32 &operator-=(const Int64 &delta) { *this = operator+(-delta); return *this; }
+	PCG32 &operator+=(const int64_t& delta) { *this = operator+(delta); return *this; }
+	PCG32 &operator-=(const int64_t& delta) { *this = operator+(-delta); return *this; }
 
 	/// Compute the distance between two PCG32 pseudorandom number generators
-	Int64 operator-(const PCG32 &other) const {
-		UInt64 cur_plus = inc,
-					 cur_state = other.state,
-					 distance = 0,
-					 bit = 1,
-					 cur_mult = PCG32_MULT;
+	int64_t operator-(const PCG32 &other) const
+	{
+		uint64_t cur_plus = inc;
+		uint64_t cur_state = other.state;
+		uint64_t distance = 0;
+		uint64_t bit = 1;
+		uint64_t cur_mult = PCG32_MULT;
 
-		int it = 0; DRJIT_MARK_USED(it);
-		while (is_jit_v<T> || state != cur_state) {
-			Mask mask = neq(state & bit, cur_state & bit);
-			masked(cur_state, mask) = fmadd(cur_state, cur_mult, cur_plus);
-			masked(distance, mask) |= bit;
+		int it = 0;
+		while (state != cur_state)
+		{
+			if ((state & bit) != (cur_state & bit))
+			{
+				cur_state = madd(cur_state, cur_mult, cur_plus);
+				distance |= bit;
+			}
 			cur_plus = (cur_mult + 1) * cur_plus;
 			cur_mult *= cur_mult;
-			bit = sl<1>(bit);
+			bit = bit << 1;
 
-			if constexpr (is_jit_v<T>) {
-				if (++it == 64)
-					break;
-			}
+			if (++it == 64)
+				break;
 		}
 
-		return Int64(distance);
+		return int64_t(distance);
 	}
 
 #if defined(_MSC_VER)
@@ -350,25 +263,25 @@ struct PCG32
 	 *
 	 * From: Knuth, TAoCP Vol. 2 (3rd 3d), Section 3.4.2
 	 */
-	template <typename Iterator, typename T2 = T,
-					 enable_if_t<std::is_scalar_v<T2>> = 0>
-						 void shuffle(Iterator begin, Iterator end) {
-							 for (Iterator it = end - 1; it > begin; --it)
-								 std::swap(*it, *(begin + next_uint32_bounded((uint32_t) (it - begin + 1))));
-						 }
+	template <typename Iterator>
+		void shuffle(Iterator begin, Iterator end)
+		{
+			for (Iterator it = end - 1; it > begin; --it)
+				std::swap(*it, *(begin + NextUInt32Bounded(static_cast<uint32_t>(it - begin + 1))));
+		}
 
-	/// Equality operator
+	// Equality operator
 	bool operator==(const PCG32 &other) const { return state == other.state && inc == other.inc; }
 
-	/// Inequality operator
+	// Inequality operator
 	bool operator!=(const PCG32 &other) const { return state != other.state || inc != other.inc; }
 
-	UInt64 state;  // RNG state.  All values are possible.
-	UInt64 inc;    // Controls which RNG sequence (stream) is selected. Must *always* be odd.
+	uint64_t state;  // RNG state.  All values are possible.
+	uint64_t inc;    // Controls which RNG sequence (stream) is selected. Must *always* be odd.
 
 	private:
 	struct initialize_state { };
-	DRJIT_INLINE PCG32(initialize_state, const UInt64 &state, const UInt64 &inc)
+	PCG32(initialize_state, const uint64_t& state, const uint64_t& inc)
 		: state(state), inc(inc) { }
 
 };

@@ -4,6 +4,7 @@
 #include "../math/vec2.h"
 
 #include "../random.h"
+#include "../pcg32.h"
 
 #include "../../spindulys.h"
 
@@ -117,7 +118,11 @@ class Sampler
 class PCG32Sampler : public Sampler
 {
 	public:
-		virtual void Seed(uint32_t seed) override;
+		virtual void Seed(uint32_t seed) override
+		{
+			uint32_t seed_value = m_baseSeed + seed;
+			m_rng.Seed(seed_value, PCG32_DEFAULT_STREAM);
+		}
 
 	protected:
 		PCG32Sampler(uint32_t sampleCount = 4, uint32_t baseSeed = 0, uint32_t dimensionIndex = 0, uint32_t sampleIndex = 0)
@@ -131,7 +136,7 @@ class PCG32Sampler : public Sampler
 		}
 
 	protected:
-		uint32_t m_rng;
+		PCG32 m_rng;
 };
 
 SPINDULYS_NAMESPACE_CLOSE_SCOPE

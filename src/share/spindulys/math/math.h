@@ -244,6 +244,13 @@ __forceinline float nmadd ( const float a, const float b, const float c) { retur
 __forceinline float nmsub ( const float a, const float b, const float c) { return -a*b-c; }
 #endif
 
+template <typename T> T madd(const T &a, const T &b, const T &c)
+{
+    if constexpr (std::is_same_v<T, float>)
+        return madd(a, b, c);
+    return a * b + c;
+}
+
 /*! random functions */
 template<typename T> T random() { return T(0); }
 #if defined(_WIN32)
