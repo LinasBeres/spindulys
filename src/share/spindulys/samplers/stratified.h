@@ -53,6 +53,12 @@ class StratifiedSampler final : public PCG32Sampler
 			return new StratifiedSampler(*this);
 		}
 
+		void Seed(uint32_t seed) override
+		{
+			PCG32Sampler::Seed(seed);
+			m_permutationSeed = ComputePerSequenceSeed(seed);
+		}
+
 		float Next1d(bool active = true) override
 		{
 			assert(Seeded());
@@ -110,12 +116,12 @@ class StratifiedSampler final : public PCG32Sampler
 	private:
 		bool m_jitter = true;
 
-		uint32_t m_resolution;
-		float m_invResolution;
-		float m_invSampleCount;
+		uint32_t m_resolution = 1;
+		float m_invResolution = 1.f;
+		float m_invSampleCount = 1.f;
 
 		/// Per-sequence permutation seed
-		uint32_t m_permutationSeed;
+		uint32_t m_permutationSeed = 0;
 };
 
 SPINDULYS_NAMESPACE_CLOSE_SCOPE

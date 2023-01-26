@@ -15,6 +15,8 @@ RenderManager::RenderManager()
 	BASE_TRACE();
 	for (const auto& bufferID : renderGlobals.GetCurrentBufferIds())
 		buffers[bufferID] = new Buffer3f(renderGlobals.GetWidth(), renderGlobals.GetHeight());
+
+	// sampler = std::make_unique<Sampler>(1, 230);
 }
 
 RenderManager::~RenderManager()
@@ -100,7 +102,10 @@ void RenderManager::Render()
 		}
 
 		if (iterations < renderGlobals.GetMaxIterations())
+		{
 			Trace(++iterations);
+			// sampler->Advance();
+		}
 
 		if (drawBufferFunction)
 			drawBufferFunction(currentResolution.x, currentResolution.y, *(buffers[renderGlobals.GetBufferID()]));

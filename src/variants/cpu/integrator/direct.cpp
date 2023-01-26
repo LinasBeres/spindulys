@@ -46,7 +46,7 @@ bool Direct::SetBSDFSamples(uint32_t samples)
 }
 
 std::pair<Col3f, float>
-Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, Col3f* /* aovs */) const
+Direct::Sample(const CPUScene* scene, Sampler& sampler, const Ray& ray, Col3f* /* aovs */) const
 {
 	Col3f result(zero);
 
@@ -77,7 +77,7 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 			Col3f lightVal;
 
 			std::tie(ds, lightVal) = scene->SampleLightDirection(
-					si, pixelSample.sampler.Uniform2D(), true, activeLight);
+					si, sampler.Uniform2D(), true, activeLight);
 
 			activeLight &= ds.pdf != 0.f;
 			if (!activeLight)
@@ -101,7 +101,7 @@ Direct::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, 
 	{
 		BSDFSample bs;
 		Col3f bsdfValue;
-		std::tie(bs, bsdfValue) = bsdf->Sample(ctx, si, pixelSample.sampler.Uniform1D(), pixelSample.sampler.Uniform2D());
+		std::tie(bs, bsdfValue) = bsdf->Sample(ctx, si, sampler.Uniform1D(), sampler.Uniform2D());
 
 		// Trace the ray in the sampled direction and intersect against the scene
 		SurfaceInteraction si_bsdf = scene->RayIntersect(si.SpawnRay(si.shadingFrame * bs.wo));

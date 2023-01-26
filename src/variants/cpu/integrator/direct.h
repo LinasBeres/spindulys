@@ -13,7 +13,7 @@ public:
 	Direct(uint32_t lightSamples = 1, uint32_t bsdfSamples = 1, bool hideLights = false);
 
 	virtual std::pair<Col3f, float>
-	Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, Col3f* /* aovs */) const override;
+	Sample(const CPUScene* scene, Sampler& sampler, const Ray& ray, Col3f* /* aovs */) const override;
 
 	bool SetLightSamples(uint32_t samples);
 	bool SetBSDFSamples(uint32_t samples);

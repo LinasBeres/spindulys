@@ -17,7 +17,7 @@ ForwardPath::ForwardPath(uint32_t maxDepth, uint32_t russianRouletteDepth, bool 
 
 
 std::pair<Col3f, float>
-ForwardPath::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& ray, Col3f* /* aovs */) const
+ForwardPath::Sample(const CPUScene* scene, Sampler& sampler, const Ray& ray, Col3f* /* aovs */) const
 {
 
 	bool active = true;
@@ -77,7 +77,7 @@ ForwardPath::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& 
 
 			// Sample light
 			std::tie(ds, lightVal) = scene->SampleLightDirection(
-					si, pixelSample.sampler.Uniform2D(), true, activeLight);
+					si, sampler.Uniform2D(), true, activeLight);
 			activeLight &= ds.pdf != 0.f;
 
 			if (activeLight)
@@ -95,8 +95,8 @@ ForwardPath::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& 
 		}
 
 		// ------------------------ BSDF sampling -------------------------
-		float sample1 = pixelSample.sampler.Uniform1D();
-		Vec2f sample2 = pixelSample.sampler.Uniform2D();
+		float sample1 = sampler.Uniform1D();
+		Vec2f sample2 = sampler.Uniform2D();
 		BSDFSample bs;
 		Col3f bsdfValue;
 		std::tie(bs, bsdfValue) = bsdf->Sample(bsdfContext, si, sample1, sample2);
@@ -122,7 +122,7 @@ ForwardPath::Sample(const CPUScene* scene, PixelSample& pixelSample, const Ray& 
 
 		float russianRouletteProb = min(throughputMax * sqr(eta), .95f);
 		bool russianRoulleteActive = depth >= m_russianRouletteDepth;
-		bool russianRouletteContinue = pixelSample.sampler.Uniform1D() < russianRouletteProb;
+		bool russianRouletteContinue = sampler.Uniform1D() < russianRouletteProb;
 
 		if (russianRoulleteActive)
 			throughput *= rcp(russianRouletteProb);

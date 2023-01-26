@@ -99,6 +99,8 @@ class RenderManager
 		// This abstract class holds the scene geometry itself.
 		Scene* scene = nullptr;
 
+		std::unique_ptr<Sampler> sampler;
+
 		bool update = false;
 
 		// Callback functions.
