@@ -113,7 +113,7 @@ struct PCG32
 
 	/// Forward \ref next_float call to the correct method based given type size
 	template <typename Value, std::enable_if_t<std::is_same_v<Value, float> || std::is_same_v<Value, double>> = 0>
-	Value next_float() {
+	Value NextFloat() {
 		 if constexpr (std::is_same_v<Value, double>)
 			 return NextFloat64();
 		 else
