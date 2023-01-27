@@ -16,9 +16,7 @@ RenderManager::RenderManager()
 	for (const auto& bufferID : renderGlobals.GetCurrentBufferIds())
 		buffers[bufferID] = new Buffer3f(renderGlobals.GetWidth(), renderGlobals.GetHeight());
 
-	sampler = std::make_unique<StratifiedSampler>(false, 32, 230);
-	sampler->SetSampleCount(4);
-	sampler->Seed(12314);
+	sampler = std::make_unique<IndependentSampler>(32, 230);
 }
 
 RenderManager::~RenderManager()
@@ -85,6 +83,8 @@ void RenderManager::Render()
 {
 	BASE_TRACE();
 
+	sampler->Seed(12312451u);
+
 	while (!stopRendererFunction())
 	{
 		if (updateRendererFunction)
@@ -105,10 +105,7 @@ void RenderManager::Render()
 		}
 
 		if (iterations < renderGlobals.GetMaxIterations())
-		{
 			Trace(++iterations);
-			sampler->Advance();
-		}
 
 		if (drawBufferFunction)
 			drawBufferFunction(currentResolution.x, currentResolution.y, *(buffers[renderGlobals.GetBufferID()]));

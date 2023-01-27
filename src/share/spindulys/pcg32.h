@@ -27,9 +27,9 @@
 
 SPINDULYS_NAMESPACE_OPEN_SCOPE
 
-static constexpr uint64_t PCG32_DEFAULT_STATE  = 0x853c49e6748fea9bULL;
-static constexpr uint64_t PCG32_DEFAULT_STREAM = 0xda3e39cb94b95bdbULL;
-static constexpr uint64_t PCG32_MULT           = 0x5851f42d4c957f2dULL;
+#define PCG32_DEFAULT_STATE   0x853c49e6748fea9bULL
+#define PCG32_DEFAULT_STREAM  0xda3e39cb94b95bdbULL
+#define PCG32_MULT            0x5851f42d4c957f2dULL
 
 struct PCG32
 {
@@ -49,7 +49,7 @@ struct PCG32
 	void Seed( const uint64_t& initstate = PCG32_DEFAULT_STATE, const uint64_t& initseq = PCG32_DEFAULT_STREAM)
 	{
 		state = 0;
-		inc = (initseq << 1) | 1u;
+		inc = (initseq << 1u) | 1u;
 		NextUInt32();
 		state += initstate;
 		NextUInt32();
@@ -60,12 +60,12 @@ struct PCG32
 	{
 		uint64_t oldstate = state;
 
-		state = madd(oldstate, PCG32_MULT, inc);
+		state = oldstate * PCG32_MULT + inc;
 
-		uint32_t xorshifted = static_cast<uint32_t>(((oldstate >> 18) ^ oldstate) >> 27);
-		uint32_t rot = static_cast<uint32_t>((oldstate >> 59));
+		uint32_t xorshifted = static_cast<uint32_t>(((oldstate >> 18u) ^ oldstate) >> 27u);
+		uint32_t rot = static_cast<uint32_t>((oldstate >> 59u));
 
-		return (xorshifted >> rot) | (xorshifted << ((-static_cast<uint32_t>(rot)) & 31));
+		return (xorshifted >> rot) | xorshifted << ((~rot + 1u) & 31u);
 
 	}
 
@@ -93,7 +93,15 @@ struct PCG32
 	// Generate a single precision floating point value on the interval [0, 1)
 	float NextFloat32()
 	{
-		return static_cast<float>((NextUInt32() << 9) | 0x3f800000u) - 1.f;
+		/* Trick from MTGP: generate an uniformly distributed
+			 single precision number in [1,2) and subtract 1. */
+		union {
+			uint32_t u;
+			float f;
+		} x;
+		x.u = (NextUInt32() >> 9) | 0x3f800000u;
+		return x.f - 1.0f;
+		// return static_cast<float>((NextUInt32() << 9) | 0x3f800000u) - 1.f;
 	}
 
 	/**
@@ -112,13 +120,13 @@ struct PCG32
 	}
 
 	/// Forward \ref next_float call to the correct method based given type size
-	template <typename Value, std::enable_if_t<std::is_same_v<Value, float> || std::is_same_v<Value, double>> = 0>
-	Value NextFloat() {
-		 if constexpr (std::is_same_v<Value, double>)
-			 return NextFloat64();
-		 else
-			 return NextFloat32();
-	 }
+	template <typename Value, std::enable_if_t<std::is_floating_point<Value>::value, bool> = true>
+		Value NextFloat() {
+			if constexpr (std::is_same_v<Value, double>)
+				return NextFloat64();
+			else
+				return NextFloat32();
+		}
 
 	// Generate a uniformly distributed integer r, where 0 <= r < bound
 	uint32_t NextUInt32Bounded(uint32_t bound)
@@ -167,13 +175,13 @@ struct PCG32
 	/// Forward \ref next_uint_bounded call to the correct method based given type size
 	// Forward \ref next_uint call to the correct method based given type size
 	template <typename Value, std::enable_if_t<std::is_same_v<Value, uint32_t> || std::is_same_v<Value, uint64_t>, int> = 0>
-	Value NextUIntBounded(Value bound)
-	{
-		if constexpr (std::is_same_v<Value, uint64_t>)
-			return NextUInt64Bounded(bound);
-		else
-			return NextUInt32Bounded(bound);
-	}
+		Value NextUIntBounded(Value bound)
+		{
+			if constexpr (std::is_same_v<Value, uint64_t>)
+				return NextUInt64Bounded(bound);
+			else
+				return NextUInt32Bounded(bound);
+		}
 
 #if defined(_MSC_VER)
 #pragma warning(push)
@@ -190,8 +198,8 @@ struct PCG32
 	PCG32 operator+(const int64_t& delta_) const
 	{
 		uint64_t cur_plus = inc;
-		uint64_t acc_mult = 1;
-		uint64_t acc_plus = 0;
+		uint64_t acc_mult = 1u;
+		uint64_t acc_plus = 0u;
 		uint64_t cur_mult = PCG32_MULT;
 
 		/* Even though delta is an unsigned integer, we can pass a signed
@@ -203,7 +211,7 @@ struct PCG32
 		{
 			if ((delta & 1) != 0)
 			{
-				acc_mult = acc_mult * cur_mult;
+				acc_mult *= cur_mult;
 				acc_plus = acc_plus * cur_mult + cur_plus;
 			}
 			cur_plus = (cur_mult + 1) * cur_plus;

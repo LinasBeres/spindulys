@@ -11,6 +11,8 @@
 #include <spindulys/sampler.h>
 #include <spindulys/samplers/sampler.h>
 #include <spindulys/samplers/stratified.h>
+#include <spindulys/samplers/independent.h>
+#include <spindulys/samplers/uniformDistrabution.h>
 #include <spindulys/buffer.h>
 #include <spindulys/defaults.h>
 
@@ -101,7 +103,7 @@ class RenderManager
 		// This abstract class holds the scene geometry itself.
 		Scene* scene = nullptr;
 
-		std::unique_ptr<StratifiedSampler> sampler;
+		std::unique_ptr<Sampler> sampler;
 
 		bool update = false;
 

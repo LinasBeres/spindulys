@@ -22,7 +22,8 @@ void CPURenderManager::Trace(int iterations)
 	CPU_TRACE();
 	tbb::parallel_for(tbb::blocked_range<int>(0, currentResolution.y), [&](tbb::blocked_range<int> heightRange)
 		{
-			Sampler* workerSampler = sampler->Clone();
+			uint32_t seed = iterations * (heightRange.begin() * heightRange.end());
+			Sampler* workerSampler = sampler->Fork();
 
 			for (int pixelY = heightRange.begin(); pixelY < heightRange.end(); ++pixelY)
 			{
@@ -30,6 +31,7 @@ void CPURenderManager::Trace(int iterations)
 				{
 					// We setup all the necessary data describing the current sample.
 					const uint32_t pixelIdx = pixelX + pixelY * currentResolution.x;
+					workerSampler->Seed(seed + pixelIdx);
 
 					// The final pixel color of the sample we are computed that will be added and averaged to the buffer.
 					Col3f pixelColor(zero);
@@ -42,7 +44,6 @@ void CPURenderManager::Trace(int iterations)
 					buffers[BufferIds::kBeauty]->MultiplyPixel(pixelIdx, static_cast<float>(iterations - 1));
 
 					const auto [color, _] = integrator->Sample(dynamic_cast<CPUScene*>(scene), workerSampler, primaryRay, nullptr);
-					workerSampler->Advance();
 
 					buffers[BufferIds::kBeauty]->AddPixel(pixelIdx, color);
 

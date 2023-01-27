@@ -11,7 +11,7 @@ SPINDULYS_NAMESPACE_OPEN_SCOPE
 class StratifiedSampler final : public PCG32Sampler
 {
 	public:
-		StratifiedSampler(bool jitter = true, uint32_t sampleCount = 1, uint32_t baseSeed = 0, uint32_t dimensionIndex = 0, uint32_t sampleIndex = 0)
+		StratifiedSampler(uint32_t sampleCount = 1, uint32_t baseSeed = 0, uint32_t dimensionIndex = 0, uint32_t sampleIndex = 0, bool jitter = true)
 			: PCG32Sampler(sampleCount, baseSeed, dimensionIndex, sampleIndex), m_jitter(jitter)
 		{
 			SetSampleCount(sampleCount);
