@@ -36,9 +36,11 @@ void CPURenderManager::Trace(int iterations)
 					// The final pixel color of the sample we are computed that will be added and averaged to the buffer.
 					Col3f pixelColor(zero);
 
+					Vec2f cameraSample = Vec2f(pixelX, pixelY) + workerSampler->Next2d();
+
 					Vec3f origin(zero);
 					Vec3f direction(zero);
-					scene->GetSceneCamera().GetCameraRay(Vec2f(pixelX, pixelY), origin, direction);
+					scene->GetSceneCamera().GetCameraRay(cameraSample, origin, direction);
 					Ray primaryRay(origin, direction);
 
 					buffers[BufferIds::kBeauty]->MultiplyPixel(pixelIdx, static_cast<float>(iterations - 1));

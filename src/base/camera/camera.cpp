@@ -15,8 +15,8 @@ Camera::~Camera()
 
 bool Camera::GetCameraRay(const Vec2f& sample, Vec3f& origin, Vec3f& direction) const
 {
-	const float pointX((sample.x - 0.5f) / (GetResolution().x - 1.f));
-	const float pointY((sample.y - 0.5f) / (GetResolution().y - 1.f));
+	const float pointX((sample.x) / (GetResolution().x));
+	const float pointY((sample.y) / (GetResolution().y));
 
 	const Vec3f rayDirection(_zAxis + (_right * ((2.0f * pointX) - 1.0f)) + (_top * ((2.0f * pointY) - 1.0f)));
 

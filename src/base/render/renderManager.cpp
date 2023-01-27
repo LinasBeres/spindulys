@@ -15,8 +15,6 @@ RenderManager::RenderManager()
 	BASE_TRACE();
 	for (const auto& bufferID : renderGlobals.GetCurrentBufferIds())
 		buffers[bufferID] = new Buffer3f(renderGlobals.GetWidth(), renderGlobals.GetHeight());
-
-	sampler = std::make_unique<IndependentSampler>(32, 230);
 }
 
 RenderManager::~RenderManager()
@@ -82,8 +80,6 @@ const std::string_view RenderManager::ValidSceneFormats()
 void RenderManager::Render()
 {
 	BASE_TRACE();
-
-	sampler->Seed(12312451u);
 
 	while (!stopRendererFunction())
 	{

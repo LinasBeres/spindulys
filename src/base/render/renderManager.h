@@ -103,7 +103,7 @@ class RenderManager
 		// This abstract class holds the scene geometry itself.
 		Scene* scene = nullptr;
 
-		std::unique_ptr<Sampler> sampler;
+		std::unique_ptr<Sampler> sampler = std::make_unique<StratifiedSampler>(32);
 
 		bool update = false;
 
