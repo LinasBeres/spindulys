@@ -6,7 +6,6 @@
 #include <spindulys/math/vec2.h>
 #include <spindulys/math/vec3.h>
 #include <spindulys/math/affinespace.h>
-#include <spindulys/sampler.h>
 
 #include "../spindulysBase.h"
 

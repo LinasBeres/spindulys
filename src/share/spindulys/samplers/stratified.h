@@ -3,8 +3,6 @@
 
 #include "sampler.h"
 
-#include "../math/vec3.h"
-
 #include "../../spindulys.h"
 
 
@@ -13,13 +11,13 @@ SPINDULYS_NAMESPACE_OPEN_SCOPE
 class StratifiedSampler final : public PCG32Sampler
 {
 	public:
-		StratifiedSampler(bool jitter = true, uint32_t sampleCount = 4, uint32_t baseSeed = 0, uint32_t dimensionIndex = 0, uint32_t sampleIndex = 0)
+		StratifiedSampler(bool jitter = true, uint32_t sampleCount = 1, uint32_t baseSeed = 0, uint32_t dimensionIndex = 0, uint32_t sampleIndex = 0)
 			: PCG32Sampler(sampleCount, baseSeed, dimensionIndex, sampleIndex), m_jitter(jitter)
 		{
 			SetSampleCount(sampleCount);
 		}
 
-		bool SetSampleCount(uint32_t spp) override
+		virtual bool SetSampleCount(uint32_t spp) override
 		{
 			m_resolution = 1;
 
@@ -36,7 +34,7 @@ class StratifiedSampler final : public PCG32Sampler
 			return true;
 		}
 
-		Sampler* Fork() override
+		virtual Sampler* Fork() override
 		{
 			StratifiedSampler *sampler = new StratifiedSampler();
 			sampler->m_jitter         = m_jitter;
@@ -48,18 +46,18 @@ class StratifiedSampler final : public PCG32Sampler
 			return dynamic_cast<Sampler*>(sampler);
 		}
 
-		Sampler* Clone() override
+		virtual Sampler* Clone() override
 		{
 			return new StratifiedSampler(*this);
 		}
 
-		void Seed(uint32_t seed) override
+		virtual void Seed(uint32_t seed) override
 		{
 			PCG32Sampler::Seed(seed);
 			m_permutationSeed = ComputePerSequenceSeed(seed);
 		}
 
-		float Next1d(bool active = true) override
+		virtual float Next1d(bool active = true) override
 		{
 			assert(Seeded());
 
@@ -75,7 +73,7 @@ class StratifiedSampler final : public PCG32Sampler
 			return (p + j) * m_invSampleCount;
 		}
 
-		Vec2f Next2d(bool active = true) override
+		virtual Vec2f Next2d(bool active = true) override
 		{
 			assert(Seeded());
 

@@ -16,14 +16,14 @@ static constexpr float errorBias = 32.0f * 1.19209e-07f;
 
 struct PixelSample
 {
-	Sampler& sampler;   // Sampler to use to generate any random numbers in this sample.
+	SSampler& sampler;   // Sampler to use to generate any random numbers in this sample.
 	int pixelX = 0;     // Position of the pixel being sampled on the X-axis.
 	int pixelY = 0;     // Position of the pixel being sampled on the Y-axis.
 	int pixelIdx = 0;   // Index of the pixel being sampled, from 0 to (width * height).
 	int samples = 0;    // Total number of samples per pixel to compute.
 	int sampleIdx = 0;  // Keep track of how many samples have been computed.
 
-	__forceinline PixelSample(Sampler& sampler, int pixelX, int pixelY, int pixelIdx, int samples, int sampleIdx)
+	__forceinline PixelSample(SSampler& sampler, int pixelX, int pixelY, int pixelIdx, int samples, int sampleIdx)
 		: sampler(sampler), pixelX(pixelX), pixelY(pixelY), pixelIdx(pixelIdx), samples(samples), sampleIdx(sampleIdx)
 	{ }
 };

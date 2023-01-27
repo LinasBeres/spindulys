@@ -16,7 +16,9 @@ RenderManager::RenderManager()
 	for (const auto& bufferID : renderGlobals.GetCurrentBufferIds())
 		buffers[bufferID] = new Buffer3f(renderGlobals.GetWidth(), renderGlobals.GetHeight());
 
-	// sampler = std::make_unique<Sampler>(1, 230);
+	sampler = std::make_unique<StratifiedSampler>(false, 32, 230);
+	sampler->SetSampleCount(4);
+	sampler->Seed(12314);
 }
 
 RenderManager::~RenderManager()
@@ -82,6 +84,7 @@ const std::string_view RenderManager::ValidSceneFormats()
 void RenderManager::Render()
 {
 	BASE_TRACE();
+
 	while (!stopRendererFunction())
 	{
 		if (updateRendererFunction)
@@ -104,7 +107,7 @@ void RenderManager::Render()
 		if (iterations < renderGlobals.GetMaxIterations())
 		{
 			Trace(++iterations);
-			// sampler->Advance();
+			sampler->Advance();
 		}
 
 		if (drawBufferFunction)

@@ -14,6 +14,8 @@ SPINDULYS_NAMESPACE_OPEN_SCOPE
 class Sampler
 {
 	public:
+		virtual ~Sampler() {}
+
 		/**
 		 * \brief Create a fork of this sampler.
 		 *
@@ -75,7 +77,7 @@ class Sampler
 		bool Seeded() const { return m_seeded; }
 
 	protected:
-		Sampler(uint32_t sampleCount = 4, uint32_t baseSeed = 0, uint32_t dimensionIndex = 0, uint32_t sampleIndex = 0)
+		Sampler(uint32_t sampleCount = 1, uint32_t baseSeed = 0, uint32_t dimensionIndex = 0, uint32_t sampleIndex = 0)
 		{
 			m_sampleCount    = sampleCount;
 			m_baseSeed       = baseSeed;
@@ -84,13 +86,12 @@ class Sampler
 		}
 		Sampler(const Sampler& sampler)
 		{
-			m_sampleCount          = sampler.m_sampleCount;
-			m_baseSeed             = sampler.m_baseSeed;
-			m_dimensionIndex       = sampler.m_dimensionIndex;
-			m_sampleIndex          = sampler.m_sampleIndex;
+			m_sampleCount    = sampler.m_sampleCount;
+			m_baseSeed       = sampler.m_baseSeed;
+			m_dimensionIndex = sampler.m_dimensionIndex;
+			m_sampleIndex    = sampler.m_sampleIndex;
+			m_seeded         = sampler.m_seeded;
 		}
-
-		virtual ~Sampler() {}
 
 		// Generates a array of seeds where the seed values are unique per sequence
 		uint32_t ComputePerSequenceSeed(uint32_t seed) const { return SampleTea32(m_baseSeed, seed).first; }
@@ -103,7 +104,7 @@ class Sampler
 		uint32_t m_baseSeed = 0;
 
 		// Number of samples per pixel
-		uint32_t m_sampleCount = 4;
+		uint32_t m_sampleCount = 1;
 
 		// Index of the current dimension in the sample
 		uint32_t m_dimensionIndex = 0;
@@ -120,12 +121,14 @@ class PCG32Sampler : public Sampler
 	public:
 		virtual void Seed(uint32_t seed) override
 		{
-			uint32_t seed_value = m_baseSeed + seed;
-			m_rng.Seed(seed_value, PCG32_DEFAULT_STREAM);
+			Sampler::Seed(seed);
+
+			const uint32_t seedValue = m_baseSeed + seed;
+			m_rng.Seed(seedValue, PCG32_DEFAULT_STREAM);
 		}
 
 	protected:
-		PCG32Sampler(uint32_t sampleCount = 4, uint32_t baseSeed = 0, uint32_t dimensionIndex = 0, uint32_t sampleIndex = 0)
+		PCG32Sampler(uint32_t sampleCount = 1, uint32_t baseSeed = 0, uint32_t dimensionIndex = 0, uint32_t sampleIndex = 0)
 			: Sampler(sampleCount, baseSeed, dimensionIndex, sampleIndex)
 		{ }
 

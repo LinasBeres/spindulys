@@ -1,5 +1,5 @@
-#ifndef SPINDULYS_SAMPLER_H
-#define SPINDULYS_SAMPLER_H
+#ifndef SPINDULYS_SSAMPLER_H
+#define SPINDULYS_SSAMPLER_H
 
 #include "../spindulys.h"
 
@@ -14,12 +14,12 @@
 
 SPINDULYS_NAMESPACE_OPEN_SCOPE
 
-struct Sampler
+struct SSampler
 {
 	std::uniform_real_distribution<float> floatUniformDistribution;
 	std::mt19937 prng;
 
-	__forceinline Sampler(): floatUniformDistribution(0.0f, 1.0f), prng(NewSeed()) { }
+	__forceinline SSampler(): floatUniformDistribution(0.0f, 1.0f), prng(NewSeed()) { }
 
 	__forceinline unsigned NewSeed()
 	{
