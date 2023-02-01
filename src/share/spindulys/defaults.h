@@ -9,7 +9,7 @@ SPINDULYS_NAMESPACE_OPEN_SCOPE
 static constexpr uint32_t kDefaultWidth = 800;
 static constexpr uint32_t kDefaultHeight = 800;
 
-static constexpr uint32_t kDefaultMaxIterations = 32;
+static constexpr uint32_t kDefaultMaxIterations = 8 * 8;
 static constexpr uint32_t kDefaultMaxSamplesPerPixel = 1;
 
 static constexpr bool kHideLights = false;

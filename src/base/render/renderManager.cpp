@@ -2,6 +2,11 @@
 
 #include <filesystem>
 
+#include <tbb/blocked_range2d.h>
+#include <tbb/blocked_range3d.h>
+#include <tbb/parallel_for.h>
+#include <tbb/parallel_for_each.h>
+
 #include "../scene/objTranslators/objSceneLoader.h"
 
 #ifdef USING_USD
@@ -81,6 +86,7 @@ void RenderManager::Render()
 {
 	BASE_TRACE();
 
+
 	while (!stopRendererFunction())
 	{
 		if (updateRendererFunction)
@@ -100,8 +106,14 @@ void RenderManager::Render()
 			GetCamera().SetResolution(Vec2f(currentResolution.x, currentResolution.y));
 		}
 
-		if (iterations < renderGlobals.GetMaxIterations())
-			Trace(++iterations);
+		if (iterations++ < renderGlobals.GetMaxIterations())
+		{
+			tbb::parallel_for(tbb::blocked_range<int>(0, currentResolution.y), [&](tbb::blocked_range<int> heightRange)
+			{
+				Trace(iterations, heightRange.begin(), heightRange.end());
+			});
+			sampler->Advance();
+		}
 
 		if (drawBufferFunction)
 			drawBufferFunction(currentResolution.x, currentResolution.y, *(buffers[renderGlobals.GetBufferID()]));
@@ -158,7 +170,7 @@ bool RenderManager::SetSampler(SamplerIds samplerId)
 				sampler = std::make_unique<UniformSampler>();
 				break;
 			case (SamplerIds::kStratified):
-				sampler = std::make_unique<StratifiedSampler>();
+				sampler = std::make_unique<StratifiedSampler>(/* spp: */ GetMaxIterations());
 				break;
 		}
 

@@ -60,7 +60,10 @@ class UniformSampler final : public Sampler
 	private:
 		UniformSampler(const UniformSampler& sampler)
 			: Sampler(sampler)
-		{ }
+		{
+			floatUniformDistribution = sampler.floatUniformDistribution;
+			prng = sampler.prng;
+		}
 
 	private:
 		std::uniform_real_distribution<float> floatUniformDistribution;

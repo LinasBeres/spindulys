@@ -1,10 +1,5 @@
 #include "cpuRenderManager.h"
 
-#include <tbb/blocked_range2d.h>
-#include <tbb/blocked_range3d.h>
-#include <tbb/parallel_for.h>
-#include <tbb/parallel_for_each.h>
-
 #include "../integrator/direct.h"
 #include "../integrator/forwardPath.h"
 
@@ -17,44 +12,44 @@ CPURenderManager::CPURenderManager()
 	InitialiseIntegrator(renderGlobals.GetIntegrator());
 }
 
-void CPURenderManager::Trace(int iterations)
+void CPURenderManager::Trace(int iterations, size_t heightBegin, size_t heightEnd)
 {
 	CPU_TRACE();
-	tbb::parallel_for(tbb::blocked_range<int>(0, currentResolution.y), [&](tbb::blocked_range<int> heightRange)
+	uint32_t seed = ((heightBegin - heightEnd) * currentResolution.x) * heightBegin;
+	seed += std::hash<std::thread::id>{}(std::this_thread::get_id());
+	seed *= iterations;
+
+	Sampler* workerSampler = nullptr;
+	workerSampler = sampler->Fork();
+
+	for (size_t pixelY = heightBegin; pixelY < heightEnd; ++pixelY)
+	{
+		for (int pixelX = 0; pixelX < currentResolution.x; ++pixelX)
 		{
-			uint32_t seed = iterations * (heightRange.begin() * heightRange.end());
-			Sampler* workerSampler = sampler->Fork();
-			workerSampler->Seed(seed);
+			workerSampler->Seed(seed++);
 
-			for (int pixelY = heightRange.begin(); pixelY < heightRange.end(); ++pixelY)
-			{
-				for (int pixelX = 0; pixelX < currentResolution.x; ++pixelX)
-				{
-					// We setup all the necessary data describing the current sample.
-					const uint32_t pixelIdx = pixelX + pixelY * currentResolution.x;
+			// We setup all the necessary data describing the current sample.
+			const uint32_t pixelIdx = pixelX + pixelY * currentResolution.x;
 
-					// The final pixel color of the sample we are computed that will be added and averaged to the buffer.
-					Col3f pixelColor(zero);
+			// The final pixel color of the sample we are computed that will be added and averaged to the buffer.
+			Col3f pixelColor(zero);
 
-					// Construct camera ray
-					const Vec2f cameraSample = Vec2f(pixelX, pixelY) + workerSampler->Next2d();
-					Vec3f origin(zero);
-					Vec3f direction(zero);
-					scene->GetSceneCamera().GetCameraRay(cameraSample, origin, direction);
-					Ray primaryRay(origin, direction);
+			// Construct camera ray
+			const Vec2f cameraSample = Vec2f(pixelX, pixelY) + workerSampler->Next2d();
+			Vec3f origin(zero);
+			Vec3f direction(zero);
+			scene->GetSceneCamera().GetCameraRay(cameraSample, origin, direction);
+			Ray primaryRay(origin, direction);
 
-					const auto [color, _] = integrator->Sample(dynamic_cast<CPUScene*>(scene), workerSampler, primaryRay, nullptr);
+			const auto [color, _] = integrator->Sample(dynamic_cast<CPUScene*>(scene), workerSampler, primaryRay, nullptr);
 
-					workerSampler->Advance();
+			buffers[BufferIds::kBeauty]->MultiplyPixel(pixelIdx, static_cast<float>(iterations - 1));
+			buffers[BufferIds::kBeauty]->AddPixel(pixelIdx, color);
+			buffers[BufferIds::kBeauty]->MultiplyPixel(pixelIdx, 1.f / static_cast<float>(iterations));
+		}
+	}
 
-					buffers[BufferIds::kBeauty]->MultiplyPixel(pixelIdx, static_cast<float>(iterations - 1));
-					buffers[BufferIds::kBeauty]->AddPixel(pixelIdx, color);
-					buffers[BufferIds::kBeauty]->MultiplyPixel(pixelIdx, 1.f / static_cast<float>(iterations));
-				}
-			}
-
-			delete workerSampler;
-			});
+	delete workerSampler;
 }
 
 bool CPURenderManager::SetIntegrator(IntegratorIds integratorID)

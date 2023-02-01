@@ -50,7 +50,7 @@ class RenderManager
 
 		void Render();
 		void ResetRender();
-		virtual void Trace(int iterations) = 0;
+		virtual void Trace(int iterations, size_t heightBegin, size_t heightEnd) = 0;
 
 		// Set Methods - return true if the class parameter was changed.
 		bool SetMaxIterations(uint32_t maxIterations)  { return renderGlobals.SetMaxIterations(maxIterations);     }

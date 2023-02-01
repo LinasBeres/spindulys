@@ -26,7 +26,7 @@ class CPURenderManager final : public RenderManager
 		CPURenderManager();
 		~CPURenderManager() = default;
 
-		virtual void Trace(int iterations) override;
+		virtual void Trace(int iterations, size_t heightBegin, size_t heightEnd) override;
 
 		virtual bool SetIntegrator(IntegratorIds integratorID) override;
 		virtual bool SetHideLights(bool hideLights) override { return RenderManager::SetHideLights(hideLights) && integrator->SetHideLights(hideLights); }

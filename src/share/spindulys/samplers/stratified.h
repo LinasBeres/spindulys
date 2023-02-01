@@ -53,7 +53,8 @@ class StratifiedSampler final : public PCG32Sampler
 
 		virtual void Seed(uint32_t seed) override
 		{
-			PCG32Sampler::Seed(seed);
+			// PCG32Sampler::Seed(seed);
+			m_seeded = true;
 			m_permutationSeed = ComputePerSequenceSeed(seed);
 		}
 

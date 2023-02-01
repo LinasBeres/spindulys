@@ -149,29 +149,6 @@ void Window::SetupGUI(RenderManager* renderManager)
 	{
 		if (ImGui::BeginMenu("File"))
 		{
-			if (ImGui::BeginMenu("Render to..."))
-			{
-				if (ImGui::MenuItem("PPM"))
-				{
-					renderManager->Trace(1);
-
-					toPPM(renderGlobals.GetWidth(),
-							renderGlobals.GetHeight(),
-							renderManager->GetBuffer());
-				}
-
-				if (ImGui::MenuItem("EXR"))
-				{
-					renderManager->Trace(1);
-
-					toEXR(renderGlobals.GetWidth(),
-							renderGlobals.GetHeight(),
-							renderManager->GetBuffer());
-				}
-
-				ImGui::EndMenu();
-			}
-
 			if (ImGui::BeginMenu("Export to..."))
 			{
 				if (ImGui::MenuItem("PPM"))
