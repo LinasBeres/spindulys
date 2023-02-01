@@ -3,10 +3,8 @@
 
 #include <string>
 
-#include <spindulys/math/vec3.h>
-#include <spindulys/sampler.h>
-
-#include <utils/helperStructs.h>
+#include <spindulys/math/vec2.h>
+#include <spindulys/math/col3.h>
 
 #include <bsdf/bsdf.h>
 

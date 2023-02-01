@@ -1,6 +1,8 @@
 #ifndef SMOOTH_DIFFUSE_H
 #define SMOOTH_DIFFUSE_H
 
+#include <spindulys/math/col3.h>
+
 #include "../bsdf.h"
 
 #include "../../spindulysBase.h"

@@ -109,6 +109,8 @@ bool Window::PreRenderCallback(RenderManager* renderManager)
 		renderManager->SetRenderDirty();
 	if (renderManager->SetIntegrator(renderGlobals.GetIntegrator()))
 		renderManager->SetRenderDirty();
+	if (renderManager->SetSampler(renderGlobals.GetSampler()))
+		renderManager->SetRenderDirty();
 	if (renderManager->SetHideLights(renderGlobals.GetHideLights()))
 		renderManager->SetRenderDirty();
 	if (renderManager->SetMaxLightSamples(renderGlobals.GetMaxLightsSamples()))
@@ -205,6 +207,15 @@ void Window::SetupGUI(RenderManager* renderManager)
 			if (ImGui::BeginMenu("Buffer"))
 			{
 				ImGui::RadioButton("Beauty", reinterpret_cast<int *>(&renderGlobals.m_bufferID), 0);
+
+				ImGui::EndMenu();
+			}
+
+			if (ImGui::BeginMenu("Sampler"))
+			{
+				ImGui::RadioButton("Independent", reinterpret_cast<int *>(&renderGlobals.m_samplerId), 0);
+				ImGui::RadioButton("Uniform", reinterpret_cast<int *>(&renderGlobals.m_samplerId), 1);
+				ImGui::RadioButton("Stratified", reinterpret_cast<int *>(&renderGlobals.m_samplerId), 2);
 
 				ImGui::EndMenu();
 			}

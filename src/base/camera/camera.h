@@ -9,9 +9,6 @@
 
 #include "../spindulysBase.h"
 
-#include "../utils/helperStructs.h"
-
-
 BASE_NAMESPACE_OPEN_SCOPE
 
 class Camera

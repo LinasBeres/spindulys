@@ -3,7 +3,6 @@
 
 #include <unordered_set>
 
-#include <spindulys/sampler.h>
 #include <spindulys/buffer.h>
 #include <spindulys/defaults.h>
 
@@ -141,7 +140,7 @@ struct RenderGlobals
 	uint32_t                             GetMaxDepth()             const { return m_maxDepth;             }
 	uint32_t                             GetRussianRouletteDepth() const { return m_russianRouletteDepth; }
 
-	SamplerIds                           GetSamplerId()            const { return m_samplerId;            }
+	SamplerIds                           GetSampler()              const { return m_samplerId;            }
 
 	BufferIds                            GetBufferID()             const { return m_bufferID;             }
 	const std::unordered_set<BufferIds>& GetCurrentBufferIds()     const { return m_currentBufferIds;     }

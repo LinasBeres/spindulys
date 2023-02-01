@@ -1,6 +1,8 @@
 #ifndef SMOOTH_CONDUCTOR_H
 #define SMOOTH_CONDUCTOR_H
 
+#include <spindulys/math/col3.h>
+
 #include "../bsdf.h"
 
 #include "../../spindulysBase.h"

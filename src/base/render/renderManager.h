@@ -8,7 +8,6 @@
 #include <functional>
 #include <string_view>
 
-#include <spindulys/sampler.h>
 #include <spindulys/samplers/sampler.h>
 #include <spindulys/samplers/stratified.h>
 #include <spindulys/samplers/independent.h>
@@ -59,6 +58,7 @@ class RenderManager
 		bool SetCurrentBuffer(BufferIds bufferID)      { return renderGlobals.SetCurrentBuffer(bufferID);          }
 		bool SetScaleResolution(bool scaleResolution)  { return renderGlobals.SetScaleResolution(scaleResolution); }
 		bool SetGrowSize(float growSize)               { return renderGlobals.SetGrowSize(growSize);               }
+		bool SetCurrentCamera(size_t cameraId)         { return scene->SetSceneCamera(cameraId);                   }
 
 		// Variant render manager will set the correct integrator parts.
 		virtual bool SetIntegrator(IntegratorIds integratorID) { return renderGlobals.SetIntegrator(integratorID);    }
@@ -68,9 +68,8 @@ class RenderManager
 		virtual bool SetMaxDepth(uint32_t maxDepth)            { return renderGlobals.SetMaxDepth(maxDepth);          }
 		virtual bool SetRussianRouletteDepth(uint32_t depth)   { return renderGlobals.SetRussianRouletteDepth(depth); }
 
-		bool SetCurrentCamera(size_t cameraId)         { return scene->SetSceneCamera(cameraId); }
-
-		// Unique Add/Remove method that also returns true if class parameter was changed
+		// Unique Set/Add/Remove method that also returns true if class parameter was changed
+		bool SetSampler(SamplerIds samplerID);
 		bool AddBuffer(BufferIds bufferID);
 		bool RemoveBuffer(BufferIds bufferID);
 
@@ -80,6 +79,7 @@ class RenderManager
 		int             GetMaxDepth()        const { return renderGlobals.GetMaxDepth();                 }
 		int             GetSamples()         const { return renderGlobals.GetMaxSamples();               }
 		IntegratorIds   GetIntegrator()      const { return renderGlobals.GetIntegrator();               }
+		SamplerIds      GetSampler()         const { return renderGlobals.GetSampler();                  }
 		bool            GetScaleResolution() const { return renderGlobals.GetScaleResolution();          }
 		const Buffer3f& GetBuffer()          const { return *(buffers.at(renderGlobals.GetBufferID()));  }
 		const Buffers&  GetBuffers()         const { return buffers;                                     }
@@ -103,7 +103,7 @@ class RenderManager
 		// This abstract class holds the scene geometry itself.
 		Scene* scene = nullptr;
 
-		std::unique_ptr<Sampler> sampler = std::make_unique<StratifiedSampler>(32);
+		std::unique_ptr<Sampler> sampler = std::make_unique<IndependentSampler>();
 
 		bool update = false;
 

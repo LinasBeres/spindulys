@@ -4,7 +4,6 @@
 #include <memory>
 #include <vector>
 
-#include <spindulys/sampler.h>
 #include <spindulys/buffer.h>
 
 #include <render/renderManager.h>
