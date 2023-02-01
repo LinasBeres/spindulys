@@ -68,7 +68,7 @@ ForwardPath::Sample(const CPUScene* scene, Sampler* sampler, const Ray& ray, Col
 		// ---------------------- Emitter sampling ----------------------
 		const CPUBSDF* bsdf = si.shape->GetBSDF();
 		uint32_t flags = bsdf->GetFlags();
-		uint32_t activeLight = has_flag(flags, BSDFFlags::Smooth);
+		uint32_t activeLight = HasFlag(flags, BSDFFlags::Smooth);
 
 		if (activeLight)
 		{
@@ -106,12 +106,12 @@ ForwardPath::Sample(const CPUScene* scene, Sampler* sampler, const Ray& ray, Col
 		// ------ Update loop variables based on current interaction ------
 		throughput = throughput * bsdfValue;
 		eta *= bs.eta;
-		validRay |= active && si.IsValid() && !has_flag(bs.sampledType, BSDFFlags::Null);
+		validRay |= active && si.IsValid() && !HasFlag(bs.sampledType, BSDFFlags::Null);
 
 		// Information about the current vertex needed by the next iteration
 		prevSi = si;
 		prevBSDFPdf = bs.pdf;
-		prevBSDFDelta = has_flag(bs.sampledType, BSDFFlags::Delta);
+		prevBSDFDelta = HasFlag(bs.sampledType, BSDFFlags::Delta);
 
 		// -------------------- Stopping criterion ---------------------
 

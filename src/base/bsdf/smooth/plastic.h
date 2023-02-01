@@ -27,8 +27,8 @@ class SmoothPlastic : virtual public BSDF
 			m_invETA2 = 1.f / (m_eta * m_eta);
 
 			// Numerically approximate the diffuse Fresnel reflectance
-			m_fdrInt = fresnel_diffuse_reflectance(1.f / m_eta);
-			m_fdrExt = fresnel_diffuse_reflectance(m_eta);
+			m_fdrInt = FresnelDiffuseReflectance(1.f / m_eta);
+			m_fdrExt = FresnelDiffuseReflectance(m_eta);
 
 			const float diffuseMean = (m_diffuseReflectance.r + m_diffuseReflectance.g + m_diffuseReflectance.b) / 3.f;
 			const float specularMean = (m_specularReflectance.r + m_specularReflectance.g + m_specularReflectance.b) / 3.f;

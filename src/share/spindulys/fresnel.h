@@ -10,7 +10,7 @@ SPINDULYS_NAMESPACE_OPEN_SCOPE
 
 __forceinline
 std::tuple<float, float, float, float>
-fresnel(float cos_theta_i, float eta)
+Fresnel(float cos_theta_i, float eta)
 {
 	bool outside_mask = cos_theta_i >= 0.f;
 
@@ -43,7 +43,7 @@ fresnel(float cos_theta_i, float eta)
 	return { r, cos_theta_t, eta_it, eta_ti};
 }
 
-__forceinline float fresnel_conductor(float cos_theta_i, float eta_r, float eta_i)
+__forceinline float FresnelConductor(float cos_theta_i, float eta_r, float eta_i)
 {
 	// Modified from "Optics" by K.D. Moeller, University Science Books, 1988
 	float cos_theta_i_2 = cos_theta_i * cos_theta_i;
@@ -68,10 +68,10 @@ __forceinline float fresnel_conductor(float cos_theta_i, float eta_r, float eta_
 }
 
 // Reflection in local coordinates
-__forceinline Vec3f reflect(const Vec3f& wi) { return Vec3f(-wi.x, -wi.y, wi.z); }
+__forceinline Vec3f Reflect(const Vec3f& wi) { return Vec3f(-wi.x, -wi.y, wi.z); }
 
 // Reflect with respect to a given surface normal
-__forceinline Vec3f reflect(const Vec3f& wi, const Vec3f& m)
+__forceinline Vec3f Reflect(const Vec3f& wi, const Vec3f& m)
 {
 	return msub(2.f * dot(wi, m), m, wi);
 }
@@ -82,13 +82,13 @@ __forceinline Vec3f reflect(const Vec3f& wi, const Vec3f& m)
  * The 'cos_theta_t' and 'eta_ti' parameters are given by the last two tuple
  * entries returned by the fresnel and fresnel_polarized functions.
  */
-__forceinline Vec3f refract(const Vec3f& wi, float cos_theta_t, float eta_ti)
+__forceinline Vec3f Refract(const Vec3f& wi, float cos_theta_t, float eta_ti)
 {
 	return Vec3f(-eta_ti * wi.x, -eta_ti * wi.y, cos_theta_t);
 }
 
 // Refract wi with respect to a given surface normal
-__forceinline Vec3f refract(const Vec3f& wi, const Vec3f& m, float cos_theta_t, float eta_ti)
+__forceinline Vec3f Refract(const Vec3f& wi, const Vec3f& m, float cos_theta_t, float eta_ti)
 {
 	return msub(madd(dot(wi, m), eta_ti, cos_theta_t), m, wi * eta_ti);
 }
@@ -100,7 +100,7 @@ __forceinline Vec3f refract(const Vec3f& wi, const Vec3f& m, float cos_theta_t, 
  * This value quantifies what fraction of diffuse incident illumination
  * will, on average, be reflected at a dielectric material boundary
  */
-__forceinline float fresnel_diffuse_reflectance(float eta)
+__forceinline float FresnelDiffuseReflectance(float eta)
 {
 	/* Fast mode: the following code approximates the diffuse Frensel reflectance
 		 for the eta<1 and eta>1 cases. An evaluation of the accuracy led to the

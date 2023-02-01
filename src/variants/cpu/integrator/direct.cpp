@@ -66,7 +66,7 @@ Direct::Sample(const CPUScene* scene, Sampler* sampler, const Ray& ray, Col3f* /
 	BSDFContext ctx;
 	const CPUBSDF* bsdf = si.shape->GetBSDF();
   uint32_t flags = bsdf->GetFlags();
-  uint32_t sampleLight = has_flag(flags, BSDFFlags::Smooth);
+  uint32_t sampleLight = HasFlag(flags, BSDFFlags::Smooth);
 
 	if (sampleLight)
 	{

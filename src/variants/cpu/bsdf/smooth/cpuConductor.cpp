@@ -29,11 +29,11 @@ CPUSmoothConductor::Sample(const BSDFContext& ctx,
 
 	bs.sampledComponent = 0;
 	bs.sampledType = +BSDFFlags::DeltaReflection;
-	bs.wo  = reflect(si.wi);
+	bs.wo  = Reflect(si.wi);
 	bs.eta = 1.f;
 	bs.pdf = 1.f;
 
-	value = GetSpecularReflectance() * fresnel_conductor(cosThetaI, GetETA(), GetK());
+	value = GetSpecularReflectance() * FresnelConductor(cosThetaI, GetETA(), GetK());
 
 	return { bs, value };
 }

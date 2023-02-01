@@ -24,7 +24,7 @@ CPUSmoothDielectric::Sample(const BSDFContext& ctx,
 
 	float cosThetaI = si.wi.z;
 
-	auto [rI, cosThetaT, etaIt, etaTi] = fresnel(cosThetaI, GetETA());
+	auto [rI, cosThetaT, etaIt, etaTi] = Fresnel(cosThetaI, GetETA());
 	float tI = 1.f - rI;
 
 	active &= cosThetaI > 0.f;
@@ -54,7 +54,7 @@ CPUSmoothDielectric::Sample(const BSDFContext& ctx,
 	bs.sampledComponent = selectedR ? 0u : 1u;
 	bs.sampledType      = selectedR ? +BSDFFlags::DeltaReflection : +BSDFFlags::DeltaTransmission;
 
-	bs.wo = select(selectedR, reflect(si.wi), refract(si.wi, cosThetaT, etaTi));
+	bs.wo = select(selectedR, Reflect(si.wi), Refract(si.wi, cosThetaT, etaTi));
 
 	bs.eta = select(selectedR, 1.f, etaIt);
 

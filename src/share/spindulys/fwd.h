@@ -36,9 +36,9 @@ template<typename T>
 constexpr uint32_t operator+(T e) { return (uint32_t) e; }
 
 template <typename T>
-constexpr bool has_flag(uint32_t flags, T f)
+constexpr bool HasFlag(uint32_t flags, T f)
 {
-		return (flags & (uint32_t) f) != 0u;
+	return (flags & (uint32_t) f) != 0u;
 }
 
 SPINDULYS_NAMESPACE_CLOSE_SCOPE
