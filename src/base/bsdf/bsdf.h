@@ -4,10 +4,7 @@
 #include <string>
 
 #include <spindulys/math/vec3.h>
-#include <spindulys/sampler.h>
 #include <spindulys/fwd.h>
-
-#include <utils/helperStructs.h>
 
 #include "../spindulysBase.h"
 

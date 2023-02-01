@@ -3,13 +3,19 @@
 
 #include <unordered_set>
 
-#include <spindulys/sampler.h>
 #include <spindulys/buffer.h>
 #include <spindulys/defaults.h>
 
 #include "../spindulysBase.h"
 
 BASE_NAMESPACE_OPEN_SCOPE
+
+enum class SamplerIds
+{
+	kIndependent = 0,
+	kUniform,
+	kStratified,
+};
 
 enum class IntegratorIds : uint32_t
 {
@@ -50,6 +56,9 @@ struct RenderGlobals
 	uint32_t m_maxDepth = kDefaultMaxDepth;
 	uint32_t m_russianRouletteDepth = kDefaultRussianRouletteDepth;
 
+	// Samplers - sampling method to use.
+	SamplerIds m_samplerId = SamplerIds::kIndependent;
+
 	// Buffers
 	BufferIds m_bufferID = BufferIds::kBeauty;
 	std::unordered_set<BufferIds> m_currentBufferIds = { BufferIds::kBeauty };
@@ -86,6 +95,8 @@ struct RenderGlobals
 	{
 		return rrDepth != std::exchange(m_russianRouletteDepth, rrDepth) && m_integratorID == IntegratorIds::kForwardPath;
 	}
+
+	bool SetSampler(SamplerIds samplerId) { return samplerId != std::exchange(m_samplerId, samplerId); }
 
 	bool SetCurrentBuffer(BufferIds bufferID) { return bufferID != std::exchange(m_bufferID, bufferID); }
 	bool AddBuffer(BufferIds bufferID)
@@ -128,6 +139,8 @@ struct RenderGlobals
 
 	uint32_t                             GetMaxDepth()             const { return m_maxDepth;             }
 	uint32_t                             GetRussianRouletteDepth() const { return m_russianRouletteDepth; }
+
+	SamplerIds                           GetSampler()              const { return m_samplerId;            }
 
 	BufferIds                            GetBufferID()             const { return m_bufferID;             }
 	const std::unordered_set<BufferIds>& GetCurrentBufferIds()     const { return m_currentBufferIds;     }

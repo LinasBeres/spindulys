@@ -2,6 +2,7 @@ file(GLOB SPINDULYS_HEADERS
 	spindulys.h
 	spindulys/*h
 	spindulys/math/*.h
+	spindulys/samplers/*.h
 )
 
 add_library(

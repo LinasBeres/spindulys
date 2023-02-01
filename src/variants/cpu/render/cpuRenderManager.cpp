@@ -20,36 +20,41 @@ CPURenderManager::CPURenderManager()
 void CPURenderManager::Trace(int iterations)
 {
 	CPU_TRACE();
-	tbb::parallel_for(tbb::blocked_range<int>(0, currentResolution.y), [&](tbb::blocked_range<int> height_range)
+	tbb::parallel_for(tbb::blocked_range<int>(0, currentResolution.y), [&](tbb::blocked_range<int> heightRange)
 		{
-			for (int pixelY = height_range.begin(); pixelY < height_range.end(); ++pixelY)
-			{
-				Sampler sampler;
+			uint32_t seed = iterations * (heightRange.begin() * heightRange.end());
+			Sampler* workerSampler = sampler->Fork();
 
+			for (int pixelY = heightRange.begin(); pixelY < heightRange.end(); ++pixelY)
+			{
 				for (int pixelX = 0; pixelX < currentResolution.x; ++pixelX)
 				{
 					// We setup all the necessary data describing the current sample.
-					PixelSample pixelSample(sampler, pixelX, pixelY, pixelX + pixelY * currentResolution.x, renderGlobals.GetMaxSamples(), 0);
+					const uint32_t pixelIdx = pixelX + pixelY * currentResolution.x;
+					workerSampler->Seed(seed + pixelIdx);
 
 					// The final pixel color of the sample we are computed that will be added and averaged to the buffer.
 					Col3f pixelColor(zero);
 
+					Vec2f cameraSample = Vec2f(pixelX, pixelY) + workerSampler->Next2d();
+
 					Vec3f origin(zero);
 					Vec3f direction(zero);
-					scene->GetSceneCamera().GetCameraRay(Vec2f(pixelX, pixelY), origin, direction);
+					scene->GetSceneCamera().GetCameraRay(cameraSample, origin, direction);
 					Ray primaryRay(origin, direction);
 
-					buffers[BufferIds::kBeauty]->MultiplyPixel(pixelSample.pixelIdx, static_cast<float>(iterations - 1));
+					buffers[BufferIds::kBeauty]->MultiplyPixel(pixelIdx, static_cast<float>(iterations - 1));
 
-					const auto [color, _] = integrator->Sample(dynamic_cast<CPUScene*>(scene), pixelSample, primaryRay, nullptr);
+					const auto [color, _] = integrator->Sample(dynamic_cast<CPUScene*>(scene), workerSampler, primaryRay, nullptr);
 
-					buffers[BufferIds::kBeauty]->AddPixel(pixelSample.pixelIdx, color);
+					buffers[BufferIds::kBeauty]->AddPixel(pixelIdx, color);
 
-					++pixelSample.sampleIdx;
+					buffers[BufferIds::kBeauty]->MultiplyPixel(pixelIdx, 1.f / static_cast<float>(iterations));
 
-					buffers[BufferIds::kBeauty]->MultiplyPixel(pixelSample.pixelIdx, 1.f / static_cast<float>(iterations));
 				}
 			}
+
+			delete workerSampler;
 			});
 }
 

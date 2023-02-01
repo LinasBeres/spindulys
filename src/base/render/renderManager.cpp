@@ -80,6 +80,7 @@ const std::string_view RenderManager::ValidSceneFormats()
 void RenderManager::Render()
 {
 	BASE_TRACE();
+
 	while (!stopRendererFunction())
 	{
 		if (updateRendererFunction)
@@ -142,6 +143,28 @@ bool RenderManager::RemoveBuffer(BufferIds bufferID)
 	delete buffers[bufferID];
 
 	return true;
+}
+
+bool RenderManager::SetSampler(SamplerIds samplerId)
+{
+	if (renderGlobals.SetSampler(samplerId))
+	{
+		switch (samplerId)
+		{
+			case (SamplerIds::kIndependent):
+				sampler = std::make_unique<IndependentSampler>();
+				break;
+			case (SamplerIds::kUniform):
+				sampler = std::make_unique<UniformSampler>();
+				break;
+			case (SamplerIds::kStratified):
+				sampler = std::make_unique<StratifiedSampler>();
+				break;
+		}
+
+		return true;
+	}
+	return false;
 }
 
 BASE_NAMESPACE_CLOSE_SCOPE

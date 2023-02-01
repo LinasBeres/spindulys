@@ -32,35 +32,23 @@ __forceinline Vec2f square_to_uniform_disk_concentric(const Vec2f& sample)
 
 	/* Modified concentric map code with less branching (by Dave Cline), see
 		http://psgraphics.blogspot.ch/2011/01/improved-code-for-concentric-map.html
-
-		Original non-vectorized version:
-
-		Value phi, r;
-		if (x == 0 && y == 0) {
-		r = phi = 0;
-		} else if (x * x > y * y) {
-		r = x;
-		phi = (dr::Pi / 4.f) * (y / x);
-		} else {
-		r = y;
-		phi = (dr::Pi / 2.f) - (x / y) * (dr::Pi / 4.f);
-		}
 	*/
-
-	float is_zero = x == 0.f && y == 0.f;
-
-	float quadrant_1_or_3 = abs(x) < abs(y);
-
-	float r  = select(quadrant_1_or_3, y, x);
-	float rp = select(quadrant_1_or_3, x, y);
-
-	float phi = 0.25f * Pi<float> * rp / r;
-
-	if (quadrant_1_or_3)
-		phi = 0.5f * Pi<float> - phi;
-
-	if (is_zero)
-		phi = 0.f;
+	float phi;
+	float r;
+	if (x == 0 && y == 0)
+	{
+		r = phi = 0;
+	}
+	else if (x * x > y * y)
+	{
+		r = x;
+		phi = (Pi<float> / 4.f) * (y / x);
+	}
+	else
+	{
+		r = y;
+		phi = (Pi<float> / 2.f) - (x / y) * (Pi<float> / 4.f);
+	}
 
 	float _sin, _cos;
 	sincosf(phi, &_sin, &_cos);

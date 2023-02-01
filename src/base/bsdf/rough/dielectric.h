@@ -1,9 +1,11 @@
 #ifndef DIELECTRIC_H
 #define DIELECTRIC_H
 
-#include "bsdf.h"
+#include <spindulys/math/col3.h>
 
-#include "../spindulysBase.h"
+#include "../bsdf.h"
+
+#include "../../spindulysBase.h"
 
 BASE_NAMESPACE_OPEN_SCOPE
 

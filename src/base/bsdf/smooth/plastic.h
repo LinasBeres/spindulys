@@ -1,6 +1,8 @@
 #ifndef SMOOTH_PLASTIC_H
 #define SMOOTH_PLASTIC_H
 
+#include <spindulys/math/col3.h>
+
 #include <spindulys/fresnel.h>
 
 #include "../bsdf.h"
