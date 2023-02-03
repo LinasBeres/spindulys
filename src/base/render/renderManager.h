@@ -90,7 +90,7 @@ class RenderManager
 
 	protected:
 		// Render Info
-		uint32_t iterations = 0;
+		uint32_t iterations = 1;
 		// TODO: Find better heuristics
 		// We start at 25% frame size and then go up from there to 100 in 25% incremements
 		float frameSize = 0.f;
@@ -111,6 +111,8 @@ class RenderManager
 		StopRenderer stopRendererFunction = [] { return false; };
 		RegisterUpdates updateRendererFunction;
 		DrawBuffer drawBufferFunction;
+
+		std::mutex m_renderMutex;
 
 	private:
 };

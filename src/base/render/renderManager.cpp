@@ -106,24 +106,29 @@ void RenderManager::Render()
 			GetCamera().SetResolution(Vec2f(currentResolution.x, currentResolution.y));
 		}
 
-		if (iterations++ < renderGlobals.GetMaxIterations())
+		if (iterations < renderGlobals.GetMaxIterations())
 		{
 			tbb::parallel_for(tbb::blocked_range<int>(0, currentResolution.y), [&](tbb::blocked_range<int> heightRange)
 			{
-				Trace(iterations, heightRange.begin(), heightRange.end());
+			Trace(iterations, heightRange.begin(), heightRange.end());
 			});
+			iterations++;
 			sampler->Advance();
 		}
 
 		if (drawBufferFunction)
+		{
+			m_renderMutex.lock();
 			drawBufferFunction(currentResolution.x, currentResolution.y, *(buffers[renderGlobals.GetBufferID()]));
+			m_renderMutex.unlock();
+		}
 	}
 }
 
 void RenderManager::ResetRender()
 {
 	BASE_TRACE();
-	iterations = 0;
+	iterations = 1;
 	frameSize = 0.f;
 
 	currentResolution = Vec2i(renderGlobals.GetWidth(), renderGlobals.GetHeight());

@@ -406,6 +406,11 @@ void Window::MouseCallback(ImGuiIO& guiIO, Vec2f mousePos,RenderManager* renderM
 void Window::RenderToScreenTexture(int width, int height, const Buffer3f& buffer)
 {
 	GUI_TRACE();
+	// const char* description;
+	// glfwGetError(&description);
+	// spdlog::critical("Could not init due to {}.\n Exiting.", description);
+	// exit(EXIT_FAILURE);
+	// glfwMakeContextCurrent(window);
 
 	// TODO: do something here.
 	// if (width != renderGlobals.width || height != renderGlobals.height)
@@ -434,6 +439,11 @@ void Window::RenderToScreenTexture(int width, int height, const Buffer3f& buffer
 	glActiveTexture(GL_TEXTURE0);
 
 	glBindTexture(GL_TEXTURE_2D, screenTextureID);
+
+	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
+	GLuint FramebufferName = 0;
+	glGenFramebuffers(1, &FramebufferName);
+	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
 
 	DrawScreenQuad();
 	RenderGUI();
