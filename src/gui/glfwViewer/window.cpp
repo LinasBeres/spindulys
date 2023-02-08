@@ -441,9 +441,9 @@ void Window::RenderToScreenTexture(int width, int height, const Buffer3f& buffer
 	glBindTexture(GL_TEXTURE_2D, screenTextureID);
 
 	// The framebuffer, which regroups 0, 1, or more textures, and 0 or 1 depth buffer.
-	GLuint FramebufferName = 0;
-	glGenFramebuffers(1, &FramebufferName);
-	glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
+	// GLuint FramebufferName = 0;
+	// glGenFramebuffers(1, &FramebufferName);
+	// glBindFramebuffer(GL_FRAMEBUFFER, FramebufferName);
 
 	DrawScreenQuad();
 	RenderGUI();

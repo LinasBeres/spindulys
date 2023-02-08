@@ -51,19 +51,19 @@ int Window::RenderWindow(const std::string& scenePath)
 	RenderManager::StopRenderer stopRenderingFunction = std::bind(&Window::CloseWindow, this);
 	renderManager.SetStopRendererCallback(stopRenderingFunction);
 
-	RenderManager::RegisterUpdates updateRendererFunction =
-		std::bind(&Window::PreRenderCallback, this, std::placeholders::_1);
-	renderManager.SetUpdateCallback(updateRendererFunction);
+	// RenderManager::RegisterUpdates updateRendererFunction =
+		// std::bind(&Window::PreRenderCallback, this, std::placeholders::_1);
+	// renderManager.SetUpdateCallback(updateRendererFunction);
 
-	RenderManager::DrawBuffer drawBufferFunction =
-		std::bind(&Window::RenderToScreenTexture, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-	renderManager.SetBufferCallback(drawBufferFunction);
+	// RenderManager::DrawBuffer drawBufferFunction =
+		// std::bind(&Window::RenderToScreenTexture, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
+	// renderManager.SetBufferCallback(drawBufferFunction);
 
 	SetupScreenQuad(renderGlobals.GetWidth(), renderGlobals.GetHeight());
 
 	renderManager.Trace(1, 0, renderGlobals.GetHeight());
 
-	// renderManager.Render();
+	renderManager.Render();
 
 	Buffer3f buffer = renderManager.GetBuffer();
 
@@ -71,16 +71,34 @@ int Window::RenderWindow(const std::string& scenePath)
 	int         window_running = 1;
 
 	uint32_t* m_main_buffer = new uint32_t[renderGlobals.GetHeight() * renderGlobals.GetWidth()];
-	for (const auto& pixel : buffer.GetPixelData())
+	for (uint32_t x = 0; x < renderGlobals.GetWidth(); ++x)
 	{
-		uint32_t colour(0);
-		float red = pixel.r;
-		float blue = pixel.b;
-		float green = pixel.g;
+		for (uint32_t y = 0; y < renderGlobals.GetHeight(); ++y)
+		{
+			uint32_t pixelIdx = x + (y * renderGlobals.GetWidth());
+			uint32_t colour(0);
+
+			Col3f colourVec = buffer.GetPixel(pixelIdx);
+			uint8_t red = floor(colourVec.r >= 1.0 ? 255 : colourVec.r * 256.0);
+			uint8_t blue = floor(colourVec.b >= 1.0 ? 255 : colourVec.b * 256.0);
+			uint8_t green = floor(colourVec.g >= 1.0 ? 255 : colourVec.g * 256.0);
+
+			// Bit shift colors into proper positions within color (RGBA)
+			colour += red;
+			colour <<= 8;
+			colour += green;
+			colour <<= 8;
+			colour += blue;
+			colour <<= 8;
+			colour += 0xFF;   // Alpha channel set to opaque
+
+			m_main_buffer[pixelIdx] = colour;
+
+		}
 	}
 
-	SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STATIC, renderGlobals.GetWidth(), renderGlobals.GetHeight());
-	SDL_UpdateTexture(texture, NULL, buffer.GetPixelData().data(), sizeof(float) * renderGlobals.GetWidth());
+	SDL_Texture *texture = SDL_CreateTexture(renderer, SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_STREAMING, renderGlobals.GetWidth(), renderGlobals.GetHeight());
+	SDL_UpdateTexture(texture, NULL, m_main_buffer, sizeof(uint32_t) * renderGlobals.GetWidth());
 	SDL_RenderCopy(
 			renderer,    // The renderer to be updated.
 			texture,     // The source texture.

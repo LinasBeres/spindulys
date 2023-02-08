@@ -1,2 +1,2 @@
-# add_subdirectory(glfwViewer)
-add_subdirectory(sdlViewer)
+add_subdirectory(glfwViewer)
+# add_subdirectory(sdlViewer)

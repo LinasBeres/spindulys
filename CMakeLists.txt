@@ -21,7 +21,7 @@ include(Options)
 include(CXX)
 
 # Include 3rd Party External
-include(SetupSDL2)
+# include(SetupSDL2)
 include(SetupEmbree)
 include(SetupTBB)
 include(SetupUSD)
