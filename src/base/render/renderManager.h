@@ -28,8 +28,9 @@ class RenderManager
 {
 	public:
 		using StopRenderer = std::function<bool(void)>;
-		using RegisterUpdates = std::function<bool(RenderManager*)>;
+		using RegisterUpdates = std::function<bool(void)>;
 		using DrawBuffer = std::function<void(int, int, const Buffer3f&)>;
+		using UpdateBuffer = std::function<void(void)>;
 
 		using Buffers = std::unordered_map<BufferIds, Buffer3f*>;
 
@@ -43,6 +44,7 @@ class RenderManager
 
 		void SetStopRendererCallback(StopRenderer stopFunction) { stopRendererFunction = stopFunction; }
 		void SetBufferCallback(DrawBuffer drawFunction)         { drawBufferFunction = drawFunction; }
+		void SetUpdateCallback(UpdateBuffer updateFunction)     { updateBufferFunction = updateFunction; }
 		void SetUpdateCallback(RegisterUpdates updateFunction)  { updateRendererFunction = updateFunction; }
 
 		void SetRenderDirty() { update = true; }
@@ -78,19 +80,22 @@ class RenderManager
 		int             GetMaxIterations()   const { return renderGlobals.GetMaxIterations();            }
 		int             GetMaxDepth()        const { return renderGlobals.GetMaxDepth();                 }
 		int             GetSamples()         const { return renderGlobals.GetMaxSamples();               }
+		int             GetWidth()           const { return currentResolution.x;                         }
+		int             GetHeight()          const { return currentResolution.y;                         }
 		IntegratorIds   GetIntegrator()      const { return renderGlobals.GetIntegrator();               }
 		SamplerIds      GetSampler()         const { return renderGlobals.GetSampler();                  }
 		bool            GetScaleResolution() const { return renderGlobals.GetScaleResolution();          }
 		const Buffer3f& GetBuffer()          const { return *(buffers.at(renderGlobals.GetBufferID()));  }
 		const Buffers&  GetBuffers()         const { return buffers;                                     }
 		const Scene*    GetScene()           const { return scene;                                       }
+		std::mutex&     GetLock()            const { return m_renderMutex;                               }
 
 		// TODO: Tidy the camera handling.
 		Camera& GetCamera() { return scene->UpdateSceneCamera(); }
 
 	protected:
 		// Render Info
-		uint32_t iterations = 0;
+		uint32_t iterations = 1;
 		// TODO: Find better heuristics
 		// We start at 25% frame size and then go up from there to 100 in 25% incremements
 		float frameSize = 0.f;
@@ -111,6 +116,9 @@ class RenderManager
 		StopRenderer stopRendererFunction = [] { return false; };
 		RegisterUpdates updateRendererFunction;
 		DrawBuffer drawBufferFunction;
+		UpdateBuffer updateBufferFunction;
+
+		mutable std::mutex m_renderMutex;
 
 	private:
 };

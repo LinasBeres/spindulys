@@ -86,11 +86,12 @@ void RenderManager::Render()
 {
 	BASE_TRACE();
 
+	tbb::task_arena arena(4);
 
 	while (!stopRendererFunction())
 	{
 		if (updateRendererFunction)
-			updateRendererFunction(this);
+			updateRendererFunction();
 
 		if (update)
 			ResetRender();
@@ -106,13 +107,19 @@ void RenderManager::Render()
 			GetCamera().SetResolution(Vec2f(currentResolution.x, currentResolution.y));
 		}
 
-		if (iterations++ < renderGlobals.GetMaxIterations())
+		if (iterations < renderGlobals.GetMaxIterations())
 		{
+			arena.execute( [&] {
 			tbb::parallel_for(tbb::blocked_range<int>(0, currentResolution.y), [&](tbb::blocked_range<int> heightRange)
 			{
 				Trace(iterations, heightRange.begin(), heightRange.end());
+				sampler->Advance();
 			});
-			sampler->Advance();
+			} );
+			const std::lock_guard<std::mutex> lock(GetLock());
+			if (updateBufferFunction)
+				updateBufferFunction();
+			++iterations;
 		}
 
 		if (drawBufferFunction)
@@ -123,7 +130,7 @@ void RenderManager::Render()
 void RenderManager::ResetRender()
 {
 	BASE_TRACE();
-	iterations = 0;
+	iterations = 1;
 	frameSize = 0.f;
 
 	currentResolution = Vec2i(renderGlobals.GetWidth(), renderGlobals.GetHeight());

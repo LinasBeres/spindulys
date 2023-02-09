@@ -1,6 +1,7 @@
 #include "window.h"
 
 #include <functional>
+#include <thread>
 
 #include <nfd.h>
 
@@ -61,34 +62,54 @@ int Window::RenderWindow(const std::string& scenePath)
 	const char* glsl_version = "#version 330";
 	ImGui_ImplOpenGL3_Init(glsl_version);
 
-	CPURenderManager renderManager;
-
 	renderManager.LoadScene(scenePath);
 	renderManager.GetCamera().SetResolution(Vec2f(renderGlobals.GetWidth(), renderGlobals.GetHeight()));
 
 	RenderManager::StopRenderer stopRenderingFunction = std::bind(&Window::CloseWindow, this);
 	renderManager.SetStopRendererCallback(stopRenderingFunction);
 
-	RenderManager::RegisterUpdates updateRendererFunction =
-		std::bind(&Window::PreRenderCallback, this, std::placeholders::_1);
-	renderManager.SetUpdateCallback(updateRendererFunction);
+	// RenderManager::RegisterUpdates updateRendererFunction =
+		// std::bind(&Window::PreRenderCallback, this);
+	// renderManager.SetUpdateCallback(updateRendererFunction);
 
-	RenderManager::DrawBuffer drawBufferFunction =
-		std::bind(&Window::RenderToScreenTexture, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3);
-	renderManager.SetBufferCallback(drawBufferFunction);
+	RenderManager::UpdateBuffer updateFunction =
+		std::bind(&Window::UpdateScreen, this);
+	renderManager.SetUpdateCallback(updateFunction);
 
 	SetupScreenQuad(renderGlobals.GetWidth(), renderGlobals.GetHeight());
 	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
 
-	renderManager.Render();
+	std::thread renderThread([&] { renderManager.Render(); });
 
+	while(!CloseWindow())
+	{
+		glfwWaitEvents();
+		ImGui_ImplOpenGL3_NewFrame();
+		ImGui_ImplGlfw_NewFrame();
+		ImGui::NewFrame();
+
+		PreRenderCallback();
+
+		if (updateScreen)
+		{
+			const std::lock_guard<std::mutex> lock(renderManager.GetLock());
+			RenderToScreenTexture(renderManager.GetWidth(), renderGlobals.GetHeight(), renderManager.GetBuffer());
+			updateScreen = false;
+		}
+
+		RenderGUI();
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		glfwSwapBuffers(window);
+	}
+
+	renderThread.join();
 	StopGUI();
 	glfwTerminate();
 
 	return 0;
 }
 
-bool Window::PreRenderCallback(RenderManager* renderManager)
+bool Window::PreRenderCallback()
 {
 	GUI_TRACE();
 	float currentFrame(glfwGetTime());
@@ -98,48 +119,45 @@ bool Window::PreRenderCallback(RenderManager* renderManager)
 	ImGuiIO& guiIO = ImGui::GetIO();
 	(void)guiIO;
 
-	SetupGUI(renderManager);
-	KeyboardCallback(guiIO, renderManager);
+	SetupGUI();
+	KeyboardCallback(guiIO);
 
 	Vec2f mousePos(ImGui::GetMousePos().x, ImGui::GetMousePos().y);
 	if (prevMousePos.x != mousePos.x || prevMousePos.y != mousePos.y)
-		MouseCallback(guiIO, mousePos, renderManager);
+		MouseCallback(guiIO, mousePos);
 
-	if (renderManager->SetMaxSamples(renderGlobals.GetMaxSamples()))
-		renderManager->SetRenderDirty();
-	if (renderManager->SetIntegrator(renderGlobals.GetIntegrator()))
-		renderManager->SetRenderDirty();
-	if (renderManager->SetSampler(renderGlobals.GetSampler()))
-		renderManager->SetRenderDirty();
-	if (renderManager->SetHideLights(renderGlobals.GetHideLights()))
-		renderManager->SetRenderDirty();
-	if (renderManager->SetMaxLightSamples(renderGlobals.GetMaxLightsSamples()))
-		renderManager->SetRenderDirty();
-	if (renderManager->SetMaxBSDFSamples(renderGlobals.GetMaxBSDFSamples()))
-		renderManager->SetRenderDirty();
-	if (renderManager->SetMaxDepth(renderGlobals.GetMaxDepth()))
-		renderManager->SetRenderDirty();
-	if (renderManager->SetRussianRouletteDepth(renderGlobals.GetRussianRouletteDepth()))
-		renderManager->SetRenderDirty();
+	if (renderManager.SetMaxSamples(renderGlobals.GetMaxSamples()))
+		renderManager.SetRenderDirty();
+	if (renderManager.SetIntegrator(renderGlobals.GetIntegrator()))
+		renderManager.SetRenderDirty();
+	if (renderManager.SetSampler(renderGlobals.GetSampler()))
+		renderManager.SetRenderDirty();
+	if (renderManager.SetHideLights(renderGlobals.GetHideLights()))
+		renderManager.SetRenderDirty();
+	if (renderManager.SetMaxLightSamples(renderGlobals.GetMaxLightsSamples()))
+		renderManager.SetRenderDirty();
+	if (renderManager.SetMaxBSDFSamples(renderGlobals.GetMaxBSDFSamples()))
+		renderManager.SetRenderDirty();
+	if (renderManager.SetMaxDepth(renderGlobals.GetMaxDepth()))
+		renderManager.SetRenderDirty();
+	if (renderManager.SetRussianRouletteDepth(renderGlobals.GetRussianRouletteDepth()))
+		renderManager.SetRenderDirty();
 
-	if (renderManager->SetCurrentCamera(sceneCamera))
-		renderManager->SetRenderDirty();
+	if (renderManager.SetCurrentCamera(sceneCamera))
+		renderManager.SetRenderDirty();
 
-	renderManager->SetCurrentBuffer(renderGlobals.GetBufferID());
-	renderManager->SetMaxIterations(renderGlobals.GetMaxIterations());
+	renderManager.SetCurrentBuffer(renderGlobals.GetBufferID());
+	renderManager.SetMaxIterations(renderGlobals.GetMaxIterations());
 
 	return true;
 }
 
-void Window::SetupGUI(RenderManager* renderManager)
+void Window::SetupGUI()
 {
 	GUI_TRACE();
-	ImGui_ImplOpenGL3_NewFrame();
-	ImGui_ImplGlfw_NewFrame();
-	ImGui::NewFrame();
 
 	if (profilingState)
-		ProfilingWindow(profilingState, renderManager);
+		ProfilingWindow(profilingState);
 	if (aboutState)
 		AboutWindow(aboutState);
 	if (renderConfigState)
@@ -155,14 +173,14 @@ void Window::SetupGUI(RenderManager* renderManager)
 				{
 					toPPM(renderGlobals.GetWidth(),
 							renderGlobals.GetHeight(),
-							renderManager->GetBuffer());
+							renderManager.GetBuffer());
 				}
 
 				if (ImGui::MenuItem("EXR"))
 				{
 					toEXR(renderGlobals.GetWidth(),
 							renderGlobals.GetHeight(),
-							renderManager->GetBuffer());
+							renderManager.GetBuffer());
 				}
 
 				ImGui::EndMenu();
@@ -208,7 +226,7 @@ void Window::SetupGUI(RenderManager* renderManager)
 			if (ImGui::BeginMenu("Cameras"))
 			{
 				int i = 0;
-				for (const auto& camera : renderManager->GetScene()->GetSceneCameras())
+				for (const auto& camera : renderManager.GetScene()->GetSceneCameras())
 					ImGui::RadioButton(camera.c_str(), &sceneCamera, i++);
 
 				ImGui::EndMenu();
@@ -222,15 +240,15 @@ void Window::SetupGUI(RenderManager* renderManager)
 			{
 				if (const std::string filepath = GetBrowserFilePath(); !filepath.empty())
 				{
-					renderManager->LoadScene(filepath);
-					renderManager->SetRenderDirty();
+					renderManager.LoadScene(filepath);
+					renderManager.SetRenderDirty();
 				}
 			}
 			if (ImGui::MenuItem("Import..."))
 			{
 				if (const std::string filepath = GetBrowserFilePath(); !filepath.empty())
-					if (renderManager->ImportScene(filepath))
-						renderManager->SetRenderDirty();
+					if (renderManager.ImportScene(filepath))
+						renderManager.SetRenderDirty();
 			}
 
 			ImGui::EndMenu();
@@ -315,17 +333,17 @@ void Window::RenderConfigWindow(bool& guiOpen)
 	ImGui::End();
 }
 
-void Window::ProfilingWindow(bool& guiOpen, RenderManager* renderManager)
+void Window::ProfilingWindow(bool& guiOpen)
 {
 	GUI_TRACE();
 	ImGui::Begin("Profiling", &guiOpen, ImGuiWindowFlags_NoTitleBar |ImGuiWindowFlags_AlwaysAutoResize);
 
-	ImGui::Text("Total Samples (iterations * samples): %d", renderManager->GetIterations() * renderManager->GetSamples());
+	ImGui::Text("Total Samples (iterations * samples): %d", renderManager.GetIterations() * renderManager.GetSamples());
 	ImGui::Text("Framerate: %.2f FPS / %.2f ms", ImGui::GetIO().Framerate, 1000.0f / ImGui::GetIO().Framerate);
 	ImGui::Text("Camera Position: (%.2f, %.2f, %.2f)",
-			renderManager->GetScene()->GetSceneCamera().GetPosition().x,
-			renderManager->GetScene()->GetSceneCamera().GetPosition().y,
-			renderManager->GetScene()->GetSceneCamera().GetPosition().z);
+			renderManager.GetScene()->GetSceneCamera().GetPosition().x,
+			renderManager.GetScene()->GetSceneCamera().GetPosition().y,
+			renderManager.GetScene()->GetSceneCamera().GetPosition().z);
 
 	ImGui::End();
 }
@@ -340,7 +358,7 @@ void Window::AboutWindow(bool& guiOpen)
 	ImGui::End();
 }
 
-void Window::KeyboardCallback(ImGuiIO& guiIO, RenderManager* renderManager)
+void Window::KeyboardCallback(ImGuiIO& guiIO)
 {
 	GUI_TRACE();
 	if (guiIO.KeysDown[GLFW_KEY_ESCAPE])
@@ -349,38 +367,38 @@ void Window::KeyboardCallback(ImGuiIO& guiIO, RenderManager* renderManager)
 	}
 	if (guiIO.KeysDown[GLFW_KEY_W])
 	{
-		renderManager->GetCamera().KeyboardCallback(Camera::Forward, deltaTime);
-		renderManager->SetRenderDirty();
+		renderManager.GetCamera().KeyboardCallback(Camera::Forward, deltaTime);
+		renderManager.SetRenderDirty();
 	}
 	if (guiIO.KeysDown[GLFW_KEY_S])
 	{
-		renderManager->GetCamera().KeyboardCallback(Camera::Backward, deltaTime);
-		renderManager->SetRenderDirty();
+		renderManager.GetCamera().KeyboardCallback(Camera::Backward, deltaTime);
+		renderManager.SetRenderDirty();
 	}
 	if (guiIO.KeysDown[GLFW_KEY_A])
 	{
-		renderManager->GetCamera().KeyboardCallback(Camera::Left, deltaTime);
-		renderManager->SetRenderDirty();
+		renderManager.GetCamera().KeyboardCallback(Camera::Left, deltaTime);
+		renderManager.SetRenderDirty();
 	}
 	if (guiIO.KeysDown[GLFW_KEY_D])
 	{
-		renderManager->GetCamera().KeyboardCallback(Camera::Right, deltaTime);
-		renderManager->SetRenderDirty();
+		renderManager.GetCamera().KeyboardCallback(Camera::Right, deltaTime);
+		renderManager.SetRenderDirty();
 	}
 
 	if (guiIO.KeysDown[GLFW_KEY_KP_ADD])
 	{
-		// renderManager->mainCamera->SetAperatureRadius(renderManager->mainCamera->GetAperatureRadius() + 0.005f);
-		renderManager->SetRenderDirty();
+		// renderManager.mainCamera->SetAperatureRadius(renderManager.mainCamera->GetAperatureRadius() + 0.005f);
+		renderManager.SetRenderDirty();
 	}
 	if (guiIO.KeysDown[GLFW_KEY_KP_SUBTRACT])
 	{
-		// renderManager->mainCamera->SetAperatureRadius(renderManager->mainCamera->GetAperatureRadius() - 0.005f);
-		renderManager->SetRenderDirty();
+		// renderManager.mainCamera->SetAperatureRadius(renderManager.mainCamera->GetAperatureRadius() - 0.005f);
+		renderManager.SetRenderDirty();
 	}
 }
 
-void Window::MouseCallback(ImGuiIO& guiIO, Vec2f mousePos,RenderManager* renderManager)
+void Window::MouseCallback(ImGuiIO& guiIO, Vec2f mousePos)
 {
 	GUI_TRACE();
 	if (firstMouse)
@@ -395,10 +413,10 @@ void Window::MouseCallback(ImGuiIO& guiIO, Vec2f mousePos,RenderManager* renderM
 
 	if (guiIO.MouseDown[GLFW_MOUSE_BUTTON_RIGHT])
 	{
-		if (mouseOffset != Vec2f())
+		if (mouseOffset != Vec2f(zero))
 		{
-			renderManager->GetCamera().MouseCallback(mouseOffset);
-			renderManager->SetRenderDirty();
+			renderManager.GetCamera().MouseCallback(mouseOffset);
+			renderManager.SetRenderDirty();
 		}
 	}
 }
@@ -436,9 +454,6 @@ void Window::RenderToScreenTexture(int width, int height, const Buffer3f& buffer
 	glBindTexture(GL_TEXTURE_2D, screenTextureID);
 
 	DrawScreenQuad();
-	RenderGUI();
-	ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-	glfwSwapBuffers(window);
 }
 
 void Window::SetupScreenQuad(int width, int height)

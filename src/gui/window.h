@@ -31,28 +31,31 @@ class Window
 		~Window() = default;
 
 		int RenderWindow(const std::string& scenePath);
-		void SetupGUI(RenderManager* renderManager);
+		void SetupGUI();
 		void RenderGUI();
 		void StopGUI();
 		void RenderConfigWindow(bool &guiOpen);
-		void ProfilingWindow(bool& guiOpen, RenderManager* renderManager);
+		void ProfilingWindow(bool& guiOpen);
 		void AboutWindow(bool &guiOpen);
-		void KeyboardCallback(ImGuiIO &guiIO, RenderManager* renderManager);
-		void MouseCallback(ImGuiIO &guiIO, Vec2f mousePos, RenderManager* renderManager);
+		void KeyboardCallback(ImGuiIO &guiIO);
+		void MouseCallback(ImGuiIO &guiIO, Vec2f mousePos);
 
 		void RenderToScreenTexture(int width, int height, const Buffer3f& buffer);
 		void SetupScreenQuad(int width, int height);
 		void CleanScreenQuad();
 		void DrawScreenQuad();
 
-		bool CloseWindow() { glfwPollEvents(); return glfwWindowShouldClose(window); }
-		bool PreRenderCallback(RenderManager*);
+		bool CloseWindow() { return glfwWindowShouldClose(window); }
+		bool PreRenderCallback();
+
+		void UpdateScreen(void) { updateScreen = true; glfwPostEmptyEvent(); }
 
 	private:
 		bool firstMouse = true;
 		bool renderConfigState = false;
 		bool profilingState = true;
 		bool aboutState = false;
+		bool updateScreen = false;
 		float deltaTime = 0.0f;
 		float lastFrame = 0.0f;
 
@@ -67,6 +70,8 @@ class Window
 		GLuint screenTextureID;
 
 		GLShader screenQuadShader;
+
+		CPURenderManager renderManager;
 
 	private:
 		std::string GetBrowserFilePath() const;
