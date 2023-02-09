@@ -50,7 +50,7 @@ class Scene
 
 		bool _update = false;
 
-		std::mutex _sceneMutex;
+		mutable std::mutex _sceneMutex;
 	private:
 };
 

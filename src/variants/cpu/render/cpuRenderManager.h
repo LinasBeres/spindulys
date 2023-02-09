@@ -29,7 +29,7 @@ class CPURenderManager final : public RenderManager
 		virtual void Trace(int iterations, size_t heightBegin, size_t heightEnd) override;
 
 		virtual bool SetIntegrator(IntegratorIds integratorID) override;
-		virtual bool SetHideLights(bool hideLights) override { return RenderManager::SetHideLights(hideLights) && integrator->SetHideLights(hideLights); }
+		virtual bool SetHideLights(bool hideLights) override { return RenderManager::SetHideLights(hideLights) && m_integrator->SetHideLights(hideLights); }
 		virtual bool SetMaxLightSamples(uint32_t samples) override;
 		virtual bool SetMaxBSDFSamples(uint32_t samples) override;
 		virtual bool SetMaxDepth(uint32_t depth) override;
@@ -39,7 +39,7 @@ class CPURenderManager final : public RenderManager
 		void InitialiseIntegrator(IntegratorIds integratorID);
 
 	private:
-		std::unique_ptr<Integrator> integrator;
+		std::unique_ptr<Integrator> m_integrator;
 };
 
 CPU_NAMESPACE_CLOSE_SCOPE
