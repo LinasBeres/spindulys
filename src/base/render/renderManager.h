@@ -30,7 +30,7 @@ class RenderManager
 		using StopRenderer = std::function<bool(void)>;
 		using RegisterUpdates = std::function<bool(void)>;
 		using DrawBuffer = std::function<void(int, int, const Buffer3f&)>;
-		using UpdateBuffer = std::function<void(void)>;
+		using UpdateBuffer = std::function<void(const Buffer3f&)>;
 
 		using Buffers = std::unordered_map<BufferIds, Buffer3f*>;
 
@@ -42,10 +42,10 @@ class RenderManager
 		// TODO: Find out a way to make this work with constexpr.
 		static const std::string_view ValidSceneFormats();
 
-		void SetStopRendererCallback(StopRenderer stopFunction) { stopRendererFunction = stopFunction; }
-		void SetBufferCallback(DrawBuffer drawFunction)         { drawBufferFunction = drawFunction; }
-		void SetUpdateCallback(UpdateBuffer updateFunction)     { updateBufferFunction = updateFunction; }
-		void SetUpdateCallback(RegisterUpdates updateFunction)  { updateRendererFunction = updateFunction; }
+		void SetStopRendererCallback(StopRenderer stopFunction)   { stopRendererFunction = stopFunction; }
+		void SetBufferCallback(DrawBuffer drawFunction)           { drawBufferFunction = drawFunction; }
+		void SetBufferUpdateCallback(UpdateBuffer updateFunction) { updateBufferFunction = updateFunction; }
+		void SetUpdateCallback(RegisterUpdates updateFunction)    { updateRendererFunction = updateFunction; }
 
 		void SetRenderDirty() { update = true; }
 		bool RenderDirty() const { return (update || scene->SceneDirty()); }

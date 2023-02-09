@@ -30,50 +30,66 @@ class Window
 		Window();
 		~Window() = default;
 
-		int RenderWindow(const std::string& scenePath);
-		void SetupGUI();
-		void RenderGUI();
-		void StopGUI();
-		void RenderConfigWindow(bool &guiOpen);
-		void ProfilingWindow(bool& guiOpen);
-		void AboutWindow(bool &guiOpen);
-		void KeyboardCallback(ImGuiIO &guiIO);
-		void MouseCallback(ImGuiIO &guiIO, Vec2f mousePos);
+		void RenderWindow(const std::string& scenePath);
 
+		// Callbacks for Renderer
+		bool CloseWindow() const { return glfwWindowShouldClose(m_window); }
+		bool PreRenderCallback();
+		void UpdateScreen(const Buffer3f& buffer) { m_currentBuffer = buffer; m_updateScreen = true; glfwPostEmptyEvent(); }
+
+	private:
+		bool m_firstMouse = true;
+		bool m_renderConfigState = false;
+		bool m_profilingState = true;
+		bool m_aboutState = false;
+		bool m_updateScreen = false;
+
+		float m_deltaTime = 0.0f;
+		float m_lastFrame = 0.0f;
+
+		GLFWwindow* m_window;
+
+		bool m_updateRenderer = false;
+		int m_sceneCamera = 0;
+		RenderGlobals m_renderGlobals;
+
+		Camera::CAMERA_MOVEMENTS m_cameraMovement = Camera::None;
+
+		Vec2f prevMousePos = Vec2f(m_renderGlobals.GetWidth() / 2.0f, m_renderGlobals.GetHeight() / 2.0f);
+		Vec2f m_mouseOffset = Vec2f(zero);
+
+		GLuint m_screenQuadVAO;
+		GLuint m_screenQuadVBO;
+		GLuint m_screenTextureID;
+
+		GLShader m_screenQuadShader;
+
+		CPURenderManager m_renderManager;
+
+		Buffer3f m_currentBuffer = Buffer3f(m_renderGlobals.GetWidth(), m_renderGlobals.GetHeight());
+
+	private:
+		bool InitGLFW();
+		bool InitWindow();
+
+		// GL methods
 		void RenderToScreenTexture(int width, int height, const Buffer3f& buffer);
 		void SetupScreenQuad(int width, int height);
 		void CleanScreenQuad();
 		void DrawScreenQuad();
 
-		bool CloseWindow() { return glfwWindowShouldClose(window); }
-		bool PreRenderCallback();
+		// Gui methods
+		void SetupGUI();
+		void RenderGUI();
+		void StopGUI();
+		void RenderConfigWindow();
+		void ProfilingWindow();
+		void AboutWindow();
 
-		void UpdateScreen(void) { updateScreen = true; glfwPostEmptyEvent(); }
+		// Callbacks for GLFW
+		void KeyboardCallback();
+		void MouseCallback();
 
-	private:
-		bool firstMouse = true;
-		bool renderConfigState = false;
-		bool profilingState = true;
-		bool aboutState = false;
-		bool updateScreen = false;
-		float deltaTime = 0.0f;
-		float lastFrame = 0.0f;
-
-		GLFWwindow* window;
-		int sceneCamera = 0;
-		RenderGlobals renderGlobals;
-
-		Vec2f prevMousePos = Vec2f(renderGlobals.GetWidth() / 2.0f, renderGlobals.GetHeight() / 2.0f);
-
-		GLuint screenQuadVAO;
-		GLuint screenQuadVBO;
-		GLuint screenTextureID;
-
-		GLShader screenQuadShader;
-
-		CPURenderManager renderManager;
-
-	private:
 		std::string GetBrowserFilePath() const;
 };
 

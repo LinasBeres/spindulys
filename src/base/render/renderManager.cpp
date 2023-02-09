@@ -86,7 +86,7 @@ void RenderManager::Render()
 {
 	BASE_TRACE();
 
-	tbb::task_arena arena(4);
+	tbb::task_arena arena;
 
 	while (!stopRendererFunction())
 	{
@@ -115,10 +115,10 @@ void RenderManager::Render()
 				Trace(iterations, heightRange.begin(), heightRange.end());
 				sampler->Advance();
 			});
-			} );
 			const std::lock_guard<std::mutex> lock(GetLock());
 			if (updateBufferFunction)
-				updateBufferFunction();
+				updateBufferFunction(*(buffers[renderGlobals.GetBufferID()]));
+			} );
 			++iterations;
 		}
 

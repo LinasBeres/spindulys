@@ -35,14 +35,15 @@ class Camera
 			Forward,
 			Backward,
 			Left,
-			Right
+			Right,
+			None
 		};
 
 		Camera(const std::string& name);
 		virtual ~Camera();
 
 		void UpdateAxis();
-		void KeyboardCallback(CAMERA_MOVEMENTS direction, float deltaTime);
+		void KeyboardCallback(CAMERA_MOVEMENTS direction);
 		void MouseCallback(const Vec2f& mouseOffset);
 
 		virtual bool GetCameraRay(const Vec2f& sample, Vec3f& origin, Vec3f& direction) const;
@@ -82,7 +83,7 @@ class Camera
 
 		float GetYaw()         const { return _yaw;         }
 		float GetPitch()       const { return _pitch;       }
-		float GetSpeed()       const { return _speed;       }
+		float GetSpeed()       const { return m_speed;      }
 		float GetSensitivity() const { return _sensitivity; }
 
 	protected:
@@ -125,7 +126,7 @@ class Camera
 		// Controls
 		float _yaw = 90.f;
 		float _pitch = 0.f;
-		float _speed = 5.f;
+		float m_speed = 0.1f;
 		float _sensitivity = 0.1f;
 };
 

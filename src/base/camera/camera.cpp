@@ -34,27 +34,26 @@ bool Camera::GetCameraRay(const Vec2f& sample, Vec3f& origin, Vec3f& direction) 
 // -----------------------------------------------------
 // Mouse Callbacks
 // -----------------------------------------------------
-void Camera::KeyboardCallback(CAMERA_MOVEMENTS direction,
-		float deltaTime)
+void Camera::KeyboardCallback(CAMERA_MOVEMENTS direction)
 {
 	BASE_TRACE();
-	float velocity(_speed * deltaTime);
 
-	if (direction == Forward)
+	switch (direction)
 	{
-		_affine.p += _zAxis * velocity;
-	}
-	if (direction == Backward)
-	{
-		_affine.p -= _zAxis * velocity;
-	}
-	if (direction == Left)
-	{
-		_affine.p -= _xAxis * velocity;
-	}
-	if (direction == Right)
-	{
-		_affine.p += _xAxis * velocity;
+		case Forward:
+			_affine.p += _zAxis * m_speed;
+			break;
+		case Backward:
+			_affine.p -= _zAxis * m_speed;
+			break;
+		case Left:
+			_affine.p -= _xAxis * m_speed;
+			break;
+		case Right:
+			_affine.p += _xAxis * m_speed;
+			break;
+		default:
+			break;
 	}
 }
 
