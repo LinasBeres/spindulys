@@ -18,17 +18,17 @@ BASE_NAMESPACE_OPEN_SCOPE
 RenderManager::RenderManager()
 {
 	BASE_TRACE();
-	for (const auto& bufferID : renderGlobals.GetCurrentBufferIds())
-		buffers[bufferID] = new Buffer3f(renderGlobals.GetWidth(), renderGlobals.GetHeight());
+	for (const auto& bufferID : m_renderGlobals.GetCurrentBufferIds())
+		m_buffers[bufferID] = new Buffer3f(m_renderGlobals.GetWidth(), m_renderGlobals.GetHeight());
 }
 
 RenderManager::~RenderManager()
 {
 	BASE_TRACE();
-	delete scene;
+	delete m_scene;
 
-	for (const auto& bufferID : renderGlobals.GetCurrentBufferIds())
-		delete buffers[bufferID];
+	for (const auto& bufferID : m_renderGlobals.GetCurrentBufferIds())
+		delete m_buffers[bufferID];
 }
 
 bool RenderManager::ImportScene(const std::string& filepath)
@@ -44,13 +44,13 @@ bool RenderManager::ImportScene(const std::string& filepath)
 
 	if (ext == ".obj")
 	{
-		ObjSceneLoader loader(scene);
+		ObjSceneLoader loader(m_scene);
 		return loader.LoadScene(filepath);
 	}
 #ifdef USING_USD
 	else if (ext == ".usd" || ext == ".usda" || ext == ".usdc" || ext == ".usdz")
 	{
-		UsdSceneLoader loader(scene);
+		UsdSceneLoader loader(m_scene);
 		return loader.LoadScene(filepath);
 	}
 #endif
@@ -62,14 +62,14 @@ bool RenderManager::ImportScene(const std::string& filepath)
 void RenderManager::LoadScene(const std::string& filepath)
 {
 	BASE_TRACE();
-	scene->ResetScene();
+	m_scene->ResetScene();
 
 	ImportScene(filepath);
 
-	if (scene->GetSceneCameras().empty())
-		scene->CreateDefaultCamera();
+	if (m_scene->GetSceneCameras().empty())
+		m_scene->CreateDefaultCamera();
 
-	scene->CommitScene();
+	m_scene->CommitScene();
 }
 
 const std::string_view RenderManager::ValidSceneFormats()
@@ -88,67 +88,67 @@ void RenderManager::Render()
 
 	tbb::task_arena arena;
 
-	while (!stopRendererFunction())
+	while (!m_stopRendererFunction())
 	{
-		if (updateRendererFunction)
-			updateRendererFunction();
+		if (m_updateRendererFunction)
+			m_updateRendererFunction();
 
-		if (update)
+		if (m_update)
 			ResetRender();
 
-		if (renderGlobals.GetScaleResolution() && frameSize < 1.f)
+		if (m_renderGlobals.GetScaleResolution() && m_frameSize < 1.f)
 		{
-			iterations = 0;
-			frameSize += renderGlobals.GetGrowSize();
-			currentResolution = Vec2i(frameSize * renderGlobals.GetWidth(), frameSize * renderGlobals.GetHeight());
+			m_iterations = 0;
+			m_frameSize += m_renderGlobals.GetGrowSize();
+			m_currentResolution = Vec2i(m_frameSize * m_renderGlobals.GetWidth(), m_frameSize * m_renderGlobals.GetHeight());
 
-			for (const auto& bufferID : renderGlobals.GetCurrentBufferIds())
-				buffers[bufferID]->Clean(currentResolution.x, currentResolution.y);
-			GetCamera().SetResolution(Vec2f(currentResolution.x, currentResolution.y));
+			for (const auto& bufferID : m_renderGlobals.GetCurrentBufferIds())
+				m_buffers[bufferID]->Clean(m_currentResolution.x, m_currentResolution.y);
+			GetCamera().SetResolution(Vec2f(m_currentResolution.x, m_currentResolution.y));
 		}
 
-		if (iterations < renderGlobals.GetMaxIterations())
+		if (m_iterations < m_renderGlobals.GetMaxIterations())
 		{
 			arena.execute( [&] {
-			tbb::parallel_for(tbb::blocked_range<int>(0, currentResolution.y), [&](tbb::blocked_range<int> heightRange)
+			tbb::parallel_for(tbb::blocked_range<int>(0, m_currentResolution.y), [&](tbb::blocked_range<int> heightRange)
 			{
-				Trace(iterations, heightRange.begin(), heightRange.end());
-				sampler->Advance();
+				Trace(m_iterations, heightRange.begin(), heightRange.end());
+				m_sampler->Advance();
 			});
 			const std::lock_guard<std::mutex> lock(GetLock());
-			if (updateBufferFunction)
-				updateBufferFunction(*(buffers[renderGlobals.GetBufferID()]));
+			if (m_updateBufferFunction)
+				m_updateBufferFunction(*(m_buffers[m_renderGlobals.GetBufferID()]));
 			} );
-			++iterations;
+			++m_iterations;
 		}
 
-		if (drawBufferFunction)
-			drawBufferFunction(currentResolution.x, currentResolution.y, *(buffers[renderGlobals.GetBufferID()]));
+		if (m_drawBufferFunction)
+			m_drawBufferFunction(m_currentResolution.x, m_currentResolution.y, *(m_buffers[m_renderGlobals.GetBufferID()]));
 	}
 }
 
 void RenderManager::ResetRender()
 {
 	BASE_TRACE();
-	iterations = 1;
-	frameSize = 0.f;
+	m_iterations = 1;
+	m_frameSize = 0.f;
 
-	currentResolution = Vec2i(renderGlobals.GetWidth(), renderGlobals.GetHeight());
+	m_currentResolution = Vec2i(m_renderGlobals.GetWidth(), m_renderGlobals.GetHeight());
 
-	for (const auto& bufferID : renderGlobals.GetCurrentBufferIds())
-		buffers[bufferID]->Clean(currentResolution.x, currentResolution.y);
-	GetCamera().SetResolution(Vec2f(currentResolution.x, currentResolution.y));
+	for (const auto& bufferID : m_renderGlobals.GetCurrentBufferIds())
+		m_buffers[bufferID]->Clean(m_currentResolution.x, m_currentResolution.y);
+	GetCamera().SetResolution(Vec2f(m_currentResolution.x, m_currentResolution.y));
 
-	update = false;
+	m_update = false;
 }
 
 bool RenderManager::AddBuffer(BufferIds bufferID)
 {
 	BASE_TRACE();
-	if (!renderGlobals.AddBuffer(bufferID))
+	if (!m_renderGlobals.AddBuffer(bufferID))
 		return false;
 
-	buffers[bufferID] = new Buffer3f(renderGlobals.GetWidth(), renderGlobals.GetHeight());
+	m_buffers[bufferID] = new Buffer3f(m_renderGlobals.GetWidth(), m_renderGlobals.GetHeight());
 
 	return true;
 }
@@ -156,28 +156,28 @@ bool RenderManager::AddBuffer(BufferIds bufferID)
 bool RenderManager::RemoveBuffer(BufferIds bufferID)
 {
 	BASE_TRACE();
-	if (!renderGlobals.RemoveBuffer(bufferID))
+	if (!m_renderGlobals.RemoveBuffer(bufferID))
 		return false;
 
-	delete buffers[bufferID];
+	delete m_buffers[bufferID];
 
 	return true;
 }
 
 bool RenderManager::SetSampler(SamplerIds samplerId)
 {
-	if (renderGlobals.SetSampler(samplerId))
+	if (m_renderGlobals.SetSampler(samplerId))
 	{
 		switch (samplerId)
 		{
 			case (SamplerIds::kIndependent):
-				sampler = std::make_unique<IndependentSampler>();
+				m_sampler = std::make_unique<IndependentSampler>();
 				break;
 			case (SamplerIds::kUniform):
-				sampler = std::make_unique<UniformSampler>();
+				m_sampler = std::make_unique<UniformSampler>();
 				break;
 			case (SamplerIds::kStratified):
-				sampler = std::make_unique<StratifiedSampler>(/* spp: */ GetMaxIterations());
+				m_sampler = std::make_unique<StratifiedSampler>(/* spp: */ GetMaxIterations());
 				break;
 		}
 
