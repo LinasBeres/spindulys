@@ -6,11 +6,13 @@
 
 #include <scene/scene.h>
 
+
 #include "../spindulysCPU.h"
 
 #include "../geometry/cpuGeometry.h"
 
 #include "../lights/cpuLight.h"
+#include "../lights/cpuConstant.h"
 
 #include "../bsdf/cpuBSDF.h"
 
@@ -26,13 +28,16 @@ class CPUScene final : public Scene
 		CPUScene();
 		~CPUScene();
 
-		virtual void CommitScene() override { rtcCommitScene(_scene); }
+		virtual void CommitScene() override { rtcCommitScene(m_scene); }
 		virtual bool CreateGeomerty(Geometry* geom) override;
 		bool CommitGeometry(CPUGeometry* geometry);
 
-		virtual bool CreateLights(Light* light) override;
+		virtual bool CreateLight(Light* light) override;
+		virtual void CreateDefaultLight() override;
 
-		RTCScene GetScene() { return _scene; }
+		virtual int NumLights() const override { return m_lights.size(); }
+
+		RTCScene GetScene() { return m_scene; }
 
 		virtual void ResetScene() override;
 
@@ -55,8 +60,8 @@ class CPUScene final : public Scene
 		float PdfLight() const { return m_lightPMF; }
 
 	private:
-		RTCDevice _device = nullptr;
-		RTCScene _scene = nullptr; // Contains the instanced (single or not) geometry objects. This is the scene we are tracing against.
+		RTCDevice m_device = nullptr;
+		RTCScene m_scene = nullptr; // Contains the instanced (single or not) geometry objects. This is the scene we are tracing against.
 
 		std::unordered_map<unsigned int, std::unique_ptr<CPUGeometry>> m_sceneGeometry;
 
@@ -64,7 +69,7 @@ class CPUScene final : public Scene
 
 		std::unique_ptr<CPULight> m_environment;
 
-    float m_lightPMF = m_lights.size();
+		float m_lightPMF = m_lights.empty() ? 0.f : (1.f / m_lights.size());
 };
 
 CPU_NAMESPACE_CLOSE_SCOPE

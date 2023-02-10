@@ -24,33 +24,36 @@ class Scene
 		virtual void CommitScene() = 0;
 		virtual bool CreateGeomerty(Geometry* geom) = 0;
 
-		virtual bool CreateLights(Light* light) = 0;
+		virtual bool CreateLight(Light* light) = 0;
+		virtual void CreateDefaultLight() = 0;
 
-		void AddFilePath(const std::string& filepath) { _filepaths.emplace_back(filepath); }
-		const std::vector<std::string>& GetFilePaths() const { return _filepaths; }
+		virtual int NumLights() const = 0;
 
-		bool SetSceneCamera(size_t cameraIndex) { return cameraIndex != std::exchange(_mainCamera, cameraIndex); }
-		const Camera& GetSceneCamera() const { return *(_cameras[_mainCamera].get()); }
-		Camera& UpdateSceneCamera() { return *(_cameras[_mainCamera].get()); }
+		void AddFilePath(const std::string& filepath) { m_filepaths.emplace_back(filepath); }
+		const std::vector<std::string>& GetFilePaths() const { return m_filepaths; }
+
+		bool SetSceneCamera(size_t cameraIndex) { return cameraIndex != std::exchange(m_mainCamera, cameraIndex); }
+		const Camera& GetSceneCamera() const { return *(m_cameras[m_mainCamera].get()); }
+		Camera& UpdateSceneCamera() { return *(m_cameras[m_mainCamera].get()); }
 
 		const std::vector<std::string> GetSceneCameras() const;
 		bool CreateDefaultCamera();
-		void AddCamera(Camera* camera) { _cameras.emplace_back(camera); }
+		void AddCamera(Camera* camera) { m_cameras.emplace_back(camera); }
 
-		void SetSceneDirty() { _update = true; }
-		bool SceneDirty() const { return _update; }
+		void SetSceneDirty() { m_update = true; }
+		bool SceneDirty() const { return m_update; }
 
 		virtual void ResetScene();
 
 	protected:
-		std::vector<std::string> _filepaths;
+		std::vector<std::string> m_filepaths;
 
-		size_t _mainCamera = 0;
-		std::vector<std::unique_ptr<Camera>> _cameras;
+		size_t m_mainCamera = 0;
+		std::vector<std::unique_ptr<Camera>> m_cameras;
 
-		bool _update = false;
+		bool m_update = false;
 
-		mutable std::mutex _sceneMutex;
+		mutable std::mutex m_sceneMutex;
 	private:
 };
 

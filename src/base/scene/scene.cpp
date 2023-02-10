@@ -2,11 +2,6 @@
 
 #include <vector>
 
-#include <tbb/blocked_range2d.h>
-#include <tbb/blocked_range3d.h>
-#include <tbb/parallel_for.h>
-#include <tbb/parallel_for_each.h>
-
 #include "../geometry/mesh.h"
 #include "../geometry/curve.h"
 
@@ -16,7 +11,7 @@ const std::vector<std::string> Scene::GetSceneCameras() const
 {
 	BASE_TRACE();
 	std::vector<std::string> cameras;
-	for (const auto& camera : _cameras)
+	for (const auto& camera : m_cameras)
 		cameras.emplace_back(camera->GetName());
 
 	return cameras;
@@ -25,20 +20,20 @@ const std::vector<std::string> Scene::GetSceneCameras() const
 bool Scene::CreateDefaultCamera()
 {
 	BASE_TRACE();
-	for (const auto& camera : _cameras)
+	for (const auto& camera : m_cameras)
 		if (camera->GetName() == "SpindulysDefaultCamera")
 			return false;
 
-	_cameras.emplace_back(new Camera("SpindulysDefaultCamera"));
+	m_cameras.emplace_back(new Camera("SpindulysDefaultCamera"));
 	return true;
 }
 
 void Scene::ResetScene()
 {
 	BASE_TRACE();
-	_filepaths.clear();
-	_mainCamera = 0;
-	_cameras.clear();
+	m_filepaths.clear();
+	m_mainCamera = 0;
+	m_cameras.clear();
 }
 
 BASE_NAMESPACE_CLOSE_SCOPE

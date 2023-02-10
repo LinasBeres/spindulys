@@ -13,20 +13,15 @@ CPU_NAMESPACE_OPEN_SCOPE
 
 CPUScene::CPUScene()
 {
-	_device = rtcNewDevice("");
-	_scene = rtcNewScene(_device);
-  rtcSetSceneFlags(_scene, RTC_SCENE_FLAG_DYNAMIC);
-
-	m_environment = std::make_unique<CPUConstantLight>(10.f, Vec3f(zero), 1.f, Col3f(0.1, 0.1, 0.1));
-
-	CPUPointLight* l = new CPUPointLight(AffineSpace3f(one, Vec3f(-4.3f, -1.f, 4.67f)), Col3f(10.f, 14.f, 10.f));
-	m_lights.emplace_back(l);
+	m_device = rtcNewDevice("");
+	m_scene = rtcNewScene(m_device);
+  rtcSetSceneFlags(m_scene, RTC_SCENE_FLAG_DYNAMIC);
 }
 
 CPUScene::~CPUScene()
 {
-	rtcReleaseScene(_scene);
-	rtcReleaseDevice(_device);
+	rtcReleaseScene(m_scene);
+	rtcReleaseDevice(m_device);
 }
 
 bool CPUScene::CreateGeomerty(Geometry* geom)
@@ -58,37 +53,60 @@ bool CPUScene::CreateGeomerty(Geometry* geom)
 
 bool CPUScene::CommitGeometry(CPUGeometry* geometry)
 {
-	if(!geometry->Create(_device, _scene))
+	if(!geometry->Create(m_device, m_scene))
 		return false;
 
-	_sceneMutex.lock();
+	m_sceneMutex.lock();
 	m_sceneGeometry[geometry->GetGeomInstanceID()] = std::unique_ptr<CPUGeometry>(geometry);
-	_sceneMutex.unlock();
+	m_sceneMutex.unlock();
 
 	return true;
 }
 
-bool CPUScene::CreateLights(Light* light)
+bool CPUScene::CreateLight(Light* light)
 {
+	if (!light)
+		return false;
+
+	m_sceneMutex.lock();
+	// m_lights.emplace_back(std::unique_ptr<CPULight>(light));
+	m_lightPMF = m_lights.empty() ? 0.f : (1.f / m_lights.size());
+	m_sceneMutex.unlock();
 
 	return true;
+}
+
+void CPUScene::CreateDefaultLight()
+{
+	// Can only have one enivronment light.
+	assert(m_environment == nullptr);
+
+	m_environment = std::make_unique<CPUConstantLight>();
+
+	// Reduce the light level of the environment light
+	if (auto constantLight = dynamic_cast<CPUConstantLight*>(m_environment.get()))
+		constantLight->SetRadiance(Col3f(0.1f));
+
+	// TODO: Fix this.
+	// m_lights.emplace_back(m_environment);
+	// m_lightPMF = m_lights.empty() ? 0.f : (1.f / m_lights.size());
 }
 
 void CPUScene::ResetScene()
 {
 	// Reset embree render scene.
-	rtcReleaseScene(_scene);
-	_scene = rtcNewScene(_device);
-  rtcSetSceneFlags(_scene, RTC_SCENE_FLAG_DYNAMIC);
+	rtcReleaseScene(m_scene);
+	m_scene = rtcNewScene(m_device);
+  rtcSetSceneFlags(m_scene, RTC_SCENE_FLAG_DYNAMIC);
 
 	m_sceneGeometry.clear();
 	m_lights.clear();
 
 	// TODO: Remove once scenes have lights and automatically create an environment light if no lights
-	CPUPointLight* l = new CPUPointLight(AffineSpace3f(one, Vec3f(-1.5f, 1.9f, -11.f)), Col3f(10.f, 14.f, 10.f));
-	m_lights.emplace_back(l);
-	m_environment.reset(nullptr);
-	m_environment = std::make_unique<CPUConstantLight>(10.f, Vec3f(zero), 1.f, Col3f(0.1, 0.1, 0.1));
+	// CPUPointLight* l = new CPUPointLight(AffineSpace3f(one, Vec3f(-1.5f, 1.9f, -11.f)), Col3f(10.f, 14.f, 10.f));
+	// m_lights.emplace_back(l);
+
+	m_lightPMF = m_lights.empty() ? 0.f : (1.f / m_lights.size());
 
 	// Reset Parent scene stuff
 	Scene::ResetScene();
@@ -103,7 +121,7 @@ bool CPUScene::RayTest(const Ray& ray) const
 
 	PreliminaryIntersection pi;
 
-	rtcIntersect1(_scene, &context, RTCRayHit_(ray));
+	rtcIntersect1(m_scene, &context, RTCRayHit_(ray));
 
 	// Return true if we hit something
 	return ray.tfar != rayMaxT;
@@ -118,7 +136,7 @@ SurfaceInteraction CPUScene::RayIntersect(const Ray& ray) const
 
 	PreliminaryIntersection pi;
 
-	rtcIntersect1(_scene, &context, RTCRayHit_(ray));
+	rtcIntersect1(m_scene, &context, RTCRayHit_(ray));
 
 	if (ray.tfar != rayMaxT)
 	{

@@ -42,21 +42,32 @@ bool RenderManager::ImportScene(const std::string& filepath)
 
 	const std::string ext = std::filesystem::path(filepath).extension();
 
+	bool sceneLoaded = false;
 	if (ext == ".obj")
 	{
 		ObjSceneLoader loader(m_scene);
-		return loader.LoadScene(filepath);
+		sceneLoaded = loader.LoadScene(filepath);
 	}
 #ifdef USING_USD
 	else if (ext == ".usd" || ext == ".usda" || ext == ".usdc" || ext == ".usdz")
 	{
 		UsdSceneLoader loader(m_scene);
-		return loader.LoadScene(filepath);
+		sceneLoaded = loader.LoadScene(filepath);
 	}
 #endif
+	else
+	{
+		spdlog::warn("Unsupported filetype: {}", ext);
+	}
 
-	spdlog::warn("Unsupported filetype: {}", ext);
-	return false;
+	// Scene must have at least one light
+	if (m_scene->NumLights() < 1)
+	{
+		spdlog::warn("No lights in scene. Creating default constant light.");
+		m_scene->CreateDefaultLight();
+	}
+
+	return sceneLoaded;
 }
 
 void RenderManager::LoadScene(const std::string& filepath)
