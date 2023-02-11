@@ -55,25 +55,3 @@ Then move the camera around with the WASD keys and right mouse button to rotate.
 
 ## Acknowledgements
 This was orignally forked from https://github.com/JoshuaSenouf/tracer into https://github.com/LinasBeres/tracer, but then as I made more changes I decided to turn it into it's own repository.
-
----
-
-## TODO List
-| TODO                  | Done | Extras                                                                                                     |
-| ---------             | ---- | ------                                                                                                     |
-| USDCamera             | [x]  | <ul><li>depth of field []</li><li>near/far []</li><li>clipping planes []</li><li>orthographic []</li></ul> |
-| USDMesh               | [/]  |                                                                                                            |
-| USDCube               | []   |                                                                                                            |
-| USDCylindar           | []   |                                                                                                            |
-| USDSphere             | []   |                                                                                                            |
-| USDCone               | []   |                                                                                                            |
-| USDBasisCurves        | [/]  |                                                                                                            |
-| USDPoints             | []   |                                                                                                            |
-| USDNurbsCurves        | []   |                                                                                                            |
-| USDNerbsPatch         | []   |                                                                                                            |
-| USDCapsule            | []   |                                                                                                            |
-| USDInstance           | []   |                                                                                                            |
-| XML Loader            | []   |                                                                                                            |
-| Remove USD Dependency | [X]  |                                                                                                            |
-| Support Mac           | [X]  |                                                                                                            |
-| Support Windows       | []   |                                                                                                            |
