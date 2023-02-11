@@ -54,6 +54,8 @@ class CPUScene final : public Scene
 		std::pair<DirectionSample, Col3f>
 		SampleLightDirection(const Interaction& ref, const Vec2f& sample, bool testVisibility, uint32_t active) const;
 
+		float PdfLightDirection(const Interaction& ref, const DirectionSample& ds, uint32_t active) const;
+
 		std::tuple<uint32_t, float, float>
 		SampleLight(float indexSample, uint32_t active) const;
 

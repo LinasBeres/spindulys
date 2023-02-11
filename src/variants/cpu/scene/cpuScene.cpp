@@ -90,6 +90,7 @@ void CPUScene::CreateDefaultLight()
 	// TODO: Fix this.
 	// m_lights.emplace_back(m_environment);
 	// m_lightPMF = m_lights.empty() ? 0.f : (1.f / m_lights.size());
+	m_lightPMF = 1.f;
 }
 
 void CPUScene::ResetScene()
@@ -222,6 +223,11 @@ CPUScene::SampleLightDirection(const Interaction& ref, const Vec2f& sample_, boo
 	}
 
 	return { ds, color };
+}
+
+float CPUScene::PdfLightDirection(const Interaction& ref, const DirectionSample& ds, uint32_t active) const
+{
+	return ds.light->PdfDirection(ref, ds, active) * m_lightPMF;
 }
 
 std::tuple<uint32_t, float, float>

@@ -113,7 +113,7 @@ Direct::Sample(const CPUScene* scene, Sampler* sampler, const Ray& ray, Col3f* /
 
 			DirectionSample ds(si, si_bsdf, light);
 
-			const float lightPDF = light->PdfDirection(si, ds, true);
+			const float lightPDF = scene->PdfLightDirection(si, ds, true);
 			float mis = MultipleImportantSampleWeight(bs.pdf * m_fracBSDF, lightPDF * m_fracLum);
 
 			result += bsdfValue * lightVal * mis * m_weightBSDF;

@@ -19,7 +19,7 @@ CPUGeometry::CPUGeometry()
 	m_bsdf = std::make_unique<CPUSmoothDielectric>(LookupIOR("amber"), LookupIOR("air"), Col3f(0.9f, 0.6f, 0.7f), Col3f(0.9f, 0.9f, 0.9f));
 	m_bsdf.reset(nullptr);
 	// m_bsdf = std::make_unique<CPUSmoothConductor>(1.5, 0.4, Col3f(0.9f, 0.6f, 0.7f));
-	m_bsdf = std::make_unique<CPUSmoothDiffuse>(Col3f(1.f, 1.f, 1.f));
+	m_bsdf = std::make_unique<CPUSmoothDiffuse>(Col3f(0.8f, 0.8f, 0.8f));
 }
 
 CPUGeometry::~CPUGeometry()

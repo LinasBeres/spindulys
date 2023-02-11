@@ -51,12 +51,12 @@ ForwardPath::Sample(const CPUScene* scene, Sampler* sampler, const Ray& ray, Col
 			float lightPdf = 0.f;
 
 			if (!prevBSDFDelta)
-				lightPdf = visibleLight->PdfDirection(prevSi, ds, !prevBSDFDelta);
+				lightPdf = scene->PdfLightDirection(prevSi, ds, !prevBSDFDelta);
 
 			// Compute MIS weight for emitter sample from previous bounce
 			float misBSDF = MultipleImportantSampleWeight(prevBSDFPdf, lightPdf);
 
-			result = madd(visibleLight->Eval(si, prevBSDFPdf > 0.f) * misBSDF, throughput, result);
+			result += visibleLight->Eval(si, prevBSDFPdf > 0.f) * misBSDF * throughput;
 		}
 
 		bool activeNext = (depth + 1 < m_maxDepth) && si.IsValid();
@@ -90,7 +90,7 @@ ForwardPath::Sample(const CPUScene* scene, Sampler* sampler, const Ray& ray, Col
 				auto [bsdfVal, bsdfPdf] = bsdf->EvalPdf(bsdfContext, si, wo, activeLight);
 				float mis = select(ds.delta, 1.f, MultipleImportantSampleWeight(ds.pdf, bsdfPdf));
 
-				result = madd(bsdfVal * lightVal * mis, throughput, result);
+				result += bsdfVal * lightVal * mis * throughput;
 			}
 		}
 
