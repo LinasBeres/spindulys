@@ -39,11 +39,11 @@ class CPUGeometry : virtual public Geometry
 		const CPUBSDF* GetBSDF() const { return m_bsdf.get(); }
 
 	protected:
-		RTCScene _scene = nullptr;
-		RTCGeometry _geom = nullptr;
+		RTCScene m_scene = nullptr;
+		RTCGeometry m_geom = nullptr;
 
 	private:
-		RTCGeometry _geomInstance = nullptr;
+		RTCGeometry m_geomInstance = nullptr;
 
 		std::unique_ptr<CPUBSDF> m_bsdf;
 };

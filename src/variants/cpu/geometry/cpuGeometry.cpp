@@ -32,24 +32,24 @@ bool CPUGeometry::Create(const RTCDevice& device,
 {
 	CreatePrototype(device);
 
-	rtcCommitGeometry(_geom);
-	rtcReleaseGeometry(_geom);
+	rtcCommitGeometry(m_geom);
+	rtcReleaseGeometry(m_geom);
 
-	rtcCommitScene(_scene);
+	rtcCommitScene(m_scene);
 
-	_geomInstance = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_INSTANCE);
-	_geomInstanceID = rtcAttachGeometry(topScene, _geomInstance);
+	m_geomInstance = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_INSTANCE);
+	m_geomInstanceID = rtcAttachGeometry(topScene, m_geomInstance);
 
-	rtcSetGeometryInstancedScene(_geomInstance, _scene);
-	rtcSetGeometryTimeStepCount(_geomInstance, 1);
+	rtcSetGeometryInstancedScene(m_geomInstance, m_scene);
+	rtcSetGeometryTimeStepCount(m_geomInstance, 1);
 
-	rtcSetGeometryTransform(_geomInstance,
+	rtcSetGeometryTransform(m_geomInstance,
 			0,
 			RTC_FORMAT_FLOAT3X4_COLUMN_MAJOR,
-			(float*)&_transform);
+			(float*)&m_transform);
 
-	rtcCommitGeometry(_geomInstance);
-	rtcReleaseGeometry(_geomInstance);
+	rtcCommitGeometry(m_geomInstance);
+	rtcReleaseGeometry(m_geomInstance);
 
 	return true;
 }
@@ -64,7 +64,7 @@ void CPUGeometry::ComputeInstanceSurfaceInteraction(SurfaceInteraction& si, cons
 	si.shadingFrame.vz = xfmVector(GetTransform(), si.shadingFrame.vz);
 	si.shadingFrame.vz = normalize(si.shadingFrame.vz);
 
-	si.instID = _geomInstanceID;
+	si.instID = m_geomInstanceID;
 
 	si.instance = this;
 }

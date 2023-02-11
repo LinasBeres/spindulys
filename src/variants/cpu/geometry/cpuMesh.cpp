@@ -13,49 +13,49 @@ CPUMesh::CPUMesh()
 CPUMesh::CPUMesh(Mesh* mesh)
 	: Mesh(Geometry::GeometryTypes::Mesh, mesh->GetName())
 {
-	_transform = mesh->GetTransform();
-	_displayColor = mesh->GetDisplayColor();
-	_points = mesh->GetPoints();
-	_indices = mesh->GetIndices();
-	_type = mesh->GetMeshType();
+	m_transform = mesh->GetTransform();
+	m_displayColor = mesh->GetDisplayColor();
+	m_points = mesh->GetPoints();
+	m_indices = mesh->GetIndices();
+	m_type = mesh->GetMeshType();
 }
 
 bool CPUMesh::CreatePrototype(const RTCDevice& device)
 {
-	_scene = rtcNewScene(device);
-	_geom = rtcNewGeometry(device, _type == MeshType::QuadMesh ? RTC_GEOMETRY_TYPE_QUAD : RTC_GEOMETRY_TYPE_TRIANGLE);
-	_geomID = rtcAttachGeometry(_scene, _geom);
+	m_scene = rtcNewScene(device);
+	m_geom = rtcNewGeometry(device, m_type == MeshType::QuadMesh ? RTC_GEOMETRY_TYPE_QUAD : RTC_GEOMETRY_TYPE_TRIANGLE);
+	m_geomID = rtcAttachGeometry(m_scene, m_geom);
 
-	rtcSetSharedGeometryBuffer(_geom,
+	rtcSetSharedGeometryBuffer(m_geom,
 			RTC_BUFFER_TYPE_VERTEX,
 			0,
 			RTC_FORMAT_FLOAT3,
-			_points.data(),
+			m_points.data(),
 			0,
 			sizeof(Vec3f),
-			_points.size());
+			m_points.size());
 
-	switch(_type)
+	switch(m_type)
 	{
 		case MeshType::QuadMesh:
-			rtcSetSharedGeometryBuffer(_geom,
+			rtcSetSharedGeometryBuffer(m_geom,
 					RTC_BUFFER_TYPE_INDEX,
 					0,
 					RTC_FORMAT_UINT4,
-					_indices.data(),
+					m_indices.data(),
 					0,
 					sizeof(int) * 4,
-					_indices.size() / 4);
+					m_indices.size() / 4);
 				break;
 		case MeshType::TriangleMesh:
-			rtcSetSharedGeometryBuffer(_geom,
+			rtcSetSharedGeometryBuffer(m_geom,
 					RTC_BUFFER_TYPE_INDEX,
 					0,
 					RTC_FORMAT_UINT3,
-					_indices.data(),
+					m_indices.data(),
 					0,
 					sizeof(int) * 3,
-					_indices.size() / 3);
+					m_indices.size() / 3);
 			break;
 	}
 
@@ -70,7 +70,7 @@ SurfaceInteraction CPUMesh::ComputeSurfaceInteraction(const Ray& ray,
 	SurfaceInteraction si;
 
 	si.primID = si.primID;
-	si.shapeID = _geomID;
+	si.shapeID = m_geomID;
 
 	si.t = pi.t;
 

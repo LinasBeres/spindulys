@@ -26,29 +26,29 @@ class Curve : virtual public Geometry
 		Curve(Geometry::GeometryTypes type, const std::string& name = "DefaultCurve");
 
 		// Get Methods
-		const std::vector<Vec3f>& GetPoints()    const { return _points;     }
-		const std::vector<Vec3f>& GetNormals()   const { return _normals;    }
-		const std::vector<float>& GetWidths()    const { return _widths;     }
-		CurveTypes                GetCurveType() const { return _curveType;  }
+		const std::vector<Vec3f>& GetPoints()    const { return m_points;     }
+		const std::vector<Vec3f>& GetNormals()   const { return m_normals;    }
+		const std::vector<float>& GetWidths()    const { return m_widths;     }
+		CurveTypes                GetCurveType() const { return m_curveType;  }
 
 		// Set Methods
-		bool SetPoints(const std::vector<Vec3f> points)   { return points != std::exchange(_points, points);          }
-		bool SetNormals(const std::vector<Vec3f> normals) { return normals != std::exchange(_normals, normals);       }
-		bool SetWidths(const std::vector<float> widths)   { return widths != std::exchange(_widths, widths);          }
-		bool SetCurveType(CurveTypes curveType)           { return curveType != std::exchange(_curveType, curveType); }
+		bool SetPoints(const std::vector<Vec3f> points)   { return points != std::exchange(m_points, points);          }
+		bool SetNormals(const std::vector<Vec3f> normals) { return normals != std::exchange(m_normals, normals);       }
+		bool SetWidths(const std::vector<float> widths)   { return widths != std::exchange(m_widths, widths);          }
+		bool SetCurveType(CurveTypes curveType)           { return curveType != std::exchange(m_curveType, curveType); }
 
-		bool HasVertexNormals() const { return _normals.size() != 0; }
-
-	protected:
-		std::vector<Vec3f> _points;
-		std::vector<Vec3f> _normals;
-		std::vector<float> _widths;
-
-		CurveTypes _curveType = CurveTypes::FlatLinear;
+		bool HasVertexNormals() const { return m_normals.size() != 0; }
 
 	protected:
-		Vec3f GetVertexPosition(int index) const { return _points[index];  }
-		Vec3f GetVertexNormal(int index)   const { return _normals[index]; }
+		std::vector<Vec3f> m_points;
+		std::vector<Vec3f> m_normals;
+		std::vector<float> m_widths;
+
+		CurveTypes m_curveType = CurveTypes::FlatLinear;
+
+	protected:
+		Vec3f GetVertexPosition(int index) const { return m_points[index];  }
+		Vec3f GetVertexNormal(int index)   const { return m_normals[index]; }
 
 	private:
 

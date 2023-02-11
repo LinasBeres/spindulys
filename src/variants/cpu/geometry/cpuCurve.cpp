@@ -16,91 +16,91 @@ CPUCurve::CPUCurve()
 CPUCurve::CPUCurve(Curve* curve)
 	: Curve(Geometry::GeometryTypes::Mesh, curve->GetName())
 {
-	_transform = curve->GetTransform();
-	_displayColor = curve->GetDisplayColor();
-	_points = curve->GetPoints();
-	_normals = curve->GetNormals();
-	_widths = curve->GetWidths();
-	_curveType = curve->GetCurveType();
+	m_transform = curve->GetTransform();
+	m_displayColor = curve->GetDisplayColor();
+	m_points = curve->GetPoints();
+	m_normals = curve->GetNormals();
+	m_widths = curve->GetWidths();
+	m_curveType = curve->GetCurveType();
 }
 
 bool CPUCurve::CreatePrototype(const RTCDevice& device)
 {
-	_scene = rtcNewScene(device);
+	m_scene = rtcNewScene(device);
 
-	switch(_curveType)
+	switch(m_curveType)
 	{
 		case CurveTypes::FlatLinear:
-			_geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_FLAT_LINEAR_CURVE);
+			m_geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_FLAT_LINEAR_CURVE);
 			break;
 		case CurveTypes::FlatBezier:
-			_geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_FLAT_BEZIER_CURVE);
+			m_geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_FLAT_BEZIER_CURVE);
 			break;
 		case CurveTypes::RoundBezier:
-			_geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_ROUND_BEZIER_CURVE);
+			m_geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_ROUND_BEZIER_CURVE);
 			break;
 		case CurveTypes::NormalOrientatedBezier:
-			_geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_NORMAL_ORIENTED_BEZIER_CURVE);
+			m_geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_NORMAL_ORIENTED_BEZIER_CURVE);
 			break;
 		case CurveTypes::FlatBSpline:
 			// TODO: Find a test scene for this.
-			_geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_FLAT_BSPLINE_CURVE);
+			m_geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_FLAT_BSPLINE_CURVE);
 			break;
 		case CurveTypes::RoundBSpline:
 			// TODO: Find a test scene for ths.
-			_geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_ROUND_BSPLINE_CURVE);
+			m_geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_ROUND_BSPLINE_CURVE);
 			break;
 		case CurveTypes::NormalOrientatedBSpline:
 			// TODO: Find a test scene for ths.
-			_geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_NORMAL_ORIENTED_BSPLINE_CURVE);
+			m_geom = rtcNewGeometry(device, RTC_GEOMETRY_TYPE_NORMAL_ORIENTED_BSPLINE_CURVE);
 			break;
 	}
-	_geomID = rtcAttachGeometry(_scene, _geom);
+	m_geomID = rtcAttachGeometry(m_scene, m_geom);
 
-	rtcSetGeometryVertexAttributeCount(_geom, 1);
+	rtcSetGeometryVertexAttributeCount(m_geom, 1);
 
-	if (_curveType == CurveTypes::FlatLinear)
+	if (m_curveType == CurveTypes::FlatLinear)
 	{
 		unsigned int* indices = (unsigned int*)rtcSetNewGeometryBuffer(
-				_geom,
+				m_geom,
 				RTC_BUFFER_TYPE_INDEX,
 				0,
 				RTC_FORMAT_UINT,
 				sizeof(unsigned int),
-				_points.size());
-		for (unsigned int i = 0; i < static_cast<unsigned int>(_points.size()); ++i)
+				m_points.size());
+		for (unsigned int i = 0; i < static_cast<unsigned int>(m_points.size()); ++i)
 			indices[i] = i;
 	}
 	else
 	{
 		unsigned int* indices = (unsigned int*)rtcSetNewGeometryBuffer(
-				_geom,
+				m_geom,
 				RTC_BUFFER_TYPE_INDEX,
 				0,
 				RTC_FORMAT_UINT,
 				sizeof(unsigned int),
-				(_points.size() % 3) * 3);
-		for (unsigned int i = 0; i < static_cast<unsigned int>((_points.size() % 3) * 3); ++i)
+				(m_points.size() % 3) * 3);
+		for (unsigned int i = 0; i < static_cast<unsigned int>((m_points.size() % 3) * 3); ++i)
 		{
 			indices[i] = i * 3;
 		}
 	}
 
-	Vec4f* verts = (Vec4f*)rtcSetNewGeometryBuffer(_geom, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT4, sizeof(Vec4f), _points.size());
-	for (int i = 0; i < static_cast<int>(_points.size()); ++i) {
-    verts[i] = Vec4f(_points[i].x, _points[i].y, _points[i].z, _widths[i] / 2.f);
+	Vec4f* verts = (Vec4f*)rtcSetNewGeometryBuffer(m_geom, RTC_BUFFER_TYPE_VERTEX, 0, RTC_FORMAT_FLOAT4, sizeof(Vec4f), m_points.size());
+	for (int i = 0; i < static_cast<int>(m_points.size()); ++i) {
+    verts[i] = Vec4f(m_points[i].x, m_points[i].y, m_points[i].z, m_widths[i] / 2.f);
   }
 
-	if (_curveType == CurveTypes::NormalOrientatedBezier || _curveType == CurveTypes::NormalOrientatedBSpline)
+	if (m_curveType == CurveTypes::NormalOrientatedBezier || m_curveType == CurveTypes::NormalOrientatedBSpline)
 	{
-		rtcSetSharedGeometryBuffer(_geom,
+		rtcSetSharedGeometryBuffer(m_geom,
 				RTC_BUFFER_TYPE_NORMAL,
 				0,
 				RTC_FORMAT_FLOAT3,
-				_normals.data(),
+				m_normals.data(),
 				0,
 				sizeof(Vec3f),
-				_normals.size());
+				m_normals.size());
 	}
 
 	return true;
@@ -114,7 +114,7 @@ SurfaceInteraction CPUCurve::ComputeSurfaceInteraction(const Ray& ray,
 	SurfaceInteraction si;
 
 	si.primID = si.primID;
-	si.shapeID = _geomID;
+	si.shapeID = m_geomID;
 
 	si.t = pi.t;
 	si.p = ray.origin + ray.tfar * ray.direction;
