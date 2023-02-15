@@ -23,9 +23,9 @@ bool UsdSceneLoader::LoadScene(const std::string& filepath)
 
 	LoadPrims(stage, pxr::SdfPath("/"));
 
-	scene->AddFilePath(filepath);
+	m_scene->AddFilePath(filepath);
 	BASE_BEGIN("COMMIT SCENE");
-	scene->CommitScene();
+	m_scene->CommitScene();
 	BASE_END("COMMIT SCENE");
 
 	return true;
@@ -41,17 +41,17 @@ bool UsdSceneLoader::LoadPrims(const pxr::UsdStagePtr& stage, const pxr::SdfPath
 		if (prim.GetTypeName() == "Camera")
 		{
 			if (UsdCameraTranslator trans; Camera* camera = (Camera*)trans.GetObjectFromPrim(prim))
-				scene->AddCamera(camera);
+				m_scene->AddCamera(camera);
 		}
 		else if (prim.GetTypeName() == "Mesh")
 		{
 			if (UsdMeshTranslator trans; Mesh* mesh = (Mesh*)trans.GetObjectFromPrim(prim))
-				scene->CreateGeomerty(mesh);
+				m_scene->CreateGeomerty(mesh);
 		}
 		else if (prim.GetTypeName() == "BasisCurves")
 		{
 			if (UsdBasisCurveTranslator trans; Curve* curve = (Curve*)trans.GetObjectFromPrim(prim))
-				scene->CreateGeomerty(curve);
+				m_scene->CreateGeomerty(curve);
 		}
 
 		if (prim.GetChildren())

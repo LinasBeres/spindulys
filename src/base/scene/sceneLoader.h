@@ -11,13 +11,13 @@ BASE_NAMESPACE_OPEN_SCOPE
 class SceneLoader
 {
 	public:
-		SceneLoader(Scene* scene) : scene(scene) { };
+		SceneLoader(Scene* scene) : m_scene(scene) { };
 		~SceneLoader() = default;
 
 		virtual bool LoadScene(const std::string& filepath) = 0;
 
 	protected:
-		Scene* scene = nullptr;
+		Scene* m_scene = nullptr;
 	private:
 };
 

@@ -11,7 +11,7 @@ bool ObjSceneLoader::LoadScene(const std::string& filepath)
 	BASE_TRACE();
 	// We assume that the incoming file is a valid obj file
 
-	scene->AddFilePath(filepath);
+	m_scene->AddFilePath(filepath);
 
 	tinyobj::attrib_t attrib;
 	std::vector<tinyobj::shape_t> shapes;
@@ -31,7 +31,7 @@ bool ObjSceneLoader::LoadScene(const std::string& filepath)
 	for (size_t i = 0; i < shapes.size(); ++i)
 		LoadMesh(vertices, shapes[i]);
 
-	scene->CommitScene();
+	m_scene->CommitScene();
 
 	return true;
 }
@@ -53,7 +53,7 @@ void ObjSceneLoader::LoadMesh(const std::vector<Vec3f>& vertices, tinyobj::shape
 
 	mesh->SetMeshType(Mesh::MeshType::TriangleMesh);
 
-	scene->CreateGeomerty(mesh);
+	m_scene->CreateGeomerty(mesh);
 }
 
 BASE_NAMESPACE_CLOSE_SCOPE
